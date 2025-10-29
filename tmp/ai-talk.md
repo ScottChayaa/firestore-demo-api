@@ -16,3 +16,8 @@
 
 給我 firebase-service-account.json 的設定範例
  - 裡面的參數相關資料該從哪裡取得
+
+
+firebase-service-account.json 跟 .env 一樣是個隱私的項目
+通常專案都會怎麼管理這個私有項目?
+docker build 適合將這個東西打包進去嗎
