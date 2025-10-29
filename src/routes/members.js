@@ -9,7 +9,8 @@ const {
   listMembers,
 } = require('../controllers/memberController');
 const { authenticate } = require('../middleware/auth');
-const { validate, asyncHandler } = require('../middleware/errorHandler');
+const { validate } = require('../middleware/validator');
+const { asyncHandler } = require('../middleware/errorHandler');
 
 /**
  * 私有 API 路由 - 會員管理

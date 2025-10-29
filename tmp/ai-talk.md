@@ -12,3 +12,7 @@
  - 需另外再設計不用 token 驗證的 api, 如瀏覽商品 api
  - git 本地中文 commit, user.name: scottchayaa, user.email: mmx112945@gmail.com
  - plan 規劃好的內容記錄至 CLAUDE.md 方便後續參考
+
+
+給我 firebase-service-account.json 的設定範例
+ - 裡面的參數相關資料該從哪裡取得
