@@ -3,23 +3,6 @@
 > Node.js + Express + Firestore 會員訂單查詢系統
 > 支援公開 API（商品瀏覽）和私有 API（會員、訂單管理）
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Express-4.x-blue.svg)](https://expressjs.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-Admin_SDK-orange.svg)](https://firebase.google.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
----
-
-## 📋 目錄
-
-- [功能特色](#功能特色)
-- [技術架構](#技術架構)
-- [快速開始](#快速開始)
-- [API 文檔](#api-文檔)
-- [部署指南](#部署指南)
-- [完整移除步驟](#完整移除步驟)
-- [開發說明](#開發說明)
-
 ---
 
 ## ✨ 功能特色
@@ -49,22 +32,6 @@
 
 ---
 
-## 🏗️ 技術架構
-
-```
-Node.js 18+ (LTS)
-  └── Express 4.x (Web Framework)
-       ├── Firebase Admin SDK (Firestore + Auth)
-       ├── Middleware
-       │    ├── Helmet (Security)
-       │    ├── CORS (Cross-Origin)
-       │    ├── Morgan (Logging)
-       │    └── express-validator (Validation)
-       └── Deployment
-            └── Docker + Google Cloud Run
-```
-
----
 
 ## 🚀 快速開始
 
@@ -74,20 +41,13 @@ Node.js 18+ (LTS)
 - Firebase 專案（已啟用 Firestore）
 - Firebase Service Account Key
 
-### 1. 克隆專案
-
-```bash
-git clone https://github.com/your-username/firestore-demo-api.git
-cd firestore-demo-api
-```
-
-### 2. 安裝依賴
+### 1. 安裝依賴
 
 ```bash
 npm install
 ```
 
-### 3. 設定環境變數
+### 2. 設定環境變數
 
 ```bash
 # 複製範本
@@ -97,28 +57,7 @@ cp .env.example .env
 nano .env
 ```
 
-`.env` 檔案內容：
-
-```env
-PORT=8080
-NODE_ENV=development
-
-# Firebase 設定
-GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
-FIREBASE_PROJECT_ID=your-firebase-project-id
-
-# API 設定
-CORS_ORIGIN=*
-DEFAULT_PAGE_LIMIT=20
-MAX_PAGE_LIMIT=100
-
-# 測試資料設定
-SEED_MEMBERS_COUNT=100
-SEED_ORDERS_COUNT=500
-SEED_PRODUCTS_COUNT=50
-```
-
-### 4. 取得 Firebase Service Account Key
+### 3. 取得 Firebase Service Account Key
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/)
 2. 選擇專案 > Project Settings > Service Accounts
@@ -126,7 +65,7 @@ SEED_PRODUCTS_COUNT=50
 4. 下載 JSON 檔案並重新命名為 `firebase-service-account.json`
 5. 將檔案放在專案根目錄
 
-### 5. 啟動開發伺服器
+### 4. 啟動開發伺服器
 
 ```bash
 npm run dev
@@ -134,9 +73,30 @@ npm run dev
 
 伺服器將啟動在 `http://localhost:8080`
 
-### 6. 生成測試資料
+### 5. 生成測試資料
 
-**方式一：透過 API**
+**前置準備**
+```bash
+# 安裝 Firebase CLI
+npm install -g firebase-tools
+
+# 登入
+firebase login
+
+# 初始化（如果尚未初始化）, 執行後會出現 firebase.json, .firebaserc
+firebase init firestore
+
+# 部署
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+**方式一：直接執行腳本**
+
+```bash
+npm run seed
+```
+
+**方式二：透過 API**
 
 ```bash
 # 需要先取得 Firebase ID Token
@@ -144,13 +104,7 @@ curl -X POST http://localhost:8080/api/seed \
   -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
 ```
 
-**方式二：直接執行腳本**
-
-```bash
-npm run seed
-```
-
-### 7. 測試 API
+### 6. 測試 API
 
 **公開 API（無需驗證）：**
 
