@@ -65,6 +65,13 @@ cp .env.example .env
 nano .env
 ```
 
+**需要設定的環境變數**：
+- `FIREBASE_PROJECT_ID` - Firebase 專案 ID
+- `FIREBASE_WEB_API_KEY` - Firebase Web API Key（用於登入驗證）
+- `GOOGLE_APPLICATION_CREDENTIALS` - Service Account 檔案路徑
+
+> 💡 **了解兩種憑證的差異**：本專案使用兩種 Firebase 憑證，用途不同。詳細說明請參考 [Firebase 憑證說明文檔](./docs/firebase-credentials.md)。
+
 ### 3. 取得 Firebase Service Account Key
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/)
@@ -73,7 +80,23 @@ nano .env
 4. 下載 JSON 檔案並重新命名為 `firebase-service-account.json`
 5. 將檔案放在專案根目錄
 
-### 4. 啟動開發伺服器
+### 4. 取得 Firebase Web API Key
+
+1. 前往 [Firebase Console](https://console.firebase.google.com/)
+2. 選擇專案 > Project Settings > General
+3. 在「Your apps」區段找到「Web API Key」
+4. 複製該值到 `.env` 檔案的 `FIREBASE_WEB_API_KEY` 變數
+
+### 5. 啟用 Firebase Authentication
+
+1. 前往 Firebase Console：`https://console.firebase.google.com/project/YOUR_PROJECT_ID/authentication`
+2. 點擊「開始使用」（如果尚未設定）
+3. 在「Sign-in method」標籤頁，啟用「Email/Password」
+4. 這會自動啟用 Identity Toolkit API
+
+> ⚠️ **重要**：如果跳過此步驟，執行 `npm run seed` 時會出現錯誤。
+
+### 6. 啟動開發伺服器
 
 ```bash
 npm run dev
@@ -81,7 +104,7 @@ npm run dev
 
 伺服器將啟動在 `http://localhost:8080`
 
-### 5. 部署 Firestore Rules 和 Indexes
+### 7. 部署 Firestore Rules 和 Indexes
 
 ```bash
 # 安裝 Firebase CLI（如果還沒安裝）
@@ -97,68 +120,21 @@ firebase init firestore
 firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-### 6. 生成測試資料
+### 8. 生成測試資料
 
 ```bash
 npm run seed
 ```
 
-**❌如果 Authentication 功能無法使用**
-```bash
-# 錯誤訊息像是:
-FirebaseAuthError: There is no configuration corresponding to the provided identifier.
-errorInfo: {
-  code: 'auth/configuration-not-found',
-  message: 'There is no configuration corresponding to the provided identifier.'
-}
-```
+這會生成：
+- 1 個管理員帳號：`admin@example.com` / `qwer1234`
+- 10 個會員帳號：`user1@example.com` ~ `user10@example.com` / `qwer1234`（可在 .env 調整數量）
+- 10 個商品
+- 50 個訂單
 
-```bash
-啟用 Firebase Authentication
+> 📘 **如果遇到錯誤**：請參考 [本地開發指南](./docs/local-development.md) 的故障排除章節，或 [Firebase 憑證說明](./docs/firebase-credentials.md)。
 
-1. 開啟 Firebase Console
-  - https://console.firebase.google.com/project/liang-dev/authentication
-2. 如果看到「開始使用」按鈕，點擊它
-3. 在「Sign-in method」標籤頁：
-  - 點擊「Email/Password」
-  - 將「啟用」開關打開
-  - 點擊「儲存」
-4. 這個操作會自動：
-  - 初始化 Firebase Authentication 服務
-  - 啟用 Identity Toolkit API
-  - 設定必要的配置
-```
-
-**❌如果執行 seed 發生權限錯誤**
-需到 IAM 設定新增權限
-```bash
-Service Account 權限設定指南
-
-操作步驟（Firebase Console）
-1. 前往 Firebase Console
-  - 開啟 https://console.firebase.google.com/
-  - 選擇專案 liang-dev
-2. 進入 Service Accounts 設定
-  - 點擊左側選單的「齒輪圖示」> Project Settings
-  - 點擊上方「Service accounts」分頁
-3. 開啟 Google Cloud IAM 設定
-  - 找到你的 Service Account（顯示格式：firebase-adminsdk-xxxxx@liang-dev.iam.gserviceaccount.com）
-  - 點擊該 Email 旁邊的「Manage permissions in Google Cloud Console」連結
-  - 或直接開啟：https://console.cloud.google.com/iam-admin/iam?project=liang-dev
-4. 編輯 Service Account 權限
-  - 在 IAM 列表中，找到你的 firebase-adminsdk Service Account
-  - 點擊該列右側的「Edit」（鉛筆圖示）
-5. 新增必要角色
-  - 點擊「+ ADD ANOTHER ROLE」按鈕
-  - 搜尋並新增以下兩個角色：
-    - Firebase Authentication Admin 或搜尋 roles/firebaseauth.admin
-    - Service Usage Consumer 或搜尋 roles/serviceusage.serviceUsageConsumer
-6. 重新執行測試資料生成
-npm run seed
-```
-
-
-### 7. 測試 API
+### 9. 測試 API
 
 **步驟 1：註冊或登入取得 Token**
 
