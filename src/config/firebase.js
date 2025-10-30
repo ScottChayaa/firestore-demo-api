@@ -51,6 +51,16 @@ function initializeFirebase() {
     return admin;
   } catch (error) {
     console.error('❌ Failed to initialize Firebase Admin SDK:', error.message);
+    console.error('\n🔍 環境變數檢查：');
+    console.error('  - GOOGLE_CREDENTIALS_BASE64:',
+      process.env.GOOGLE_CREDENTIALS_BASE64
+        ? `已設定 (長度: ${process.env.GOOGLE_CREDENTIALS_BASE64.length} 字元)`
+        : '未設定');
+    console.error('  - GOOGLE_APPLICATION_CREDENTIALS:',
+      process.env.GOOGLE_APPLICATION_CREDENTIALS || '未設定');
+    console.error('  - FIREBASE_PROJECT_ID:',
+      process.env.FIREBASE_PROJECT_ID || '未設定');
+    console.error('\n💡 請參考文檔：docs/firebase-credentials.md');
     throw error;
   }
 }

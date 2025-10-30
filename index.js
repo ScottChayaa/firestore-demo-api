@@ -9,6 +9,30 @@
  */
 
 require('dotenv').config();
+
+// 驗證必要的環境變數
+console.log('🔍 檢查環境變數...');
+
+const requiredEnvVars = ['FIREBASE_PROJECT_ID'];
+const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ 缺少必要的環境變數:', missingEnvVars.join(', '));
+  console.error('請檢查 .env 檔案或環境變數設定');
+  process.exit(1);
+}
+
+// 驗證 Firebase 憑證
+if (!process.env.GOOGLE_CREDENTIALS_BASE64 && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  console.error('❌ 未找到 Firebase 憑證');
+  console.error('請設定以下任一環境變數：');
+  console.error('  - GOOGLE_CREDENTIALS_BASE64 (Base64 編碼的服務帳號 JSON)');
+  console.error('  - GOOGLE_APPLICATION_CREDENTIALS (服務帳號 JSON 檔案路徑)');
+  process.exit(1);
+}
+
+console.log('✅ 環境變數檢查通過');
+
 const app = require('./src/app');
 
 // 設定伺服器埠號

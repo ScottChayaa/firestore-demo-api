@@ -126,13 +126,59 @@ firebase deploy --only firestore:rules,firestore:indexes
 npm run seed
 ```
 
-這會生成：
-- 1 個管理員帳號：`admin@example.com` / `qwer1234`
-- 10 個會員帳號：`user1@example.com` ~ `user10@example.com` / `qwer1234`（可在 .env 調整數量）
-- 10 個商品
-- 50 個訂單
+**❌如果 Authentication 功能無法使用**
+```bash
+# 錯誤訊息像是:
+FirebaseAuthError: There is no configuration corresponding to the provided identifier.
+errorInfo: {
+  code: 'auth/configuration-not-found',
+  message: 'There is no configuration corresponding to the provided identifier.'
+}
+```
 
-> 📘 **如果遇到錯誤**：請參考 [本地開發指南](./docs/local-development.md) 的故障排除章節，或 [Firebase 憑證說明](./docs/firebase-credentials.md)。
+```bash
+啟用 Firebase Authentication
+
+1. 開啟 Firebase Console
+  - https://console.firebase.google.com/project/liang-dev/authentication
+2. 如果看到「開始使用」按鈕，點擊它
+3. 在「Sign-in method」標籤頁：
+  - 點擊「Email/Password」
+  - 將「啟用」開關打開
+  - 點擊「儲存」
+4. 這個操作會自動：
+  - 初始化 Firebase Authentication 服務
+  - 啟用 Identity Toolkit API
+  - 設定必要的配置
+```
+
+**❌如果執行 seed 發生權限錯誤**
+需到 IAM 設定新增權限
+```bash
+Service Account 權限設定指南
+
+操作步驟（Firebase Console）
+1. 前往 Firebase Console
+  - 開啟 https://console.firebase.google.com/
+  - 選擇專案 liang-dev
+2. 進入 Service Accounts 設定
+  - 點擊左側選單的「齒輪圖示」> Project Settings
+  - 點擊上方「Service accounts」分頁
+3. 開啟 Google Cloud IAM 設定
+  - 找到你的 Service Account（顯示格式：firebase-adminsdk-xxxxx@liang-dev.iam.gserviceaccount.com）
+  - 點擊該 Email 旁邊的「Manage permissions in Google Cloud Console」連結
+  - 或直接開啟：https://console.cloud.google.com/iam-admin/iam?project=liang-dev
+4. 編輯 Service Account 權限
+  - 在 IAM 列表中，找到你的 firebase-adminsdk Service Account
+  - 點擊該列右側的「Edit」（鉛筆圖示）
+5. 新增必要角色
+  - 點擊「+ ADD ANOTHER ROLE」按鈕
+  - 搜尋並新增以下兩個角色：
+    - Firebase Authentication Admin 或搜尋 roles/firebaseauth.admin
+    - Service Usage Consumer 或搜尋 roles/serviceusage.serviceUsageConsumer
+6. 重新執行測試資料生成
+npm run seed
+```
 
 ### 9. 測試 API
 
@@ -153,17 +199,10 @@ curl -X POST http://localhost:8080/api/auth/register \
 curl -X POST http://localhost:8080/api/auth/login \
 -H "Content-Type: application/json" \
 -d '{
-  "email": "test@example.com",
+  "email": "admin@example.com",
   "password": "qwer1234"
 }'
 
-# 或使用測試帳號
-curl -X POST http://localhost:8080/api/auth/login \
--H "Content-Type: application/json" \
--d '{
-  "email": "user1@example.com",
-  "password": "qwer1234"
-}'
 ```
 
 **步驟 2：測試公開 API（無需驗證）**
@@ -205,229 +244,6 @@ curl -X POST http://localhost:8080/api/orders \
 
 ---
 
-## 📚 API 文檔
-
-### 公開 API
-
-#### 1. 會員註冊
-
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "qwer1234",
-  "name": "張三",
-  "phone": "0912345678"
-}
-```
-
-**回應範例：**
-
-```json
-{
-  "success": true,
-  "data": {
-    "uid": "ABC123...",
-    "email": "user@example.com",
-    "name": "張三",
-    "phone": "0912345678"
-  },
-  "message": "註冊成功，請使用 /api/auth/login 登入取得 token"
-}
-```
-
-#### 2. 會員登入
-
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "qwer1234"
-}
-```
-
-**回應範例：**
-
-```json
-{
-  "success": true,
-  "data": {
-    "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
-    "refreshToken": "...",
-    "expiresIn": "3600",
-    "user": {
-      "uid": "ABC123...",
-      "email": "user@example.com",
-      "name": "張三",
-      "phone": "0912345678"
-    }
-  },
-  "message": "登入成功"
-}
-```
-
-#### 3. 健康檢查
-
-```http
-GET /health
-```
-
-**回應範例：**
-
-```json
-{
-  "success": true,
-  "message": "Firestore Demo API is running",
-  "timestamp": "2025-10-30T10:30:00.000Z",
-  "environment": "development"
-}
-```
-
-#### 2. 瀏覽商品列表
-
-```http
-GET /api/public/products?limit=20&cursor=docId&category=electronics&minPrice=100&maxPrice=5000
-```
-
-**Query 參數：**
-- `limit`：每頁數量（預設 20，最大 100）
-- `cursor`：分頁游標
-- `category`：商品分類
-- `minPrice`：最低價格
-- `maxPrice`：最高價格
-- `orderBy`：排序欄位（createdAt, price）
-- `order`：排序方向（asc, desc）
-
-**回應範例：**
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "product123",
-      "name": "無線藍牙耳機",
-      "price": 1200,
-      "category": "electronics",
-      "stock": 50,
-      "createdAt": "2025-01-10T09:00:00.000Z"
-    }
-  ],
-  "pagination": {
-    "limit": 20,
-    "hasMore": true,
-    "nextCursor": "product123",
-    "count": 20
-  }
-}
-```
-
-#### 3. 查看商品詳情
-
-```http
-GET /api/public/products/:id
-```
-
-#### 4. 取得商品分類列表
-
-```http
-GET /api/public/products/categories
-```
-
----
-
-### 私有 API（需 Firebase Auth Token）
-
-> ⚠️ 所有私有 API 都需要在 Header 中提供 Firebase ID Token：
-> `Authorization: Bearer YOUR_FIREBASE_ID_TOKEN`
-
-#### 會員管理
-
-```http
-# 列出會員
-GET /api/members
-
-# 創建會員
-POST /api/members
-Content-Type: application/json
-{
-  "name": "王小明",
-  "email": "ming@example.com",
-  "phone": "0912345678"
-}
-
-# 查看會員詳情
-GET /api/members/:id
-
-# 更新會員
-PUT /api/members/:id
-Content-Type: application/json
-{
-  "phone": "0987654321"
-}
-
-# 刪除會員
-DELETE /api/members/:id
-```
-
-#### 訂單管理
-
-```http
-# 列出訂單（支援多條件篩選）
-GET /api/orders?memberId=member123&status=completed&startDate=2025-01-01&limit=20
-
-# 創建訂單
-POST /api/orders
-Content-Type: application/json
-{
-  "memberId": "member123",
-  "items": [
-    {
-      "productId": "prod1",
-      "productName": "無線藍牙耳機",
-      "quantity": 2,
-      "price": 1200
-    }
-  ],
-  "totalAmount": 2400
-}
-
-# 查看訂單詳情
-GET /api/orders/:id
-
-# 更新訂單狀態
-PUT /api/orders/:id
-Content-Type: application/json
-{
-  "status": "completed"
-}
-
-# 刪除訂單
-DELETE /api/orders/:id
-```
-
-**訂單查詢參數：**
-- `memberId`：會員 ID
-- `status`：訂單狀態（pending, processing, completed, cancelled）
-- `startDate` / `endDate`：日期範圍（ISO 8601 格式）
-- `minAmount` / `maxAmount`：金額範圍
-- `orderBy`：排序欄位（createdAt, totalAmount）
-- `order`：排序方向（asc, desc）
-- `limit`：每頁數量
-- `cursor`：分頁游標
-
-#### 測試資料生成
-
-```http
-POST /api/seed
-```
-
----
-
 ## 🚢 部署指南
 
 ### 部署到 Google Cloud Run
@@ -442,7 +258,7 @@ POST /api/seed
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 
-# 啟用所需服務
+# 啟用所需服務 (專案需綁信用卡)
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
 ```
@@ -472,31 +288,35 @@ docker push gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1
 
 #### 4. 部署到 Cloud Run
 
+**重要**：部署前必須先準備 Base64 編碼的 Firebase 憑證，否則容器將無法啟動。
+
 ```bash
+# 步驟 4.1：將 Service Account JSON 轉為 Base64
+base64 firebase-service-account.json | tr -d '\n' > encoded.txt
+
+# 步驟 4.2：部署到 Cloud Run（包含完整環境變數）
 gcloud run deploy firestore-demo-api \
   --image gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1 \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
-  --set-env-vars "FIREBASE_PROJECT_ID=YOUR_PROJECT_ID" \
-  --set-env-vars "NODE_ENV=production" \
+  --set-env-vars "FIREBASE_PROJECT_ID=YOUR_PROJECT_ID,NODE_ENV=production,FIREBASE_WEB_API_KEY=YOUR_WEB_API_KEY,GOOGLE_CREDENTIALS_BASE64=$(cat encoded.txt)" \
   --memory 512Mi \
-  --max-instances 10
+  --max-instances 10 \
+  --timeout 300
 ```
 
-#### 5. 設定 Service Account（使用 Base64 編碼）
+**參數說明**：
+- `--timeout 300`：設定請求逾時為 5 分鐘，給予足夠的啟動時間
+- `GOOGLE_CREDENTIALS_BASE64`：Base64 編碼的 Firebase 憑證（必需）
+- `FIREBASE_WEB_API_KEY`：從步驟 2 取得的 Web API Key（用於會員認證）
 
-```bash
-# 將 Service Account JSON 轉為 Base64
-base64 firebase-service-account.json > encoded.txt
+**故障排查**：如果容器無法啟動（"container failed to start and listen on port"錯誤），請檢查：
+1. 是否已設定 `GOOGLE_CREDENTIALS_BASE64` 環境變數
+2. Base64 編碼是否正確（可用 `cat encoded.txt | base64 -d | jq` 驗證）
+3. 查看 Cloud Run 日誌：`gcloud run services logs read firestore-demo-api --region asia-east1 --limit 50`
 
-# 設定環境變數
-gcloud run services update firestore-demo-api \
-  --set-env-vars "GOOGLE_CREDENTIALS_BASE64=$(cat encoded.txt)" \
-  --region asia-east1
-```
-
-#### 6. 部署 Firestore 索引
+#### 5. 部署 Firestore 索引
 
 ```bash
 # 安裝 Firebase CLI
@@ -643,23 +463,3 @@ npm run clean:firestore
 - [Firestore 查詢文檔](https://firebase.google.com/docs/firestore/query-data/queries)
 - [Cloud Run 文檔](https://cloud.google.com/run/docs)
 - [Express.js 文檔](https://expressjs.com/)
-
----
-
-## 📄 授權
-
-本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
-
----
-
-## 👤 作者
-
-**scottchayaa**
-- Email: mmx112945@gmail.com
-- GitHub: [@scottchayaa](https://github.com/scottchayaa)
-
----
-
-## 🙏 致謝
-
-感謝 Claude Code by Anthropic 協助開發本專案
