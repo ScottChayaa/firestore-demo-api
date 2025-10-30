@@ -50,3 +50,32 @@ members 的資料調整 :
 - member 需要先確認 email 和 password, 取得 token 後, 才能瀏覽到自己的訂單資料, 這邊的 token 機制是否適合套用 firebase auth?
 後臺管理者的訂單資料查詢
 - 事先在 firebase 註冊好會員? 這邊的流程我不太懂
+
+
+調整會員認證機制後, 我已將 firestore 資料清空, 但執行 npm run seed 後, 出現錯誤:
+```
+📝 建立管理員帳號...
+❌ 建立管理員失敗: //console.developers.google.com/iam-admin/iam/project?project=liang-dev and then retry. Propagation of the new permission may take a few minutes. Raw server response: "{"error":{"
+code":403,"message":"Caller does not have required permission to use project liang-dev. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam/project?project=liang-dev and then retry. Propagation of the new permission may take a few minutes.","errors":[{"message":"Caller does not have required permission to use project liang-dev. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam/project?project=liang-dev and then retry. Propagation of the new permission may take a few minutes.","domain":"global","reason":"forbidden"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"USER_PROJECT_DENIED","domain":"googleapis.com","metadata":{"consumer":"projects/liang-dev","containerInfo":"liang-dev","service":"identitytoolkit.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Caller does not have required permission to use project liang-dev. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam/project?project=liang-dev and then retry. Propagation of the new permission may take a few minutes."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developer console IAM admin","url":"https://console.developers.google.com/iam-admin/iam/project?project=liang-dev"}]}]}}"
+
+```
+
+
+執行 npm run seed 後, 出現錯誤, 再幫我檢查一下:
+```
+📝 建立管理員帳號...
+❌ 建立管理員失敗: There is no configuration corresponding to the provided identifier.
+
+❌ 生成測試資料失敗: There is no configuration corresponding to the provided identifier.
+```
+
+
+所以如果未來我使用其他 api 服務, 若沒啟用就會發生類似的錯誤嗎?
+未啟用的API的錯誤問題, 只能憑經驗來判斷我的程式是否用了嗎?
+
+
+
+
+請你執行 npm run seed 後, 根據出現的錯誤, 幫分析該如何解決
+
+

@@ -103,11 +103,60 @@ firebase deploy --only firestore:rules,firestore:indexes
 npm run seed
 ```
 
-這會生成：
-- 1 個管理員帳號：`admin@example.com` / `qwer1234`
-- 100 個會員帳號：`user1@example.com` ~ `user100@example.com` / `qwer1234`
-- 50 個商品
-- 500 個訂單
+**❌如果 Authentication 功能無法使用**
+```bash
+# 錯誤訊息像是:
+FirebaseAuthError: There is no configuration corresponding to the provided identifier.
+errorInfo: {
+  code: 'auth/configuration-not-found',
+  message: 'There is no configuration corresponding to the provided identifier.'
+}
+```
+
+```bash
+啟用 Firebase Authentication
+
+1. 開啟 Firebase Console
+  - https://console.firebase.google.com/project/liang-dev/authentication
+2. 如果看到「開始使用」按鈕，點擊它
+3. 在「Sign-in method」標籤頁：
+  - 點擊「Email/Password」
+  - 將「啟用」開關打開
+  - 點擊「儲存」
+4. 這個操作會自動：
+  - 初始化 Firebase Authentication 服務
+  - 啟用 Identity Toolkit API
+  - 設定必要的配置
+```
+
+**❌如果執行 seed 發生權限錯誤**
+需到 IAM 設定新增權限
+```bash
+Service Account 權限設定指南
+
+操作步驟（Firebase Console）
+1. 前往 Firebase Console
+  - 開啟 https://console.firebase.google.com/
+  - 選擇專案 liang-dev
+2. 進入 Service Accounts 設定
+  - 點擊左側選單的「齒輪圖示」> Project Settings
+  - 點擊上方「Service accounts」分頁
+3. 開啟 Google Cloud IAM 設定
+  - 找到你的 Service Account（顯示格式：firebase-adminsdk-xxxxx@liang-dev.iam.gserviceaccount.com）
+  - 點擊該 Email 旁邊的「Manage permissions in Google Cloud Console」連結
+  - 或直接開啟：https://console.cloud.google.com/iam-admin/iam?project=liang-dev
+4. 編輯 Service Account 權限
+  - 在 IAM 列表中，找到你的 firebase-adminsdk Service Account
+  - 點擊該列右側的「Edit」（鉛筆圖示）
+5. 新增必要角色
+  - 點擊「+ ADD ANOTHER ROLE」按鈕
+  - 搜尋並新增以下兩個角色：
+    - Firebase Authentication Admin 或搜尋 roles/firebaseauth.admin
+    - Service Usage Consumer 或搜尋 roles/serviceusage.serviceUsageConsumer
+6. 重新執行測試資料生成
+npm run seed
+```
+
 
 ### 7. 測試 API
 

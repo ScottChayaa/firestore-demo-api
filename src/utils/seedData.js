@@ -379,7 +379,7 @@ async function seedAll() {
     console.log(`⏱️  總耗時: ${duration} 秒`);
     console.log('\n📋 登入資訊：');
     console.log('  管理員帳號: admin@example.com');
-    console.log('  會員帳號: user1@example.com ~ user100@example.com');
+    console.log(`  會員帳號: ${CONFIG.MEMBERS_COUNT} 筆`);
     console.log('  密碼（統一）: qwer1234\n');
 
     return {
