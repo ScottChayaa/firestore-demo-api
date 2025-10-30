@@ -7,10 +7,15 @@ const COLLECTION_NAME = 'members';
 /**
  * 創建會員
  *
+ * @deprecated 改用 POST /api/auth/register，會同時建立 Firebase Auth 用戶和 Firestore document
+ *
  * Body 參數：
  * - name: 會員姓名（必填）
  * - email: Email（必填）
  * - phone: 電話（必填）
+ *
+ * 注意：這個方法只建立 Firestore document，不會建立 Firebase Auth 用戶
+ * 建議使用 authController 的 register 方法
  */
 async function createMember(req, res) {
   try {

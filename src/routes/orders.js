@@ -15,6 +15,11 @@ const {
   validateDateRange,
 } = require('../middleware/validator');
 const { asyncHandler } = require('../middleware/errorHandler');
+const {
+  filterOrdersByOwnership,
+  checkOrderOwnership,
+  enforceOwnershipOnCreate,
+} = require('../middleware/ownership');
 
 /**
  * 私有 API 路由 - 訂單管理
@@ -26,8 +31,10 @@ router.use(authenticate);
 
 // 取得訂單列表（支援分頁和多條件篩選）
 // GET /api/orders?memberId=xxx&status=completed&startDate=2025-01-01&limit=20&cursor=abc
+// 會員只能查詢自己的訂單，管理員可查詢所有訂單
 router.get(
   '/',
+  filterOrdersByOwnership,
   validatePagination,
   validateDateRange,
   asyncHandler(getOrders)
@@ -35,10 +42,13 @@ router.get(
 
 // 創建訂單
 // POST /api/orders
+// 會員只能為自己建立訂單（memberId 會被強制設為當前用戶）
 router.post(
   '/',
+  enforceOwnershipOnCreate,
   [
-    body('memberId').notEmpty().withMessage('會員 ID 為必填欄位'),
+    // memberId 會由 middleware 自動設定，所以改為 optional
+    body('memberId').optional().notEmpty().withMessage('會員 ID 不可為空'),
     body('items').isArray({ min: 1 }).withMessage('items 必須是非空陣列'),
     body('totalAmount').isNumeric().withMessage('總金額必須是數字'),
     body('status')
@@ -52,12 +62,15 @@ router.post(
 
 // 取得單一訂單
 // GET /api/orders/:id
-router.get('/:id', asyncHandler(getOrderById));
+// 會員只能查詢自己的訂單，管理員可查詢所有訂單
+router.get('/:id', checkOrderOwnership, asyncHandler(getOrderById));
 
 // 更新訂單
 // PUT /api/orders/:id
+// 會員只能更新自己的訂單，管理員可更新所有訂單
 router.put(
   '/:id',
+  checkOrderOwnership,
   [
     body('status')
       .optional()
@@ -78,6 +91,7 @@ router.put(
 
 // 刪除訂單
 // DELETE /api/orders/:id
-router.delete('/:id', asyncHandler(deleteOrder));
+// 會員只能刪除自己的訂單，管理員可刪除所有訂單
+router.delete('/:id', checkOrderOwnership, asyncHandler(deleteOrder));
 
 module.exports = router;

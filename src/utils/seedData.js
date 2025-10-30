@@ -5,9 +5,12 @@
  * 使用方式：
  * 1. 透過 API: POST /api/seed
  * 2. 直接執行: node src/utils/seedData.js
+ *
+ * 注意：會員會同時建立在 Firebase Auth 和 Firestore
+ * 密碼統一為：qwer1234
  */
 
-const { db, FieldValue } = require('../config/firebase');
+const { auth, db, FieldValue } = require('../config/firebase');
 
 // 配置
 const CONFIG = {
@@ -121,27 +124,121 @@ async function batchWrite(collection, data, batchSize = 500) {
 
 /**
  * 生成會員測試資料
+ * 同時建立 Firebase Auth 用戶和 Firestore document
+ * 密碼統一為：qwer1234
  */
 async function seedMembers() {
   console.log(`\n📝 開始生成 ${CONFIG.MEMBERS_COUNT} 筆會員資料...`);
 
-  const members = [];
+  const DEFAULT_PASSWORD = 'qwer1234';
+  const memberIds = [];
+  let successCount = 0;
+  let skipCount = 0;
 
+  // 逐一建立會員（因為需要使用 Firebase Auth）
   for (let i = 1; i <= CONFIG.MEMBERS_COUNT; i++) {
-    members.push({
-      name: generateName(),
-      email: generateEmail(i),
-      phone: generatePhone(),
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    });
+    const name = generateName();
+    const email = generateEmail(i);
+    const phone = generatePhone();
+
+    try {
+      // 1. 在 Firebase Auth 建立用戶
+      const userRecord = await auth.createUser({
+        email,
+        password: DEFAULT_PASSWORD,
+        displayName: name,
+      });
+
+      // 2. 在 Firestore 建立 member document（使用 Firebase Auth 的 UID）
+      await db.collection('members').doc(userRecord.uid).set({
+        name,
+        email,
+        phone,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      memberIds.push(userRecord.uid);
+      successCount++;
+
+      // 每 10 筆顯示進度
+      if (successCount % 10 === 0) {
+        console.log(`  進度: ${successCount}/${CONFIG.MEMBERS_COUNT}`);
+      }
+    } catch (error) {
+      // 如果 Email 已存在，跳過
+      if (error.code === 'auth/email-already-exists') {
+        console.log(`  ⚠️  跳過已存在的 Email: ${email}`);
+        skipCount++;
+      } else {
+        console.error(`  ❌ 建立會員失敗 (${email}):`, error.message);
+      }
+    }
   }
 
-  await batchWrite(db.collection('members'), members);
+  console.log(`✅ 成功生成 ${successCount} 筆會員資料`);
+  if (skipCount > 0) {
+    console.log(`⚠️  跳過 ${skipCount} 筆已存在的會員`);
+  }
 
-  console.log(`✅ 成功生成 ${CONFIG.MEMBERS_COUNT} 筆會員資料`);
+  return memberIds;
+}
 
-  return members;
+/**
+ * 建立管理員帳號
+ */
+async function seedAdmin() {
+  console.log('\n📝 建立管理員帳號...');
+
+  const ADMIN_EMAIL = 'admin@example.com';
+  const ADMIN_PASSWORD = 'qwer1234';
+  const ADMIN_NAME = '系統管理員';
+  const ADMIN_PHONE = '0900000000';
+
+  try {
+    // 檢查是否已存在
+    let userRecord;
+    try {
+      userRecord = await auth.getUserByEmail(ADMIN_EMAIL);
+      console.log(`  ℹ️  管理員帳號已存在: ${ADMIN_EMAIL}`);
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        // 建立管理員用戶
+        userRecord = await auth.createUser({
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+          displayName: ADMIN_NAME,
+        });
+        console.log(`  ✅ 建立管理員 Firebase Auth 用戶: ${ADMIN_EMAIL}`);
+      } else {
+        throw error;
+      }
+    }
+
+    // 建立或更新 Firestore member document
+    await db.collection('members').doc(userRecord.uid).set({
+      name: ADMIN_NAME,
+      email: ADMIN_EMAIL,
+      phone: ADMIN_PHONE,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    // 建立或更新 admins document
+    await db.collection('admins').doc(userRecord.uid).set({
+      uid: userRecord.uid,
+      email: ADMIN_EMAIL,
+      displayName: ADMIN_NAME,
+      createdAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    console.log(`✅ 管理員設定完成`);
+    console.log(`  Email: ${ADMIN_EMAIL}`);
+    console.log(`  密碼: ${ADMIN_PASSWORD}`);
+  } catch (error) {
+    console.error('❌ 建立管理員失敗:', error.message);
+    throw error;
+  }
 }
 
 /**
@@ -260,8 +357,12 @@ async function seedAll() {
     console.log(`  - 會員數量: ${CONFIG.MEMBERS_COUNT}`);
     console.log(`  - 訂單數量: ${CONFIG.ORDERS_COUNT}`);
     console.log(`  - 商品數量: ${CONFIG.PRODUCTS_COUNT}`);
+    console.log(`  - 預設密碼: qwer1234`);
 
     const startTime = Date.now();
+
+    // 建立管理員帳號
+    await seedAdmin();
 
     // 生成會員資料
     await seedMembers();
@@ -275,7 +376,11 @@ async function seedAll() {
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
     console.log('\n✅ 所有測試資料生成完成！');
-    console.log(`⏱️  總耗時: ${duration} 秒\n`);
+    console.log(`⏱️  總耗時: ${duration} 秒`);
+    console.log('\n📋 登入資訊：');
+    console.log('  管理員帳號: admin@example.com');
+    console.log('  會員帳號: user1@example.com ~ user100@example.com');
+    console.log('  密碼（統一）: qwer1234\n');
 
     return {
       success: true,
@@ -307,6 +412,7 @@ if (require.main === module) {
 module.exports = {
   seedAll,
   seedMembers,
+  seedAdmin,
   seedProducts,
   seedOrders,
 };

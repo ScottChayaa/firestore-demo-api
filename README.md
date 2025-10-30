@@ -14,14 +14,22 @@
 - **Cursor 分頁**：高效能的分頁機制
 
 ### 🔐 私有 API（需 Firebase Auth）
+- **會員認證**：
+  - 註冊新帳號（同時建立 Firebase Auth 用戶和 Firestore document）
+  - 登入取得 ID Token（使用 Firebase REST API）
+  - 密碼由 Firebase Auth 安全管理
 - **會員管理**：完整的 CRUD 操作
 - **訂單管理**：建立、查詢、更新、刪除訂單
+  - **權限控制**：會員只能查詢自己的訂單，管理員可查詢所有訂單
+- **管理員系統**：
+  - 管理員可以查詢/管理所有會員和訂單
+  - 使用 `scripts/setAdmin.js` 設定管理員
 - **多條件篩選**：
   - 會員 ID
   - 訂單狀態（pending, processing, completed, cancelled）
   - 日期範圍
   - 金額範圍
-- **測試資料生成**：一鍵生成 100 會員 + 500 訂單 + 50 商品
+- **測試資料生成**：一鍵生成 100 會員 + 500 訂單 + 50 商品 + 1 管理員
 
 ### 🚀 技術特點
 - ✅ **Firestore 優化**：使用複合索引加速查詢
@@ -73,40 +81,67 @@ npm run dev
 
 伺服器將啟動在 `http://localhost:8080`
 
-### 5. 生成測試資料
+### 5. 部署 Firestore Rules 和 Indexes
 
-**前置準備**
 ```bash
-# 安裝 Firebase CLI
+# 安裝 Firebase CLI（如果還沒安裝）
 npm install -g firebase-tools
 
 # 登入
 firebase login
 
-# 初始化（如果尚未初始化）, 執行後會出現 firebase.json, .firebaserc
+# 初始化 Firestore（如果尚未初始化）
 firebase init firestore
 
-# 部署
+# 部署 Rules 和 Indexes
 firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-**方式一：直接執行腳本**
+### 6. 生成測試資料
 
 ```bash
 npm run seed
 ```
 
-**方式二：透過 API**
+這會生成：
+- 1 個管理員帳號：`admin@example.com` / `qwer1234`
+- 100 個會員帳號：`user1@example.com` ~ `user100@example.com` / `qwer1234`
+- 50 個商品
+- 500 個訂單
+
+### 7. 測試 API
+
+**步驟 1：註冊或登入取得 Token**
 
 ```bash
-# 需要先取得 Firebase ID Token
-curl -X POST http://localhost:8080/api/seed \
-  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
+# 註冊新帳號
+curl -X POST http://localhost:8080/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "test@example.com",
+  "password": "qwer1234",
+  "name": "測試用戶",
+  "phone": "0912345678"
+}'
+
+# 登入取得 ID Token
+curl -X POST http://localhost:8080/api/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "test@example.com",
+  "password": "qwer1234"
+}'
+
+# 或使用測試帳號
+curl -X POST http://localhost:8080/api/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "user1@example.com",
+  "password": "qwer1234"
+}'
 ```
 
-### 6. 測試 API
-
-**公開 API（無需驗證）：**
+**步驟 2：測試公開 API（無需驗證）**
 
 ```bash
 # 查看商品列表
@@ -114,17 +149,33 @@ curl http://localhost:8080/api/public/products
 
 # 查看商品詳情
 curl http://localhost:8080/api/public/products/PRODUCT_ID
-
-# 查看商品分類
-curl http://localhost:8080/api/public/products/categories
 ```
 
-**私有 API（需要驗證）：**
+**步驟 3：測試私有 API（需要驗證）**
 
 ```bash
-# 查看訂單列表
+# 使用上一步取得的 idToken
+export TOKEN="YOUR_ID_TOKEN_HERE"
+
+# 查看自己的訂單
 curl http://localhost:8080/api/orders \
-  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
+-H "Authorization: Bearer $TOKEN"
+
+# 建立訂單
+curl -X POST http://localhost:8080/api/orders \
+-H "Authorization: Bearer $TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+  "items": [
+    {
+      "productId": "prod123",
+      "productName": "測試商品",
+      "quantity": 2,
+      "price": 100
+    }
+  ],
+  "totalAmount": 200
+}'
 ```
 
 ---
@@ -133,7 +184,68 @@ curl http://localhost:8080/api/orders \
 
 ### 公開 API
 
-#### 1. 健康檢查
+#### 1. 會員註冊
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "qwer1234",
+  "name": "張三",
+  "phone": "0912345678"
+}
+```
+
+**回應範例：**
+
+```json
+{
+  "success": true,
+  "data": {
+    "uid": "ABC123...",
+    "email": "user@example.com",
+    "name": "張三",
+    "phone": "0912345678"
+  },
+  "message": "註冊成功，請使用 /api/auth/login 登入取得 token"
+}
+```
+
+#### 2. 會員登入
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "qwer1234"
+}
+```
+
+**回應範例：**
+
+```json
+{
+  "success": true,
+  "data": {
+    "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
+    "refreshToken": "...",
+    "expiresIn": "3600",
+    "user": {
+      "uid": "ABC123...",
+      "email": "user@example.com",
+      "name": "張三",
+      "phone": "0912345678"
+    }
+  },
+  "message": "登入成功"
+}
+```
+
+#### 3. 健康檢查
 
 ```http
 GET /health
@@ -145,7 +257,7 @@ GET /health
 {
   "success": true,
   "message": "Firestore Demo API is running",
-  "timestamp": "2025-10-29T10:30:00.000Z",
+  "timestamp": "2025-10-30T10:30:00.000Z",
   "environment": "development"
 }
 ```

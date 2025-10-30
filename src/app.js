@@ -5,6 +5,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // 匯入路由
+const authRouter = require('./routes/auth');
 const productsRouter = require('./routes/products');
 const membersRouter = require('./routes/members');
 const ordersRouter = require('./routes/orders');
@@ -68,6 +69,8 @@ app.get('/', (req, res) => {
     endpoints: {
       public: {
         health: 'GET /health',
+        register: 'POST /api/auth/register',
+        login: 'POST /api/auth/login',
         products: 'GET /api/public/products',
         productDetail: 'GET /api/public/products/:id',
         categories: 'GET /api/public/products/categories',
@@ -83,6 +86,7 @@ app.get('/', (req, res) => {
 });
 
 // 公開 API 路由（無需驗證）
+app.use('/api/auth', authRouter);
 app.use('/api/public/products', productsRouter);
 
 // 私有 API 路由（需要 Firebase Auth 驗證）

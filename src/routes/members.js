@@ -15,6 +15,9 @@ const { asyncHandler } = require('../middleware/errorHandler');
 /**
  * 私有 API 路由 - 會員管理
  * 所有端點都需要 Firebase Auth 驗證
+ *
+ * 注意：會員註冊請使用 POST /api/auth/register
+ * 這裡的路由主要用於管理現有會員資料
  */
 
 // 套用驗證中間件到所有路由
@@ -24,8 +27,9 @@ router.use(authenticate);
 // GET /api/members
 router.get('/', asyncHandler(listMembers));
 
-// 創建會員
+// 創建會員（已棄用 - 請使用 POST /api/auth/register）
 // POST /api/members
+// @deprecated 改用 POST /api/auth/register，會同時建立 Firebase Auth 用戶和 Firestore document
 router.post(
   '/',
   [

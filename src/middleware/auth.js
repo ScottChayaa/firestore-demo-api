@@ -1,12 +1,15 @@
 const { auth } = require('../config/firebase');
+const { checkAdminStatus } = require('./adminCheck');
 
 /**
  * Firebase Auth 驗證中間件
  * 驗證請求的 Authorization Header 中的 Firebase ID Token
+ * 自動檢查並附加管理員狀態
  *
  * 使用方式：
  * router.get('/protected', authenticate, (req, res) => {
  *   // req.user 包含已驗證的用戶資訊
+ *   // req.user.isAdmin 表示是否為管理員
  * });
  */
 async function authenticate(req, res, next) {
@@ -46,8 +49,8 @@ async function authenticate(req, res, next) {
       picture: decodedToken.picture,
     };
 
-    // 繼續處理請求
-    next();
+    // 檢查管理員狀態並繼續
+    await checkAdminStatus(req, res, next);
   } catch (error) {
     console.error('❌ Authentication error:', error.message);
 

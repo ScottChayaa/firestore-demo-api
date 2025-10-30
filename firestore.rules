@@ -2,36 +2,64 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // 輔助函數：檢查是否為管理員
+    function isAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
     // 公開讀取商品（任何人都可以瀏覽商品）
     match /products/{productId} {
       // 允許任何人讀取商品資料
       allow read: if true;
 
-      // 只有經過驗證的用戶可以寫入（透過 Admin SDK）
-      allow write: if request.auth != null;
+      // 只有管理員可以寫入商品資料
+      allow write: if isAdmin();
     }
 
     // 會員資料需要身份驗證
     match /members/{memberId} {
-      // 只有經過驗證的用戶才能讀寫會員資料
-      allow read, write: if request.auth != null;
+      // 讀取：只有本人或管理員可以讀取
+      allow read: if request.auth != null &&
+                     (request.auth.uid == memberId || isAdmin());
 
-      // 可選：限制用戶只能讀取自己的資料
-      // allow read, write: if request.auth != null && request.auth.uid == memberId;
+      // 建立：經過驗證的用戶可以建立（透過 Admin SDK）
+      allow create: if request.auth != null;
+
+      // 更新：只有本人或管理員可以更新
+      allow update: if request.auth != null &&
+                       (request.auth.uid == memberId || isAdmin());
+
+      // 刪除：只有管理員可以刪除
+      allow delete: if isAdmin();
     }
 
     // 訂單資料需要身份驗證
     match /orders/{orderId} {
-      // 只有經過驗證的用戶才能讀寫訂單資料
-      allow read, write: if request.auth != null;
+      // 讀取：只有訂單所屬會員或管理員可以讀取
+      allow read: if request.auth != null &&
+                     (request.auth.uid == resource.data.memberId || isAdmin());
 
-      // 可選：限制用戶只能讀取自己的訂單
-      // allow read: if request.auth != null &&
-      //             request.auth.uid == resource.data.memberId;
-      // allow create: if request.auth != null &&
-      //               request.auth.uid == request.resource.data.memberId;
-      // allow update, delete: if request.auth != null &&
-      //                       request.auth.uid == resource.data.memberId;
+      // 建立：經過驗證的用戶可以建立（memberId 必須是自己或是管理員）
+      allow create: if request.auth != null &&
+                       (request.auth.uid == request.resource.data.memberId || isAdmin());
+
+      // 更新：只有訂單所屬會員或管理員可以更新
+      allow update: if request.auth != null &&
+                       (request.auth.uid == resource.data.memberId || isAdmin());
+
+      // 刪除：只有訂單所屬會員或管理員可以刪除
+      allow delete: if request.auth != null &&
+                       (request.auth.uid == resource.data.memberId || isAdmin());
+    }
+
+    // 管理員資料
+    match /admins/{adminId} {
+      // 讀取：只有管理員可以讀取管理員列表
+      allow read: if isAdmin();
+
+      // 寫入：只有管理員可以管理管理員（透過 Admin SDK）
+      allow write: if isAdmin();
     }
 
     // 預設規則：拒絕所有其他存取
