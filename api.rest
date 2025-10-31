@@ -1,6 +1,7 @@
 
 @baseUrl = http://localhost:8080
 @contentType = application/json
+@authorization = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjdlYTA5ZDA1NzI2MmU2M2U2MmZmNzNmMDNlMDRhZDI5ZDg5Zjg5MmEiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi6Zmz5bCP5piOIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2MTgyNDE0NCwidXNlcl9pZCI6Im9XOVJQSlJ6cGtZQnVmNVlCWnZIeFV0eXpkSTIiLCJzdWIiOiJvVzlSUEpSenBrWUJ1ZjVZQlp2SHhVdHl6ZEkyIiwiaWF0IjoxNzYxODI0MTQ0LCJleHAiOjE3NjE4Mjc3NDQsImVtYWlsIjoidXNlcjFAdGVzdC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidXNlcjFAdGVzdC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.1JdiLWXjVt36dwBUU1FuOsiGmCh189r_8pZ_Wx3GsXlpKEZxCJ_R4672KpAYS_DjV3e_Qw0V8XEWO4O8I06N_Ftiu4EijSOOl7X6xEwi_mOxKOm5BeRdxG7usyoZzMICkWX_xpL_nt_IQoGuIeetck0FRC-B5ccX1GVEqNLImtZaYFCljuf8a6AxUVUrycF9trNxvPdc8ctq19PYpVSDBDQAo5j0E_5xZY_Tf28WevJhs6qOnGsUvpllFEn5p8VdqljDGo3b6XsTajMgvx-qMA54Ok7R1YSVM2jHtdliNO_Cl1zWGo2CCVion4CAj2aXGAAZufqn1AKJu701WQO5BA
 
 ### ============================================
 ### 健康檢查端點（公開）
@@ -9,11 +10,46 @@ GET {{baseUrl}}/
 
 
 ### ============================================
-### 測試資料生成端點（需要驗證）
+### 登入取得 ID Token
 ### ============================================
-POST {{baseUrl}}/api/seed
+POST {{baseUrl}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
+  "email": "user1@test.com",
+  "password": "qwer1234"
 }
 
+
+### ============================================
+### 查看自己的訂單
+### ============================================
+GET {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+Authorization: {{authorization}}
+
+
+### ============================================
+### 建立自己的訂單
+### ============================================
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+Authorization: {{authorization}}
+
+{
+  "items": [
+    {
+      "productId": "product111111",
+      "productName": "測試商品",
+      "quantity": 2,
+      "price": 100
+    },
+    {
+      "productId": "product222222",
+      "productName": "測試商品2",
+      "quantity": 1,
+      "price": 222
+    }
+  ],
+  "totalAmount": 322
+}

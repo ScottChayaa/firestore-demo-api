@@ -79,3 +79,15 @@ code":403,"message":"Caller does not have required permission to use project lia
 請你執行 npm run seed 後, 根據出現的錯誤, 幫分析該如何解決
 
 
+
+根據 readme.md 步驟 
+4. 部署到 Cloud Run
+執行後出現這個錯誤 :
+```
+Deployment failed
+ERROR: (gcloud.run.deploy) Revision 'firestore-demo-api-00001-l97' is not ready and cannot serve traffic. The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision 
+might contain more information.
+
+Logs URL: https://console.cloud.google.com/logs/viewer?project=liang-dev&resource=cloud_run_revision/service_name/firestore-demo-api/revision_name/firestore-demo-api-00001-l97&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22firestore-demo-api%22%0Aresource.labels.revision_name%3D%22firestore-demo-api-00001-l97%22
+For more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+```
