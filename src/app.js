@@ -66,22 +66,6 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Welcome to Firestore Demo API',
     version: '1.0.0',
-    endpoints: {
-      public: {
-        health: 'GET /health',
-        register: 'POST /api/auth/register',
-        login: 'POST /api/auth/login',
-        products: 'GET /api/public/products',
-        productDetail: 'GET /api/public/products/:id',
-        categories: 'GET /api/public/products/categories',
-      },
-      private: {
-        members: 'GET /api/members (需要驗證)',
-        orders: 'GET /api/orders (需要驗證)',
-        seed: 'POST /api/seed (需要驗證)',
-      },
-    },
-    documentation: 'https://github.com/your-repo/firestore-demo-api',
   });
 });
 

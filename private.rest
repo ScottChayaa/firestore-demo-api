@@ -1,0 +1,48 @@
+
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@authorization = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjU0NTEzMjA5OWFkNmJmNjEzODJiNmI0Y2RlOWEyZGZlZDhjYjMwZjAiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi6Zmz5bCP5piOIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2MjMxMjY0NywidXNlcl9pZCI6Im9XOVJQSlJ6cGtZQnVmNVlCWnZIeFV0eXpkSTIiLCJzdWIiOiJvVzlSUEpSenBrWUJ1ZjVZQlp2SHhVdHl6ZEkyIiwiaWF0IjoxNzYyMzEyNjQ3LCJleHAiOjE3NjIzMTYyNDcsImVtYWlsIjoidXNlcjFAdGVzdC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidXNlcjFAdGVzdC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.Lm4UdTF1ALGjQ9QaIqV_bXDaeMIcfLVWdutc2E9Y1_0NmmPnWXuVNn_POSevbSq5p-3bTQDJgN3YSgcF2_3NNJkPCEGpYfqagIfHDyTsuAcdd0F1ycbb5UydRNijIR9wLedd6y0-eJXE8QaVABiDrfHbmIyTmMdDl-uTvqN7l0ijI7A9YbuDyRyK-uqvrr-LGfR1txiAlThGm8YHwgw1PCIydmjVEiX142dkQFb3m2-X-CztvCaIO28vHbaOmkn5eQBdxaAjfz2yrI0KKFYggly5JS3tBsABUNXTbwEBgmO6fWdPfWHUIoQw7n1tjABJ7JHMJEMg17wl7F5ysvU__Q
+
+### ============================================
+### 登入取得 ID Token
+### ============================================
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "user1@test.com",
+  "password": "qwer1234"
+}
+
+### ============================================
+### 查看自己的訂單
+### ============================================
+GET {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+Authorization: {{authorization}}
+
+
+### ============================================
+### 建立自己的訂單
+### ============================================
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+Authorization: {{authorization}}
+
+{
+  "items": [
+    {
+      "productId": "product111111",
+      "productName": "測試商品",
+      "quantity": 2,
+      "price": 100
+    },
+    {
+      "productId": "product222222",
+      "productName": "測試商品2",
+      "quantity": 1,
+      "price": 222
+    }
+  ],
+  "totalAmount": 322
+}

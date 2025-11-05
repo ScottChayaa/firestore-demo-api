@@ -96,37 +96,17 @@ nano .env
 
 > ⚠️ **重要**：如果跳過此步驟，執行 `npm run seed` 時會出現錯誤。
 
-### 6. 啟動開發伺服器
 
-```bash
-npm run dev
-```
-
-伺服器將啟動在 `http://localhost:8080`
-
-### 7. 部署 Firestore Rules 和 Indexes
-
-```bash
-# 安裝 Firebase CLI（如果還沒安裝）
-npm install -g firebase-tools
-
-# 登入
-firebase login
-
-# 初始化 Firestore（如果尚未初始化）
-firebase init firestore
-
-# 部署 Rules 和 Indexes
-firebase deploy --only firestore:rules,firestore:indexes
-```
-
-### 8. 生成測試資料
+### 6. 生成測試資料
 
 ```bash
 npm run seed
 ```
 
-**❌如果 Authentication 功能無法使用**
+<details>
+
+<summary>❌如果 Authentication 功能無法使用</summary>
+
 ```bash
 # 錯誤訊息像是:
 FirebaseAuthError: There is no configuration corresponding to the provided identifier.
@@ -137,7 +117,7 @@ errorInfo: {
 ```
 
 ```bash
-啟用 Firebase Authentication
+解法 : 啟用 Firebase Authentication
 
 1. 開啟 Firebase Console
   - https://console.firebase.google.com/project/liang-dev/authentication
@@ -152,7 +132,13 @@ errorInfo: {
   - 設定必要的配置
 ```
 
-**❌如果執行 seed 發生權限錯誤**
+</details>
+
+
+<details>
+
+<summary>❌如果執行 seed 發生權限錯誤</summary>
+
 需到 IAM 設定新增權限
 ```bash
 Service Account 權限設定指南
@@ -180,69 +166,34 @@ Service Account 權限設定指南
 npm run seed
 ```
 
-### 9. 測試 API
+</details>
 
-**步驟 1：註冊或登入取得 Token**
 
-```bash
-# 註冊新帳號
-curl -X POST http://localhost:8080/api/auth/register \
--H "Content-Type: application/json" \
--d '{
-  "email": "test@example.com",
-  "password": "qwer1234",
-  "name": "測試用戶",
-  "phone": "0912345678"
-}'
-
-# 登入取得 ID Token
-curl -X POST http://localhost:8080/api/auth/login \
--H "Content-Type: application/json" \
--d '{
-  "email": "admin@example.com",
-  "password": "qwer1234"
-}'
-
-```
-
-**步驟 2：測試公開 API（無需驗證）**
+### 7. 啟動開發伺服器
 
 ```bash
-# 查看商品列表
-curl http://localhost:8080/api/public/products
-
-# 查看商品詳情
-curl http://localhost:8080/api/public/products/PRODUCT_ID
+npm run dev
 ```
 
-**步驟 3：測試私有 API（需要驗證）**
+- [測試 public api](./public.rest)
+- [測試 private api](./private.rest)
+
+
+### 8. 部署 Firestore Rules 和 Indexes
 
 ```bash
-# 使用上一步取得的 idToken
-export TOKEN="YOUR_ID_TOKEN_HERE"
+# 安裝 Firebase CLI（如果還沒安裝）
+npm install -g firebase-tools
 
-# 查看自己的訂單
-curl http://localhost:8080/api/orders \
--H "Authorization: Bearer $TOKEN"
+# 登入
+firebase login
 
-# 建立訂單
-curl -X POST http://localhost:8080/api/orders \
--H "Authorization: Bearer $TOKEN" \
--H "Content-Type: application/json" \
--d '{
-  "items": [
-    {
-      "productId": "prod123",
-      "productName": "測試商品",
-      "quantity": 2,
-      "price": 100
-    }
-  ],
-  "totalAmount": 200
-}'
+# 初始化 Firestore（如果尚未初始化）
+firebase init firestore
+
+# 部署 Rules 和 Indexes
+firebase deploy --only firestore:rules,firestore:indexes
 ```
-
----
 
 ## 🚢 部署指南
 

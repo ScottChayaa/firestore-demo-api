@@ -8,48 +8,8 @@
 ### ============================================
 GET {{baseUrl}}/
 
-
 ### ============================================
-### 登入取得 ID Token
+### 商品
 ### ============================================
-POST {{baseUrl}}/api/auth/login
+GET {{baseUrl}}/api/public/products
 Content-Type: {{contentType}}
-
-{
-  "email": "user1@test.com",
-  "password": "qwer1234"
-}
-
-
-### ============================================
-### 查看自己的訂單
-### ============================================
-GET {{baseUrl}}/api/orders
-Content-Type: {{contentType}}
-Authorization: {{authorization}}
-
-
-### ============================================
-### 建立自己的訂單
-### ============================================
-POST {{baseUrl}}/api/orders
-Content-Type: {{contentType}}
-Authorization: {{authorization}}
-
-{
-  "items": [
-    {
-      "productId": "product111111",
-      "productName": "測試商品",
-      "quantity": 2,
-      "price": 100
-    },
-    {
-      "productId": "product222222",
-      "productName": "測試商品2",
-      "quantity": 1,
-      "price": 222
-    }
-  ],
-  "totalAmount": 322
-}

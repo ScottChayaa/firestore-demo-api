@@ -49,19 +49,6 @@ const server = app.listen(PORT, () => {
   console.log(`📋 Health Check: http://localhost:${PORT}/health`);
   console.log(`📦 Project ID: ${process.env.FIREBASE_PROJECT_ID || 'Not Set'}`);
   console.log('='.repeat(60));
-  console.log('\n📚 API 端點：');
-  console.log('  公開 API（無需驗證）：');
-  console.log(`    GET  http://localhost:${PORT}/api/public/products`);
-  console.log(`    GET  http://localhost:${PORT}/api/public/products/:id`);
-  console.log(`    GET  http://localhost:${PORT}/api/public/products/categories`);
-  console.log('\n  私有 API（需要 Firebase Auth Token）：');
-  console.log(`    POST http://localhost:${PORT}/api/members`);
-  console.log(`    GET  http://localhost:${PORT}/api/members/:id`);
-  console.log(`    GET  http://localhost:${PORT}/api/orders`);
-  console.log(`    POST http://localhost:${PORT}/api/orders`);
-  console.log('\n  測試資料生成：');
-  console.log(`    POST http://localhost:${PORT}/api/seed`);
-  console.log('='.repeat(60));
   console.log('\n✅ Server is ready to accept connections\n');
 });
 
