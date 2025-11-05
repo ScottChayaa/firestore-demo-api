@@ -41,7 +41,7 @@
 
 **格式範例**：
 ```
-AIzaSyAWotnmc1TISyGD36qVYYyRKo1Btiyfpio
+AIzaSyAWotnmc1TISyxxxxxxxxxxxxxx
 ```
 
 ### 用途
@@ -51,7 +51,7 @@ AIzaSyAWotnmc1TISyGD36qVYYyRKo1Btiyfpio
 ```javascript
 // 前端 JavaScript
 const firebaseConfig = {
-  apiKey: "AIzaSyAWotnmc1TISyGD36qVYYyRKo1Btiyfpio",  // Web API Key
+  apiKey: "AIzaSyAWotnmc1TISyxxxxxxxxxxxxxx",  // Web API Key
   authDomain: "liang-dev.firebaseapp.com",
   projectId: "liang-dev"
 };
@@ -489,7 +489,7 @@ const decodedToken = await admin.auth().verifyIdToken(idToken);
 ```javascript
 // .env（可以提交到 Git）
 FIREBASE_PROJECT_ID=liang-dev
-FIREBASE_WEB_API_KEY=AIzaSyAWotnmc1TISyGD36qVYYyRKo1Btiyfpio
+FIREBASE_WEB_API_KEY=AIzaSyAWotnmc1TISyxxxxxxxxxxxxxx
 NODE_ENV=production
 PORT=8080
 ```
@@ -497,7 +497,7 @@ PORT=8080
 ```javascript
 // 前端程式碼（會被公開）
 const firebaseConfig = {
-  apiKey: "AIzaSyAWotnmc1TISyGD36qVYYyRKo1Btiyfpio",
+  apiKey: "AIzaSyAWotnmc1TISyxxxxxxxxxxxxxx",
   authDomain: "liang-dev.firebaseapp.com",
   projectId: "liang-dev",
   storageBucket: "liang-dev.appspot.com",
