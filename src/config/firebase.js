@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
 require('dotenv').config();
 
 /**
@@ -68,14 +69,24 @@ function initializeFirebase() {
 // 初始化 Firebase
 const firebaseAdmin = initializeFirebase();
 
+// 取得資料庫 ID（優先使用環境變數，否則使用預設值）
+const databaseId = process.env.FIRESTORE_DATABASE_ID || '(default)';
+
 // 匯出 Firestore 實例
-const db = firebaseAdmin.firestore();
+// Firebase Admin SDK v12 使用 getFirestore() 函數
+// 預設資料庫：getFirestore() 或 getFirestore('(default)')
+// 命名資料庫：getFirestore('database-name')
+const db = databaseId === '(default)'
+  ? getFirestore()
+  : getFirestore(databaseId);
 
 // 設定 Firestore 時區（可選）
 db.settings({
   timestampsInSnapshots: true,
   ignoreUndefinedProperties: true,
 });
+
+console.log('✅ Firestore Database ID:', databaseId);
 
 module.exports = {
   admin: firebaseAdmin,
