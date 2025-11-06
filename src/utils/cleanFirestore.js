@@ -8,10 +8,10 @@
  * ⚠️ 警告：此操作無法復原，請謹慎使用！
  */
 
-const { db } = require('../config/firebase');
-const readline = require('readline');
+const { db } = require("../config/firebase");
+const readline = require("readline");
 
-const COLLECTIONS = ['members', 'orders', 'products'];
+const COLLECTIONS = ["admins", "members", "orders", "products"];
 const BATCH_SIZE = 500;
 
 /**
@@ -23,14 +23,14 @@ function askForConfirmation() {
     output: process.stdout,
   });
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     rl.question(
-      '\n⚠️  警告：此操作將刪除以下集合的所有資料：\n' +
-      `  - ${COLLECTIONS.join('\n  - ')}\n\n` +
-      '此操作無法復原！確定要繼續嗎？(yes/no): ',
-      answer => {
+      "\n⚠️  警告：此操作將刪除以下集合的所有資料：\n" +
+        `  - ${COLLECTIONS.join("\n  - ")}\n\n` +
+        "此操作無法復原！確定要繼續嗎？(yes/no): ",
+      (answer) => {
         rl.close();
-        resolve(answer.toLowerCase() === 'yes');
+        resolve(answer.toLowerCase() === "yes");
       }
     );
   });
@@ -55,7 +55,7 @@ async function deleteCollection(collectionName) {
 
     // 使用 batch 刪除
     const batch = db.batch();
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc) => {
       batch.delete(doc.ref);
     });
 
@@ -80,7 +80,7 @@ async function deleteCollection(collectionName) {
  */
 async function cleanAll() {
   try {
-    console.log('\n🚀 開始清理 Firestore 資料...');
+    console.log("\n🚀 開始清理 Firestore 資料...");
 
     const startTime = Date.now();
     let totalDeleted = 0;
@@ -92,7 +92,7 @@ async function cleanAll() {
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-    console.log('\n✅ 所有資料清理完成！');
+    console.log("\n✅ 所有資料清理完成！");
     console.log(`📊 統計資訊：`);
     console.log(`   - 總共刪除: ${totalDeleted} 筆資料`);
     console.log(`   - 總耗時: ${duration} 秒\n`);
@@ -103,7 +103,7 @@ async function cleanAll() {
       collections: COLLECTIONS,
     };
   } catch (error) {
-    console.error('\n❌ 清理資料失敗:', error.message);
+    console.error("\n❌ 清理資料失敗:", error.message);
     throw error;
   }
 }
@@ -117,17 +117,17 @@ async function main() {
     const confirmed = await askForConfirmation();
 
     if (!confirmed) {
-      console.log('\n❌ 操作已取消');
+      console.log("\n❌ 操作已取消");
       process.exit(0);
     }
 
     // 執行清理
     await cleanAll();
 
-    console.log('🎉 腳本執行完成');
+    console.log("🎉 腳本執行完成");
     process.exit(0);
   } catch (error) {
-    console.error('💥 腳本執行失敗:', error);
+    console.error("💥 腳本執行失敗:", error);
     process.exit(1);
   }
 }

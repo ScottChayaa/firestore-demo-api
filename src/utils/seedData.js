@@ -10,7 +10,7 @@
  * 密碼統一為：qwer1234
  */
 
-const { auth, db, FieldValue } = require('../config/firebase');
+const { auth, db, FieldValue } = require("../config/firebase");
 
 // 配置
 const CONFIG = {
@@ -20,27 +20,27 @@ const CONFIG = {
 };
 
 // 測試資料：姓名
-const FIRST_NAMES = ['王', '李', '張', '劉', '陳', '楊', '黃', '趙', '吳', '周'];
-const LAST_NAMES = ['小明', '小華', '小芳', '小美', '大明', '大華', '志明', '春嬌', '建國', '淑芬'];
+const FIRST_NAMES = ["王", "李", "張", "劉", "陳", "楊", "黃", "趙", "吳", "周"];
+const LAST_NAMES = ["小明", "小華", "小芳", "小美", "大明", "大華", "志明", "春嬌", "建國", "淑芬"];
 
 // 測試資料：商品分類
-const CATEGORIES = ['electronics', 'clothing', 'food', 'books', 'sports'];
+const CATEGORIES = ["electronics", "clothing", "food", "books", "sports"];
 
 // 測試資料：商品名稱
 const PRODUCT_NAMES = {
-  electronics: ['無線藍牙耳機', '智慧手錶', '行動電源', 'USB 充電線', '滑鼠', '鍵盤'],
-  clothing: ['T恤', '牛仔褲', '運動鞋', '外套', '襯衫', '帽子'],
-  food: ['巧克力', '餅乾', '咖啡豆', '茶葉', '堅果', '果乾'],
-  books: ['小說', '漫畫', '工具書', '雜誌', '繪本', '字典'],
-  sports: ['瑜珈墊', '啞鈴', '跳繩', '運動水壺', '毛巾', '護具'],
+  electronics: ["無線藍牙耳機", "智慧手錶", "行動電源", "USB 充電線", "滑鼠", "鍵盤"],
+  clothing: ["T恤", "牛仔褲", "運動鞋", "外套", "襯衫", "帽子"],
+  food: ["巧克力", "餅乾", "咖啡豆", "茶葉", "堅果", "果乾"],
+  books: ["小說", "漫畫", "工具書", "雜誌", "繪本", "字典"],
+  sports: ["瑜珈墊", "啞鈴", "跳繩", "運動水壺", "毛巾", "護具"],
 };
 
 // 訂單狀態分佈
 const ORDER_STATUS_DISTRIBUTION = [
-  { status: 'pending', weight: 20 },
-  { status: 'processing', weight: 30 },
-  { status: 'completed', weight: 40 },
-  { status: 'cancelled', weight: 10 },
+  { status: "pending", weight: 20 },
+  { status: "processing", weight: 30 },
+  { status: "completed", weight: 40 },
+  { status: "cancelled", weight: 10 },
 ];
 
 /**
@@ -56,7 +56,7 @@ function generateName() {
  * 生成隨機 Email
  */
 function generateEmail(index) {
-  const domains = ['example.com', 'test.com', 'demo.com'];
+  const domains = ["example.com", "test.com", "demo.com"];
   const domain = domains[Math.floor(Math.random() * domains.length)];
   return `user${index}@${domain}`;
 }
@@ -65,7 +65,9 @@ function generateEmail(index) {
  * 生成隨機電話
  */
 function generatePhone() {
-  return `09${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+  return `09${Math.floor(Math.random() * 100000000)
+    .toString()
+    .padStart(8, "0")}`;
 }
 
 /**
@@ -82,7 +84,7 @@ function getRandomStatus() {
     random -= item.weight;
   }
 
-  return 'pending';
+  return "pending";
 }
 
 /**
@@ -130,7 +132,7 @@ async function batchWrite(collection, data, batchSize = 500) {
 async function seedMembers() {
   console.log(`\n📝 開始生成 ${CONFIG.MEMBERS_COUNT} 筆會員資料...`);
 
-  const DEFAULT_PASSWORD = 'qwer1234';
+  const DEFAULT_PASSWORD = "qwer1234";
   const memberIds = [];
   let successCount = 0;
   let skipCount = 0;
@@ -150,7 +152,7 @@ async function seedMembers() {
       });
 
       // 2. 在 Firestore 建立 member document（使用 Firebase Auth 的 UID）
-      await db.collection('members').doc(userRecord.uid).set({
+      await db.collection("members").doc(userRecord.uid).set({
         name,
         email,
         phone,
@@ -167,7 +169,7 @@ async function seedMembers() {
       }
     } catch (error) {
       // 如果 Email 已存在，跳過
-      if (error.code === 'auth/email-already-exists') {
+      if (error.code === "auth/email-already-exists") {
         console.log(`  ⚠️  跳過已存在的 Email: ${email}`);
         skipCount++;
       } else {
@@ -188,12 +190,12 @@ async function seedMembers() {
  * 建立管理員帳號
  */
 async function seedAdmin() {
-  console.log('\n📝 建立管理員帳號...');
+  console.log("\n📝 建立管理員帳號...");
 
-  const ADMIN_EMAIL = 'admin@example.com';
-  const ADMIN_PASSWORD = 'qwer1234';
-  const ADMIN_NAME = '系統管理員';
-  const ADMIN_PHONE = '0900000000';
+  const ADMIN_EMAIL = "admin@example.com";
+  const ADMIN_PASSWORD = "qwer1234";
+  const ADMIN_NAME = "系統管理員";
+  const ADMIN_PHONE = "0900000000";
 
   try {
     // 檢查是否已存在
@@ -202,7 +204,7 @@ async function seedAdmin() {
       userRecord = await auth.getUserByEmail(ADMIN_EMAIL);
       console.log(`  ℹ️  管理員帳號已存在: ${ADMIN_EMAIL}`);
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
+      if (error.code === "auth/user-not-found") {
         // 建立管理員用戶
         userRecord = await auth.createUser({
           email: ADMIN_EMAIL,
@@ -216,27 +218,33 @@ async function seedAdmin() {
     }
 
     // 建立或更新 Firestore member document
-    await db.collection('members').doc(userRecord.uid).set({
-      name: ADMIN_NAME,
-      email: ADMIN_EMAIL,
-      phone: ADMIN_PHONE,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await db.collection("members").doc(userRecord.uid).set(
+      {
+        name: ADMIN_NAME,
+        email: ADMIN_EMAIL,
+        phone: ADMIN_PHONE,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     // 建立或更新 admins document
-    await db.collection('admins').doc(userRecord.uid).set({
-      uid: userRecord.uid,
-      email: ADMIN_EMAIL,
-      displayName: ADMIN_NAME,
-      createdAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await db.collection("admins").doc(userRecord.uid).set(
+      {
+        uid: userRecord.uid,
+        email: ADMIN_EMAIL,
+        displayName: ADMIN_NAME,
+        createdAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     console.log(`✅ 管理員設定完成`);
     console.log(`  Email: ${ADMIN_EMAIL}`);
     console.log(`  密碼: ${ADMIN_PASSWORD}`);
   } catch (error) {
-    console.error('❌ 建立管理員失敗:', error.message);
+    console.error("❌ 建立管理員失敗:", error.message);
     throw error;
   }
 }
@@ -265,7 +273,7 @@ async function seedProducts() {
     });
   }
 
-  await batchWrite(db.collection('products'), products);
+  await batchWrite(db.collection("products"), products);
 
   console.log(`✅ 成功生成 ${CONFIG.PRODUCTS_COUNT} 筆商品資料`);
 
@@ -279,22 +287,22 @@ async function seedOrders() {
   console.log(`\n📝 開始生成 ${CONFIG.ORDERS_COUNT} 筆訂單資料...`);
 
   // 取得所有會員 ID
-  const membersSnapshot = await db.collection('members').select('__name__').get();
-  const memberIds = membersSnapshot.docs.map(doc => doc.id);
+  const membersSnapshot = await db.collection("members").select("__name__").get();
+  const memberIds = membersSnapshot.docs.map((doc) => doc.id);
 
   if (memberIds.length === 0) {
-    throw new Error('找不到會員資料，請先生成會員資料');
+    throw new Error("找不到會員資料，請先生成會員資料");
   }
 
   // 取得所有商品
-  const productsSnapshot = await db.collection('products').get();
-  const products = productsSnapshot.docs.map(doc => ({
+  const productsSnapshot = await db.collection("products").get();
+  const products = productsSnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 
   if (products.length === 0) {
-    throw new Error('找不到商品資料，請先生成商品資料');
+    throw new Error("找不到商品資料，請先生成商品資料");
   }
 
   const orders = [];
@@ -324,8 +332,8 @@ async function seedOrders() {
     }
 
     // 生成訂單編號
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const orderNumber = `ORD-${dateStr}-${String(i + 1).padStart(6, '0')}`;
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const orderNumber = `ORD-${dateStr}-${String(i + 1).padStart(6, "0")}`;
 
     const createdAt = generateRandomDate();
 
@@ -340,7 +348,7 @@ async function seedOrders() {
     });
   }
 
-  await batchWrite(db.collection('orders'), orders);
+  await batchWrite(db.collection("orders"), orders);
 
   console.log(`✅ 成功生成 ${CONFIG.ORDERS_COUNT} 筆訂單資料`);
 
@@ -352,8 +360,8 @@ async function seedOrders() {
  */
 async function seedAll() {
   try {
-    console.log('\n🚀 開始生成測試資料...\n');
-    console.log('配置：');
+    console.log("\n🚀 開始生成測試資料...\n");
+    console.log("配置：");
     console.log(`  - 會員數量: ${CONFIG.MEMBERS_COUNT}`);
     console.log(`  - 訂單數量: ${CONFIG.ORDERS_COUNT}`);
     console.log(`  - 商品數量: ${CONFIG.PRODUCTS_COUNT}`);
@@ -375,12 +383,12 @@ async function seedAll() {
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-    console.log('\n✅ 所有測試資料生成完成！');
+    console.log("\n✅ 所有測試資料生成完成！");
     console.log(`⏱️  總耗時: ${duration} 秒`);
-    console.log('\n📋 登入資訊：');
-    console.log('  管理員帳號: admin@example.com');
+    console.log("\n📋 登入資訊：");
+    console.log("  管理員帳號: admin@example.com");
     console.log(`  會員帳號: ${CONFIG.MEMBERS_COUNT} 筆`);
-    console.log('  密碼（統一）: qwer1234\n');
+    console.log("  密碼（統一）: qwer1234\n");
 
     return {
       success: true,
@@ -391,7 +399,7 @@ async function seedAll() {
       },
     };
   } catch (error) {
-    console.error('\n❌ 生成測試資料失敗:', error.message);
+    console.error("\n❌ 生成測試資料失敗:", error.message);
     throw error;
   }
 }
@@ -400,11 +408,11 @@ async function seedAll() {
 if (require.main === module) {
   seedAll()
     .then(() => {
-      console.log('🎉 腳本執行完成');
+      console.log("🎉 腳本執行完成");
       process.exit(0);
     })
-    .catch(error => {
-      console.error('💥 腳本執行失敗:', error);
+    .catch((error) => {
+      console.error("💥 腳本執行失敗:", error);
       process.exit(1);
     });
 }
