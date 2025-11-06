@@ -189,6 +189,7 @@ npm install -g firebase-tools
 firebase login
 
 # 初始化 Firestore（如果尚未初始化）
+#   若有完成, 則會出現 firebase.json, .firebaserc
 firebase init firestore
 
 # 部署 Rules 和 Indexes
@@ -201,57 +202,53 @@ firebase deploy --only firestore:rules,firestore:indexes
 
 #### 1. 前置準備
 
+- [gcloud 安裝](./docs/gcloud.md)
+- [安裝 Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+
 ```bash
-# 安裝 Google Cloud SDK
-# https://cloud.google.com/sdk/docs/install
 
 # 登入並設定專案
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 
-# 啟用所需服務 (專案需綁信用卡)
+# 啟用所需服務 (專案需綁信用卡) : cloud run, registry
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
-```
 
-#### 2. 建立 Docker 映像
+# 請到 Artifact Registry 後台頁面設定存放區: my-docker 
+# 並指定單區域位置: asia-east1 (台灣)
 
-```bash
+# 針對與這個存放區位置相關聯的 Artifact Registry 網域，將 gcloud 設定為其憑證輔助程式：
+gcloud auth configure-docker asia-east1-docker.pkg.dev
+
 # 建立映像
-docker build -t gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1 .
+docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1 .
+
+# 推送映像到 Container Registry
+docker push asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1
 
 # 本地測試（可選）
 docker run -p 8080:8080 \
-  -e GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json \
-  -v $(pwd)/firebase-service-account.json:/app/firebase-service-account.json \
-  gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1
+  --env-file .env \
+  --name firestore-demo-api \
+  asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1
 ```
 
-#### 3. 推送映像到 Container Registry
-
-```bash
-# 認證 Docker
-gcloud auth configure-docker
-
-# 推送映像
-docker push gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1
-```
-
-#### 4. 部署到 Cloud Run
+#### 2. 部署到 Cloud Run
 
 **重要**：部署前必須先準備 Base64 編碼的 Firebase 憑證，否則容器將無法啟動。
 
 ```bash
-# 步驟 4.1：將 Service Account JSON 轉為 Base64
+# 將 Service Account JSON 轉為 Base64
 base64 firebase-service-account.json | tr -d '\n' > encoded.txt
 
-# 步驟 4.2：部署到 Cloud Run（包含完整環境變數）
+# 部署到 Cloud Run（包含完整環境變數）
 gcloud run deploy firestore-demo-api \
-  --image gcr.io/YOUR_PROJECT_ID/firestore-demo-api:v1 \
+  --image asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1 \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
-  --set-env-vars "FIREBASE_PROJECT_ID=YOUR_PROJECT_ID,NODE_ENV=production,FIREBASE_WEB_API_KEY=YOUR_WEB_API_KEY,GOOGLE_CREDENTIALS_BASE64=$(cat encoded.txt)" \
+  --env-vars-file .env \
   --memory 512Mi \
   --max-instances 10 \
   --timeout 300
@@ -259,15 +256,11 @@ gcloud run deploy firestore-demo-api \
 
 **參數說明**：
 - `--timeout 300`：設定請求逾時為 5 分鐘，給予足夠的啟動時間
-- `GOOGLE_CREDENTIALS_BASE64`：Base64 編碼的 Firebase 憑證（必需）
-- `FIREBASE_WEB_API_KEY`：從步驟 2 取得的 Web API Key（用於會員認證）
+- `--platform managed`：表示部署到 全代管 Cloud Run（不是 Cloud Run for Anthos）
+- `--allow-unauthenticated`：允許 公網直接訪問（不需要 IAM 登入）。如果拿掉這個，就只能內部或有授權的帳號訪問
 
-**故障排查**：如果容器無法啟動（"container failed to start and listen on port"錯誤），請檢查：
-1. 是否已設定 `GOOGLE_CREDENTIALS_BASE64` 環境變數
-2. Base64 編碼是否正確（可用 `cat encoded.txt | base64 -d | jq` 驗證）
-3. 查看 Cloud Run 日誌：`gcloud run services logs read firestore-demo-api --region asia-east1 --limit 50`
 
-#### 5. 部署 Firestore 索引
+#### 3. 部署 Firestore 索引
 
 ```bash
 # 安裝 Firebase CLI
