@@ -11,6 +11,7 @@ yarn.lock
 # Firebase
 firebase-service-account.json
 firebase-service-account-*.json
+firebase-service-account.*.json
 *-service-account.json
 .firebase/
 
@@ -42,3 +43,4 @@ build/
 # Claude Code
 .claude/
 encoded.txt
+encoded.*.txt
