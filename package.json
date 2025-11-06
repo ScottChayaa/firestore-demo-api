@@ -8,6 +8,8 @@
     "dev": "nodemon index.js",
     "seed": "node src/utils/seedData.js",
     "clean:firestore": "node src/utils/cleanFirestore.js",
+    "clean:authentication": "node src/utils/cleanAuthentication.js",
+    "clean:all": "npm run clean:firestore && npm run clean:authentication",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
