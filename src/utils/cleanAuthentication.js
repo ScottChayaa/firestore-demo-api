@@ -8,8 +8,8 @@
  * ⚠️ 警告：此操作無法復原，請謹慎使用！
  */
 
-const { auth } = require('../config/firebase');
-const readline = require('readline');
+const { auth } = require("../config/firebase");
+const readline = require("readline");
 
 const BATCH_SIZE = 1000; // Firebase Auth deleteUsers() 最大支援 1000 個
 
@@ -22,14 +22,14 @@ async function askForConfirmation(userCount) {
     output: process.stdout,
   });
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     rl.question(
-      '\n⚠️  警告：此操作將刪除 Firebase Authentication 中的所有用戶！\n' +
-      `   - 目前用戶數量: ${userCount} 個\n\n` +
-      '此操作無法復原！確定要繼續嗎？(yes/no): ',
-      answer => {
+      "\n⚠️  警告：此操作將刪除 Firebase Authentication 中的所有用戶！\n" +
+        `   - 目前用戶數量: ${userCount} 個\n\n` +
+        "此操作無法復原！確定要繼續嗎？(yes/no): ",
+      (answer) => {
         rl.close();
-        resolve(answer.toLowerCase() === 'yes');
+        resolve(answer.toLowerCase() === "yes");
       }
     );
   });
@@ -42,7 +42,7 @@ async function listAllUsers() {
   const uids = [];
   let pageToken;
 
-  console.log('\n🔍 正在掃描所有用戶...');
+  console.log("\n🔍 正在掃描所有用戶...");
 
   do {
     try {
@@ -50,7 +50,7 @@ async function listAllUsers() {
       const listUsersResult = await auth.listUsers(1000, pageToken);
 
       // 收集 UIDs
-      listUsersResult.users.forEach(userRecord => {
+      listUsersResult.users.forEach((userRecord) => {
         uids.push(userRecord.uid);
       });
 
@@ -58,7 +58,7 @@ async function listAllUsers() {
 
       pageToken = listUsersResult.pageToken;
     } catch (error) {
-      console.error('❌ 列出用戶時發生錯誤:', error.message);
+      console.error("❌ 列出用戶時發生錯誤:", error.message);
       throw error;
     }
   } while (pageToken);
@@ -90,12 +90,12 @@ async function deleteUsersBatch(uids) {
       // 如果有失敗的，顯示錯誤
       if (deleteUsersResult.failureCount > 0) {
         console.warn(`   ⚠️  本批次失敗: ${deleteUsersResult.failureCount} 個`);
-        deleteUsersResult.errors.forEach(error => {
+        deleteUsersResult.errors.forEach((error) => {
           console.warn(`      - UID: ${error.index}, 錯誤: ${error.error.message}`);
         });
       }
     } catch (error) {
-      console.error('❌ 刪除用戶時發生錯誤:', error.message);
+      console.error("❌ 刪除用戶時發生錯誤:", error.message);
       throw error;
     }
   }
@@ -108,14 +108,14 @@ async function deleteUsersBatch(uids) {
  */
 async function cleanAll() {
   try {
-    console.log('\n🚀 開始清理 Firebase Authentication 用戶...');
+    console.log("\n🚀 開始清理 Firebase Authentication 用戶...");
     const startTime = Date.now();
 
     // 列出所有用戶
     const uids = await listAllUsers();
 
     if (uids.length === 0) {
-      console.log('\n✅ 沒有用戶需要刪除');
+      console.log("\n✅ 沒有用戶需要刪除");
       return {
         success: true,
         deletedCount: 0,
@@ -128,8 +128,8 @@ async function cleanAll() {
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-    console.log('\n✅ 用戶清理完成！');
-    console.log('📊 統計資訊：');
+    console.log("\n✅ 用戶清理完成！");
+    console.log("📊 統計資訊：");
     console.log(`   - 成功刪除: ${deletedCount} 個用戶`);
     if (failedCount > 0) {
       console.log(`   - 刪除失敗: ${failedCount} 個用戶`);
@@ -142,7 +142,7 @@ async function cleanAll() {
       failedCount,
     };
   } catch (error) {
-    console.error('\n❌ 清理用戶失敗:', error.message);
+    console.error("\n❌ 清理用戶失敗:", error.message);
     throw error;
   }
 }
@@ -156,7 +156,7 @@ async function main() {
     const uids = await listAllUsers();
 
     if (uids.length === 0) {
-      console.log('\n✅ 沒有用戶需要刪除');
+      console.log("\n✅ 沒有用戶需要刪除");
       process.exit(0);
     }
 
@@ -164,17 +164,17 @@ async function main() {
     const confirmed = await askForConfirmation(uids.length);
 
     if (!confirmed) {
-      console.log('\n❌ 操作已取消');
+      console.log("\n❌ 操作已取消");
       process.exit(0);
     }
 
     // 執行清理（重新掃描並刪除）
     await cleanAll();
 
-    console.log('🎉 腳本執行完成');
+    console.log("🎉 腳本執行完成");
     process.exit(0);
   } catch (error) {
-    console.error('💥 腳本執行失敗:', error);
+    console.error("💥 腳本執行失敗:", error);
     process.exit(1);
   }
 }

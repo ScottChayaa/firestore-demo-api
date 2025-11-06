@@ -33,7 +33,7 @@ function createPaginatedResponse(data, limit, hasMore = false, nextCursor = null
 function createPaginatedResponseFromSnapshot(snapshot, limit, mapper = null) {
   const docs = [];
 
-  snapshot.forEach(doc => {
+  snapshot.forEach((doc) => {
     const data = mapper ? mapper(doc) : { id: doc.id, ...doc.data() };
     docs.push(data);
   });
@@ -72,7 +72,7 @@ async function buildPaginatedQuery(query, limit, cursor = null, collection = nul
         paginatedQuery = paginatedQuery.startAfter(cursorDoc);
       }
     } catch (error) {
-      console.warn('⚠️ Invalid cursor:', cursor);
+      console.warn("⚠️ Invalid cursor:", cursor);
       // 如果 cursor 無效，忽略它（從頭開始查詢）
     }
   }
@@ -104,8 +104,8 @@ function defaultMapper(doc) {
   const data = doc.data();
 
   // 轉換 Timestamp 為 ISO 字串
-  Object.keys(data).forEach(key => {
-    if (data[key] && typeof data[key].toDate === 'function') {
+  Object.keys(data).forEach((key) => {
+    if (data[key] && typeof data[key].toDate === "function") {
       data[key] = data[key].toDate().toISOString();
     }
   });
