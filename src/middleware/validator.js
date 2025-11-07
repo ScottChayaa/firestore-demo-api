@@ -1,9 +1,10 @@
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
+const { ValidationError } = require("./errorHandler");
 
 /**
  * 驗證中間件
  * 檢查 express-validator 的驗證結果
- * 如果有錯誤，回傳 400 和錯誤詳情
+ * 如果有錯誤，回傳錯誤詳情
  *
  * 使用方式：
  * router.post('/users',
@@ -17,15 +18,13 @@ function validate(req, res, next) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(422).json({
-      error: 'ValidationError',
-      message: '請求參數驗證失敗',
-      details: errors.array().map(err => ({
-        field: err.path || err.param,
-        message: err.msg,
-        value: err.value,
-      })),
-    });
+    let details = errors.array().map((err) => ({
+      field: err.path || err.param,
+      message: err.msg,
+      value: err.value,
+    }));
+
+    throw new ValidationError(details);
   }
 
   next();
@@ -44,13 +43,13 @@ function validatePagination(req, res, next) {
     const parsedLimit = parseInt(limit);
     if (isNaN(parsedLimit) || parsedLimit < 1) {
       return res.status(400).json({
-        error: 'ValidationError',
-        message: 'limit 必須是大於 0 的整數',
+        error: "ValidationError",
+        message: "limit 必須是大於 0 的整數",
       });
     }
     if (parsedLimit > MAX_LIMIT) {
       return res.status(400).json({
-        error: 'ValidationError',
+        error: "ValidationError",
         message: `limit 不能超過 ${MAX_LIMIT}`,
       });
     }
@@ -77,8 +76,8 @@ function validateDateRange(req, res, next) {
     const start = new Date(startDate);
     if (isNaN(start.getTime())) {
       return res.status(400).json({
-        error: 'ValidationError',
-        message: 'startDate 格式不正確（應為 ISO 8601 格式）',
+        error: "ValidationError",
+        message: "startDate 格式不正確（應為 ISO 8601 格式）",
       });
     }
     req.dateRange = { startDate: start };
@@ -88,8 +87,8 @@ function validateDateRange(req, res, next) {
     const end = new Date(endDate);
     if (isNaN(end.getTime())) {
       return res.status(400).json({
-        error: 'ValidationError',
-        message: 'endDate 格式不正確（應為 ISO 8601 格式）',
+        error: "ValidationError",
+        message: "endDate 格式不正確（應為 ISO 8601 格式）",
       });
     }
     req.dateRange = { ...req.dateRange, endDate: end };
@@ -99,8 +98,8 @@ function validateDateRange(req, res, next) {
   if (req.dateRange && req.dateRange.startDate && req.dateRange.endDate) {
     if (req.dateRange.startDate > req.dateRange.endDate) {
       return res.status(400).json({
-        error: 'ValidationError',
-        message: 'startDate 不能晚於 endDate',
+        error: "ValidationError",
+        message: "startDate 不能晚於 endDate",
       });
     }
   }

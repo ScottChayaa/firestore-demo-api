@@ -3,9 +3,9 @@
  * 捕獲所有未處理的錯誤並回傳標準化的錯誤回應
  */
 function errorHandler(err, req, res, next) {
-  console.error('❌ Error occurred:', {
+  console.error({
     message: err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    stack: err.stack?.split('\n') ?? [],
     path: req.path,
     method: req.method,
   });
@@ -19,10 +19,13 @@ function errorHandler(err, req, res, next) {
     message: err.message || '伺服器發生錯誤',
   };
 
+  if (err instanceof ValidationError) {
+    errorResponse.details = err.details;
+  }
+
   // 開發環境顯示詳細錯誤資訊
   if (process.env.NODE_ENV === 'development') {
-    errorResponse.stack = err.stack;
-    errorResponse.details = err.details;
+    errorResponse.stack = err.stack?.split('\n') ?? [];
   }
 
   res.status(statusCode).json(errorResponse);
@@ -58,7 +61,7 @@ function asyncHandler(fn) {
  * 自訂錯誤類別
  */
 class AppError extends Error {
-  constructor(message, statusCode = 500, details = null) {
+  constructor(statusCode = 500, message, details = null) {
     super(message);
     this.statusCode = statusCode;
     this.details = details;
@@ -68,26 +71,38 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-  constructor(message, details = null) {
-    super(message, 400, details);
+  constructor(details = [], message = '參數驗證失敗') {
+    super(422, message, details);
+  }
+}
+
+class BadError extends AppError {
+  constructor(message = '請求無效') {
+    super(400, message);
   }
 }
 
 class NotFoundError extends AppError {
   constructor(message = '找不到資源') {
-    super(message, 404);
+    super(404, message);
   }
 }
 
 class UnauthorizedError extends AppError {
   constructor(message = '未授權的請求') {
-    super(message, 401);
+    super(401, message);
   }
 }
 
 class ForbiddenError extends AppError {
   constructor(message = '禁止存取') {
-    super(message, 403);
+    super(403, message);
+  }
+}
+
+class TooManyRequestsError extends AppError {
+  constructor(message = '過多請求') {
+    super(429, message);
   }
 }
 
@@ -96,8 +111,10 @@ module.exports = {
   notFoundHandler,
   asyncHandler,
   AppError,
+  BadError,
   ValidationError,
   NotFoundError,
   UnauthorizedError,
   ForbiddenError,
+  TooManyRequestsError,
 };
