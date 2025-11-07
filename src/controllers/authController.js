@@ -40,13 +40,13 @@ async function register(req, res) {
   } catch (error) {
     // Firebase Auth 錯誤處理
     if (error.code === "auth/email-already-exists") {
-      throw new BadError(`[Firebase Auth] 此 Email 已在中註冊`);
+      throw new BadError(`此 Email 已在中註冊`);
     } else if (error.code === "auth/invalid-email") {
-      throw new BadError(`[Firebase Auth] Email 格式不正確`);
+      throw new BadError(`Email 格式不正確`);
     } else if (error.code === "auth/weak-password") {
-      throw new BadError(`[Firebase Auth] 密碼強度不足（至少 6 個字元）`);
+      throw new BadError(`密碼強度不足（至少 6 個字元）`);
     } else {
-      throw new BadError(`[Firebase Auth] ${error.code}, ${error.message}`);
+      throw new BadError(`${error.code}, ${error.message}`);
     }
   }
 
@@ -115,13 +115,13 @@ async function login(req, res) {
       const errorCode = error.response.data.error.message;
 
       if (errorCode === "EMAIL_NOT_FOUND" || errorCode === "INVALID_PASSWORD" || errorCode === "INVALID_LOGIN_CREDENTIALS") {
-        throw new UnauthorizedError(`[Firebase Auth] Email 或密碼錯誤`);
+        throw new UnauthorizedError(`Email 或密碼錯誤`);
       } else if (errorCode === "USER_DISABLED") {
-        throw new ForbiddenError(`[Firebase Auth] 此帳號已被停用`);
+        throw new ForbiddenError(`此帳號已被停用`);
       } else if (errorCode === "TOO_MANY_ATTEMPTS_TRY_LATER") {
-        throw new TooManyRequestsError(`[Firebase Auth] 登入嘗試次數過多，請稍後再試`);
+        throw new TooManyRequestsError(`登入嘗試次數過多，請稍後再試`);
       } else {
-        throw new BadError(`[Firebase Auth] ${error.response.data.error.message}`);
+        throw new BadError(`${error.response.data.error.message}`);
       }
     }
   }
