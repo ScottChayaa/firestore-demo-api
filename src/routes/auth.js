@@ -20,7 +20,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage('密碼至少需要 6 個字元'),
     body('name').notEmpty().withMessage('姓名為必填欄位'),
-    body('phone').notEmpty().withMessage('電話為必填欄位'),
+    body('phone').notEmpty().isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
   asyncHandler(register)

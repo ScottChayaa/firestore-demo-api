@@ -1,0 +1,17 @@
+{
+  "watch": ["src", "index.js"],
+  "ext": "js,json",
+  "ignore": [
+    "node_modules",
+    "*.test.js",
+    "*.spec.js",
+    ".git",
+    "docs"
+  ],
+  "legacyWatch": false,
+  "delay": 1000,
+  "verbose": false,
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

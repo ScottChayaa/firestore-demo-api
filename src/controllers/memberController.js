@@ -51,14 +51,12 @@ async function createMember(req, res) {
     const newMember = await docRef.get();
 
     res.status(201).json({
-      success: true,
       data: defaultMapper(newMember),
       message: '會員建立成功',
     });
   } catch (error) {
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -66,7 +64,6 @@ async function createMember(req, res) {
 
     console.error('❌ Error creating member:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '建立會員失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -91,13 +88,11 @@ async function getMemberById(req, res) {
     }
 
     res.json({
-      success: true,
       data: defaultMapper(doc),
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -105,7 +100,6 @@ async function getMemberById(req, res) {
 
     console.error('❌ Error fetching member:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢會員失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -164,14 +158,12 @@ async function updateMember(req, res) {
     const updatedMember = await memberRef.get();
 
     res.json({
-      success: true,
       data: defaultMapper(updatedMember),
       message: '會員資料更新成功',
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -179,7 +171,6 @@ async function updateMember(req, res) {
 
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -187,7 +178,6 @@ async function updateMember(req, res) {
 
     console.error('❌ Error updating member:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '更新會員失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -217,14 +207,12 @@ async function deleteMember(req, res) {
     await memberRef.delete();
 
     res.json({
-      success: true,
       message: '會員刪除成功',
       data: { id },
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -232,7 +220,6 @@ async function deleteMember(req, res) {
 
     console.error('❌ Error deleting member:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '刪除會員失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -256,14 +243,12 @@ async function listMembers(req, res) {
     });
 
     res.json({
-      success: true,
       data: members,
       count: members.length,
     });
   } catch (error) {
     console.error('❌ Error listing members:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢會員列表失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,

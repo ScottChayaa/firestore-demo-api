@@ -108,7 +108,7 @@ nano .env
 
 ### 6. 建立 Firestore 資料庫
 
-1. 前往 [gcloud Console](https://console.cloud.google.com/)
+1. 前往 [Gcloud Console](https://console.cloud.google.com/)
 2. 選擇專案 > Firestore > 建立資料庫
 3. 資料庫ID: firestore-demo-api
 4. 區域: asia-east1 (台灣)
@@ -131,12 +131,12 @@ firebase init firestore
 firebase projects:list
 
 # 切換目前使用專案
-firebase use apple-e9191
+firebase use liang-dev
 
 # 部署 Rules 和 Indexes
 firebase deploy --only firestore:rules,firestore:indexes
 # 部署 Rules 和 Indexes 到指定的專案ID
-firebase deploy --only firestore:rules,firestore:indexes --project apple-e9191
+firebase deploy --only firestore:rules,firestore:indexes --project liang-dev
 
 ```
 
@@ -148,21 +148,21 @@ npm run seed
 
 <details>
 
-<summary>❌如果執行 seed 發生權限錯誤</summary>
+<summary>❌如果發生權限錯誤</summary>
 
 需到 IAM 設定新增權限
 
 ```bash
 錯誤 : "code":403,"message":"Caller does not have required permission to use project apple-e9191. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission
 
-1. 仔細觀察錯誤內容, 會有類似這段 IAM 導引設定連結
+1. 仔細觀察錯誤內容, 會有類似這段 IAM 的導引設定連結
   - 開啟：https://console.cloud.google.com/iam-admin/iam?project=liang-dev
 2. 在 IAM 列表中，找到你的 firebase-adminsdk Service Account
   - 點擊該列右側的「Edit」（鉛筆圖示）
 3. 新增必要角色
   - 點擊「+ ADD ANOTHER ROLE」按鈕
   - 搜尋並新增以下角色：
-    - 搜尋 roles/serviceusage.serviceUsageConsumer (服務使用情形消費者)
+    - 搜尋 roles/serviceusage.serviceUsageConsumer  => 服務使用情形消費者
 4. 重新執行測試資料生成
 npm run seed
 

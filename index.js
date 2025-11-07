@@ -2,10 +2,6 @@
  * Firestore Demo API - 伺服器入口點
  *
  * Node.js + Express + Firestore 會員訂單查詢系統
- * 支援公開 API（商品瀏覽）和私有 API（會員、訂單管理）
- *
- * 作者：scottchayaa
- * 日期：2025-10-29
  */
 
 require('dotenv').config();

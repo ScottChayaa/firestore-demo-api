@@ -27,7 +27,7 @@ const {
  */
 
 // 套用驗證中間件到所有路由
-router.use(authenticate);
+// router.use(authenticate);
 
 // 取得訂單列表（支援分頁和多條件篩選）
 // GET /api/orders?memberId=xxx&status=completed&startDate=2025-01-01&limit=20&cursor=abc

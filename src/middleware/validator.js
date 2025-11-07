@@ -17,8 +17,7 @@ function validate(req, res, next) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
+    return res.status(422).json({
       error: 'ValidationError',
       message: '請求參數驗證失敗',
       details: errors.array().map(err => ({
@@ -45,14 +44,12 @@ function validatePagination(req, res, next) {
     const parsedLimit = parseInt(limit);
     if (isNaN(parsedLimit) || parsedLimit < 1) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: 'limit 必須是大於 0 的整數',
       });
     }
     if (parsedLimit > MAX_LIMIT) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: `limit 不能超過 ${MAX_LIMIT}`,
       });
@@ -80,7 +77,6 @@ function validateDateRange(req, res, next) {
     const start = new Date(startDate);
     if (isNaN(start.getTime())) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: 'startDate 格式不正確（應為 ISO 8601 格式）',
       });
@@ -92,7 +88,6 @@ function validateDateRange(req, res, next) {
     const end = new Date(endDate);
     if (isNaN(end.getTime())) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: 'endDate 格式不正確（應為 ISO 8601 格式）',
       });
@@ -104,7 +99,6 @@ function validateDateRange(req, res, next) {
   if (req.dateRange && req.dateRange.startDate && req.dateRange.endDate) {
     if (req.dateRange.startDate > req.dateRange.endDate) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: 'startDate 不能晚於 endDate',
       });

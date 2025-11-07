@@ -98,7 +98,6 @@ async function cleanAll() {
     console.log(`   - 總耗時: ${duration} 秒\n`);
 
     return {
-      success: true,
       deletedCount: totalDeleted,
       collections: COLLECTIONS,
     };

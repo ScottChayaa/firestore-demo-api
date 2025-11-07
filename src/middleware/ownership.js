@@ -25,14 +25,12 @@ function filterOrdersByOwnership(req, res, next) {
 
     // 沒有用戶資訊（不應該發生，因為有 authenticate middleware）
     return res.status(401).json({
-      success: false,
       error: 'Unauthorized',
       message: '需要登入才能查詢訂單',
     });
   } catch (error) {
     console.error('❌ Error in filterOrdersByOwnership:', error);
     return res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '權限檢查失敗',
     });
@@ -74,7 +72,6 @@ async function checkOrderOwnership(req, res, next) {
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -82,7 +79,6 @@ async function checkOrderOwnership(req, res, next) {
 
     if (error instanceof ForbiddenError) {
       return res.status(403).json({
-        success: false,
         error: 'Forbidden',
         message: error.message,
       });
@@ -90,7 +86,6 @@ async function checkOrderOwnership(req, res, next) {
 
     console.error('❌ Error in checkOrderOwnership:', error);
     return res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '權限檢查失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -119,14 +114,12 @@ function enforceOwnershipOnCreate(req, res, next) {
 
     // 沒有用戶資訊（不應該發生）
     return res.status(401).json({
-      success: false,
       error: 'Unauthorized',
       message: '需要登入才能建立訂單',
     });
   } catch (error) {
     console.error('❌ Error in enforceOwnershipOnCreate:', error);
     return res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '權限檢查失敗',
     });

@@ -15,7 +15,6 @@ function errorHandler(err, req, res, next) {
 
   // 標準化錯誤回應
   const errorResponse = {
-    success: false,
     error: err.name || 'InternalServerError',
     message: err.message || '伺服器發生錯誤',
   };
@@ -34,7 +33,6 @@ function errorHandler(err, req, res, next) {
  */
 function notFoundHandler(req, res) {
   res.status(404).json({
-    success: false,
     error: 'NotFound',
     message: `找不到路徑: ${req.method} ${req.path}`,
   });

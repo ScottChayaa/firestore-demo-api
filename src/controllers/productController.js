@@ -70,13 +70,11 @@ async function getProducts(req, res) {
     );
 
     res.json({
-      success: true,
       ...result,
     });
   } catch (error) {
     console.error('❌ Error fetching products:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢商品失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -103,13 +101,11 @@ async function getProductById(req, res) {
     const product = defaultMapper(doc);
 
     res.json({
-      success: true,
       data: product,
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -117,7 +113,6 @@ async function getProductById(req, res) {
 
     console.error('❌ Error fetching product:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢商品失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -145,13 +140,11 @@ async function getCategories(req, res) {
     });
 
     res.json({
-      success: true,
       data: Array.from(categories).sort(),
     });
   } catch (error) {
     console.error('❌ Error fetching categories:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢分類失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,

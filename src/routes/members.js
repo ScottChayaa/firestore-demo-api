@@ -21,7 +21,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
  */
 
 // 套用驗證中間件到所有路由
-router.use(authenticate);
+// router.use(authenticate);
 
 // 列出會員列表
 // GET /api/members

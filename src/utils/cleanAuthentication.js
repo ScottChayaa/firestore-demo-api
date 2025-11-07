@@ -117,7 +117,6 @@ async function cleanAll() {
     if (uids.length === 0) {
       console.log("\n✅ 沒有用戶需要刪除");
       return {
-        success: true,
         deletedCount: 0,
         failedCount: 0,
       };
@@ -137,7 +136,6 @@ async function cleanAll() {
     console.log(`   - 總耗時: ${duration} 秒\n`);
 
     return {
-      success: true,
       deletedCount,
       failedCount,
     };

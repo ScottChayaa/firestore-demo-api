@@ -90,13 +90,11 @@ async function getOrders(req, res) {
     );
 
     res.json({
-      success: true,
       ...result,
     });
   } catch (error) {
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -104,7 +102,6 @@ async function getOrders(req, res) {
 
     console.error('❌ Error fetching orders:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢訂單失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -129,13 +126,11 @@ async function getOrderById(req, res) {
     }
 
     res.json({
-      success: true,
       data: defaultMapper(doc),
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -143,7 +138,6 @@ async function getOrderById(req, res) {
 
     console.error('❌ Error fetching order:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '查詢訂單失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -199,14 +193,12 @@ async function createOrder(req, res) {
     const newOrder = await docRef.get();
 
     res.status(201).json({
-      success: true,
       data: defaultMapper(newOrder),
       message: '訂單建立成功',
     });
   } catch (error) {
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -214,7 +206,6 @@ async function createOrder(req, res) {
 
     console.error('❌ Error creating order:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '建立訂單失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -276,14 +267,12 @@ async function updateOrder(req, res) {
     const updatedOrder = await orderRef.get();
 
     res.json({
-      success: true,
       data: defaultMapper(updatedOrder),
       message: '訂單更新成功',
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -291,7 +280,6 @@ async function updateOrder(req, res) {
 
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -299,7 +287,6 @@ async function updateOrder(req, res) {
 
     console.error('❌ Error updating order:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '更新訂單失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -329,14 +316,12 @@ async function deleteOrder(req, res) {
     await orderRef.delete();
 
     res.json({
-      success: true,
       message: '訂單刪除成功',
       data: { id },
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: error.message,
       });
@@ -344,7 +329,6 @@ async function deleteOrder(req, res) {
 
     console.error('❌ Error deleting order:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '刪除訂單失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,

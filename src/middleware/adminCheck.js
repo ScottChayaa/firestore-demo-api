@@ -39,7 +39,6 @@ async function checkAdminStatus(req, res, next) {
 function requireAdmin(req, res, next) {
   if (!req.user || !req.user.isAdmin) {
     return res.status(403).json({
-      success: false,
       error: 'Forbidden',
       message: '需要管理員權限才能存取此資源',
     });

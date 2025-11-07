@@ -311,7 +311,6 @@ async function register(req, res) {
   });
 
   res.status(201).json({
-    success: true,
     data: { uid: userRecord.uid, email, name, phone }
   });
 }
@@ -346,7 +345,6 @@ async function login(req, res) {
   const memberDoc = await db.collection('members').doc(localId).get();
 
   res.json({
-    success: true,
     data: { idToken, refreshToken, expiresIn, user: memberDoc.data() }
   });
 }

@@ -53,7 +53,6 @@ app.use(express.urlencoded({ extended: true }));
 // 健康檢查端點（公開）
 app.get('/health', (req, res) => {
   res.json({
-    success: true,
     message: 'Firestore Demo API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
@@ -63,7 +62,6 @@ app.get('/health', (req, res) => {
 // 根路徑
 app.get('/', (req, res) => {
   res.json({
-    success: true,
     message: 'Welcome to Firestore Demo API',
     version: '1.0.0',
   });
@@ -74,21 +72,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/public/products', productsRouter);
 
 // 私有 API 路由（需要 Firebase Auth 驗證）
-app.use('/api/members', membersRouter);
-app.use('/api/orders', ordersRouter);
-
-// 測試資料生成端點（需要驗證）
-app.post('/api/seed', authenticate, asyncHandler(async (req, res) => {
-  console.log('📝 收到測試資料生成請求...');
-
-  const result = await seedAll();
-
-  res.status(201).json({
-    success: true,
-    message: '測試資料生成成功',
-    ...result,
-  });
-}));
+app.use('/api/members', authenticate, membersRouter);
+app.use('/api/orders', authenticate, ordersRouter);
 
 // ========================================
 // 錯誤處理

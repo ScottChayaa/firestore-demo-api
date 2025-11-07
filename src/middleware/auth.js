@@ -19,7 +19,6 @@ async function authenticate(req, res, next) {
 
     if (!authHeader) {
       return res.status(401).json({
-        success: false,
         error: 'Missing Authorization header',
         message: '請提供 Authorization header: Bearer <token>',
       });
@@ -29,7 +28,6 @@ async function authenticate(req, res, next) {
     const parts = authHeader.split(' ');
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
       return res.status(401).json({
-        success: false,
         error: 'Invalid Authorization header format',
         message: '格式應為: Bearer <token>',
       });
@@ -57,7 +55,6 @@ async function authenticate(req, res, next) {
     // 處理不同類型的錯誤
     if (error.code === 'auth/id-token-expired') {
       return res.status(401).json({
-        success: false,
         error: 'Token expired',
         message: 'ID Token 已過期，請重新登入',
       });
@@ -65,7 +62,6 @@ async function authenticate(req, res, next) {
 
     if (error.code === 'auth/argument-error') {
       return res.status(401).json({
-        success: false,
         error: 'Invalid token',
         message: 'ID Token 格式不正確',
       });
@@ -73,7 +69,6 @@ async function authenticate(req, res, next) {
 
     // 其他驗證錯誤
     return res.status(401).json({
-      success: false,
       error: 'Authentication failed',
       message: '身份驗證失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,

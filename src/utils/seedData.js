@@ -391,7 +391,6 @@ async function seedAll() {
     console.log("  密碼（統一）: qwer1234\n");
 
     return {
-      success: true,
       data: {
         membersCreated: CONFIG.MEMBERS_COUNT,
         ordersCreated: CONFIG.ORDERS_COUNT,

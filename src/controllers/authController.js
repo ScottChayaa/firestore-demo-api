@@ -16,16 +16,6 @@ async function register(req, res) {
   try {
     const { email, password, name, phone } = req.body;
 
-    // 驗證必填欄位
-    if (!email || !password || !name || !phone) {
-      throw new ValidationError('email, password, name, phone 為必填欄位');
-    }
-
-    // 驗證密碼長度
-    if (password.length < 6) {
-      throw new ValidationError('密碼至少需要 6 個字元');
-    }
-
     // 檢查 Email 是否已存在於 Firestore
     const existingMember = await db.collection('members')
       .where('email', '==', email)
@@ -55,20 +45,18 @@ async function register(req, res) {
     await db.collection('members').doc(userRecord.uid).set(memberData);
 
     res.status(201).json({
-      success: true,
+      message: '註冊成功，請使用 /api/auth/login 登入取得 token',
       data: {
         uid: userRecord.uid,
         email: userRecord.email,
         name,
         phone,
-      },
-      message: '註冊成功，請使用 /api/auth/login 登入取得 token',
+      }
     });
   } catch (error) {
     // Firebase Auth 錯誤處理
     if (error.code === 'auth/email-already-exists') {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: '此 Email 已在 Firebase Auth 中註冊',
       });
@@ -76,7 +64,6 @@ async function register(req, res) {
 
     if (error.code === 'auth/invalid-email') {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: 'Email 格式不正確',
       });
@@ -84,7 +71,6 @@ async function register(req, res) {
 
     if (error.code === 'auth/weak-password') {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: '密碼強度不足（至少 6 個字元）',
       });
@@ -92,7 +78,6 @@ async function register(req, res) {
 
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -100,7 +85,6 @@ async function register(req, res) {
 
     console.error('❌ Error registering user:', error);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '註冊失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -135,7 +119,6 @@ async function login(req, res) {
     if (!apiKey) {
       console.error('❌ FIREBASE_WEB_API_KEY 未設定');
       return res.status(500).json({
-        success: false,
         error: 'ConfigurationError',
         message: '伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY',
       });
@@ -158,7 +141,6 @@ async function login(req, res) {
 
     if (!memberDoc.exists) {
       return res.status(404).json({
-        success: false,
         error: 'NotFound',
         message: '找不到對應的會員資料',
       });
@@ -167,7 +149,6 @@ async function login(req, res) {
     const memberData = memberDoc.data();
 
     res.json({
-      success: true,
       data: {
         idToken,
         refreshToken,
@@ -188,7 +169,6 @@ async function login(req, res) {
 
       if (errorCode === 'EMAIL_NOT_FOUND' || errorCode === 'INVALID_PASSWORD') {
         return res.status(401).json({
-          success: false,
           error: 'Unauthorized',
           message: 'Email 或密碼錯誤',
         });
@@ -196,7 +176,6 @@ async function login(req, res) {
 
       if (errorCode === 'USER_DISABLED') {
         return res.status(403).json({
-          success: false,
           error: 'Forbidden',
           message: '此帳號已被停用',
         });
@@ -204,7 +183,6 @@ async function login(req, res) {
 
       if (errorCode === 'TOO_MANY_ATTEMPTS_TRY_LATER') {
         return res.status(429).json({
-          success: false,
           error: 'TooManyRequests',
           message: '登入嘗試次數過多，請稍後再試',
         });
@@ -213,7 +191,6 @@ async function login(req, res) {
 
     if (error instanceof ValidationError) {
       return res.status(400).json({
-        success: false,
         error: 'ValidationError',
         message: error.message,
       });
@@ -221,7 +198,6 @@ async function login(req, res) {
 
     console.error('❌ Error logging in:', error.response?.data || error.message);
     res.status(500).json({
-      success: false,
       error: 'InternalServerError',
       message: '登入失敗',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
