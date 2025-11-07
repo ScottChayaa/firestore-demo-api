@@ -42,6 +42,34 @@ if (process.env.NODE_ENV !== 'test') {
     logger,
     // 自動記錄每個請求的資訊
     autoLogging: true,
+
+    // 根據狀態碼決定日誌等級
+    customLogLevel: function (req, res, err) {
+      if (res.statusCode >= 400 && res.statusCode < 500) {
+        return 'warn';  // 4xx 客戶端錯誤 → WARN
+      } else if (res.statusCode >= 500 || err) {
+        return 'error'; // 5xx 伺服器錯誤 → ERROR
+      } else if (res.statusCode >= 300 && res.statusCode < 400) {
+        return 'info';  // 3xx 重導向 → INFO
+      }
+      return 'info';    // 2xx 成功 → INFO
+    },
+
+    // 將 res.err 對應到日誌的 err 欄位
+    customAttributeKeys: {
+      err: 'err'
+    },
+
+    // 自訂成功訊息（顯示請求方法和路徑）
+    customSuccessMessage: function (req, res) {
+      return `${req.method} ${req.url}`;
+    },
+
+    // 自訂錯誤訊息（顯示錯誤訊息）
+    customErrorMessage: function (req, res, err) {
+      return res.err?.message || err?.message || 'Request failed';
+    },
+
     // 自訂序列化器
     serializers: {
       req: (req) => ({
@@ -54,14 +82,30 @@ if (process.env.NODE_ENV !== 'test') {
           'content-type': req.headers['content-type']
         },
         remoteAddress: req.remoteAddress,
-        remotePort: req.remotePort
+        remotePort: req.remotePort,
+        // 如果有用戶資訊，一併記錄
+        user: req.user ? {
+          uid: req.user.uid,
+          email: req.user.email
+        } : undefined
       }),
       res: (res) => ({
         statusCode: res.statusCode,
         headers: {
           'content-type': res.getHeader('content-type')
         }
-      })
+      }),
+      // 錯誤序列化器（記錄完整堆疊追蹤）
+      err: (err) => {
+        if (!err) return undefined;
+        return {
+          type: err.name,
+          message: err.message,
+          stack: err.stack,
+          statusCode: err.statusCode,
+          details: err.details
+        };
+      }
     }
   }));
 }

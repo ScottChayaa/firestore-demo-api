@@ -1,23 +1,13 @@
-const logger = require('../config/logger');
-
 /**
  * 統一錯誤處理中間件
  * 捕獲所有未處理的錯誤並回傳標準化的錯誤回應
+ *
+ * 注意：不在此處記錄日誌，而是將錯誤資訊附加到 res.err
+ * 讓 pino-http 在請求結束時統一記錄（避免重複日誌）
  */
 function errorHandler(err, req, res, next) {
-  // 記錄錯誤，包含請求上下文
-  logger.error({
-    err,
-    req: {
-      method: req.method,
-      url: req.url,
-      path: req.path,
-      query: req.query,
-      params: req.params,
-      headers: req.headers
-    },
-    user: req.user ? { uid: req.user.uid, email: req.user.email } : undefined
-  }, err.message || 'Unhandled error');
+  // 將錯誤資訊附加到 res.err，供 pino-http 記錄
+  res.err = err;
 
   // 預設錯誤狀態碼
   const statusCode = err.statusCode || 500;

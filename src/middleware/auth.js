@@ -51,7 +51,7 @@ async function authenticate(req, res, next) {
     // 檢查管理員狀態並繼續
     await checkAdminStatus(req, res, next);
   } catch (error) {
-    console.error('❌ Authentication error:', error.message);
+    logger.error({ err: error }, 'Authentication error');
 
     // 處理不同類型的錯誤
     if (error.code === 'auth/id-token-expired') {
