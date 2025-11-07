@@ -36,6 +36,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// 解析 JSON 請求體
+app.use(express.json());
+
 // HTTP 請求日誌（使用 pino-http）
 if (process.env.NODE_ENV !== 'test') {
   app.use(pinoHttp({
@@ -72,23 +75,34 @@ if (process.env.NODE_ENV !== 'test') {
 
     // 自訂序列化器
     serializers: {
-      req: (req) => ({
-        method: req.method,
-        url: req.url,
-        query: req.query,
-        params: req.params,
-        headers: {
-          'user-agent': req.headers['user-agent'],
-          'content-type': req.headers['content-type']
-        },
-        remoteAddress: req.remoteAddress,
-        remotePort: req.remotePort,
-        // 如果有用戶資訊，一併記錄
-        user: req.user ? {
-          uid: req.user.uid,
-          email: req.user.email
-        } : undefined
-      }),
+      req: (req) => {
+        const logData = {
+          method: req.method,
+          url: req.url,
+          query: req.query,
+          params: req.params,
+          headers: {
+            'user-agent': req.headers['user-agent'],
+            'content-type': req.headers['content-type']
+          },
+          remoteAddress: req.remoteAddress,
+          remotePort: req.remotePort,
+          // 如果有用戶資訊，一併記錄
+          user: req.user ? {
+            uid: req.user.uid,
+            email: req.user.email
+          } : undefined
+        };
+
+        // 只在開發環境記錄 body（避免生產環境記錄敏感資訊）
+        console.log('---');
+        console.log(req.body);
+        if (process.env.NODE_ENV === 'development' && req.body) {
+          logData.body = req.body;
+        }
+
+        return logData;
+      },
       res: (res) => ({
         statusCode: res.statusCode,
         headers: {
@@ -101,7 +115,7 @@ if (process.env.NODE_ENV !== 'test') {
         return {
           type: err.name,
           message: err.message,
-          stack: err.stack,
+          stack: err.stack?.split('\n') ?? [],
           statusCode: err.statusCode,
           details: err.details
         };
@@ -109,9 +123,6 @@ if (process.env.NODE_ENV !== 'test') {
     }
   }));
 }
-
-// 解析 JSON 請求體
-app.use(express.json());
 
 // 解析 URL-encoded 請求體
 app.use(express.urlencoded({ extended: true }));
