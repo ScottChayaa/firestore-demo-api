@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
+const pinoHttp = require('pino-http');
+const logger = require('./config/logger');
 require('dotenv').config();
 
 // 匯入路由
@@ -35,9 +36,34 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// 請求日誌
+// HTTP 請求日誌（使用 pino-http）
 if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('combined'));
+  app.use(pinoHttp({
+    logger,
+    // 自動記錄每個請求的資訊
+    autoLogging: true,
+    // 自訂序列化器
+    serializers: {
+      req: (req) => ({
+        method: req.method,
+        url: req.url,
+        query: req.query,
+        params: req.params,
+        headers: {
+          'user-agent': req.headers['user-agent'],
+          'content-type': req.headers['content-type']
+        },
+        remoteAddress: req.remoteAddress,
+        remotePort: req.remotePort
+      }),
+      res: (res) => ({
+        statusCode: res.statusCode,
+        headers: {
+          'content-type': res.getHeader('content-type')
+        }
+      })
+    }
+  }));
 }
 
 // 解析 JSON 請求體

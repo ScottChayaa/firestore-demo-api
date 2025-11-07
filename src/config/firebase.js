@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
 require('dotenv').config();
+const logger = require('./logger');
 
 /**
  * 初始化 Firebase Admin SDK
@@ -12,7 +13,7 @@ function initializeFirebase() {
   try {
     // 檢查是否已初始化
     if (admin.apps.length > 0) {
-      console.log('✅ Firebase Admin SDK already initialized');
+      logger.debug('Firebase Admin SDK already initialized');
       return admin;
     }
 
@@ -24,12 +25,12 @@ function initializeFirebase() {
         Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8')
       );
       credential = admin.credential.cert(serviceAccount);
-      console.log('✅ Using Base64 encoded credentials');
+      logger.info('Using Base64 encoded credentials');
     }
     // 方式二：使用檔案路徑（本地開發）
     else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       credential = admin.credential.applicationDefault();
-      console.log('✅ Using credentials from file:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
+      logger.info({ credentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS }, 'Using credentials from file');
     }
     // 錯誤：未設定憑證
     else {
@@ -46,22 +47,19 @@ function initializeFirebase() {
       projectId: process.env.FIREBASE_PROJECT_ID,
     });
 
-    console.log('✅ Firebase Admin SDK initialized successfully');
-    console.log('📦 Project ID:', process.env.FIREBASE_PROJECT_ID);
+    logger.info({ projectId: process.env.FIREBASE_PROJECT_ID }, 'Firebase Admin SDK initialized successfully');
 
     return admin;
   } catch (error) {
-    console.error('❌ Failed to initialize Firebase Admin SDK:', error.message);
-    console.error('\n🔍 環境變數檢查：');
-    console.error('  - GOOGLE_CREDENTIALS_BASE64:',
-      process.env.GOOGLE_CREDENTIALS_BASE64
-        ? `已設定 (長度: ${process.env.GOOGLE_CREDENTIALS_BASE64.length} 字元)`
-        : '未設定');
-    console.error('  - GOOGLE_APPLICATION_CREDENTIALS:',
-      process.env.GOOGLE_APPLICATION_CREDENTIALS || '未設定');
-    console.error('  - FIREBASE_PROJECT_ID:',
-      process.env.FIREBASE_PROJECT_ID || '未設定');
-    console.error('\n💡 請參考文檔：docs/firebase-credentials.md');
+    logger.error({
+      err: error,
+      environment: {
+        hasBase64Credentials: !!process.env.GOOGLE_CREDENTIALS_BASE64,
+        base64Length: process.env.GOOGLE_CREDENTIALS_BASE64?.length,
+        credentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        projectId: process.env.FIREBASE_PROJECT_ID
+      }
+    }, 'Failed to initialize Firebase Admin SDK');
     throw error;
   }
 }
@@ -86,7 +84,7 @@ db.settings({
   ignoreUndefinedProperties: true,
 });
 
-console.log('✅ Firestore Database ID:', databaseId);
+logger.info({ databaseId }, 'Firestore Database initialized');
 
 module.exports = {
   admin: firebaseAdmin,
