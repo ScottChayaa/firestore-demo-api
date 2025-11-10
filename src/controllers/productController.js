@@ -70,6 +70,8 @@ async function getProducts(req, res) {
       defaultMapper
     );
 
+    logger.info("查詢商品");
+
     res.json({
       ...result,
     });

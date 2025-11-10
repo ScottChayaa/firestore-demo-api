@@ -39,6 +39,9 @@ app.use(cors(corsOptions));
 // 解析 JSON 請求體
 app.use(express.json());
 
+// 解析 URL-encoded 請求體
+app.use(express.urlencoded({ extended: true }));
+
 // HTTP 請求日誌（使用 pino-http）
 if (process.env.NODE_ENV !== 'test') {
   app.use(pinoHttp({
@@ -65,7 +68,7 @@ if (process.env.NODE_ENV !== 'test') {
 
     // 自訂成功訊息（顯示請求方法和路徑）
     customSuccessMessage: function (req, res) {
-      return `${req.method} ${req.url}`;
+      return `${req.method} ${req.originalUrl}`;
     },
 
     // 自訂錯誤訊息（顯示錯誤訊息）
@@ -73,59 +76,32 @@ if (process.env.NODE_ENV !== 'test') {
       return res.err?.message || err?.message || 'Request failed';
     },
 
-    // 自訂序列化器
-    serializers: {
-      req: (req) => {
-        const logData = {
-          method: req.method,
-          url: req.url,
-          query: req.query,
-          params: req.params,
-          headers: {
-            'user-agent': req.headers['user-agent'],
-            'content-type': req.headers['content-type']
-          },
-          remoteAddress: req.remoteAddress,
-          remotePort: req.remotePort,
-          // 如果有用戶資訊，一併記錄
-          user: req.user ? {
-            uid: req.user.uid,
-            email: req.user.email
-          } : undefined
-        };
-
-        // 只在開發環境記錄 body（避免生產環境記錄敏感資訊）
-        console.log('---');
-        console.log(req.body);
-        if (process.env.NODE_ENV === 'development' && req.body) {
-          logData.body = req.body;
-        }
-
-        return logData;
-      },
-      res: (res) => ({
-        statusCode: res.statusCode,
-        headers: {
-          'content-type': res.getHeader('content-type')
-        }
-      }),
-      // 錯誤序列化器（記錄完整堆疊追蹤）
-      err: (err) => {
-        if (!err) return undefined;
+    // 自訂成功請求的額外日誌資料
+    customSuccessObject: function (req, res, loggableObject) {
+      // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
+      if (process.env.NODE_ENV === 'development' && req.body && Object.keys(req.body).length > 0) {
         return {
-          type: err.name,
-          message: err.message,
-          stack: err.stack?.split('\n') ?? [],
-          statusCode: err.statusCode,
-          details: err.details
+          ...loggableObject,
+          reqBody: req.body
         };
       }
-    }
+      return loggableObject;
+    },
+
+    // 自訂錯誤請求的額外日誌資料
+    customErrorObject: function (req, res, err, loggableObject) {
+      // 在開發環境記錄 req.body（幫助除錯錯誤請求）
+      if (process.env.NODE_ENV === 'development' && req.body && Object.keys(req.body).length > 0) {
+        return {
+          ...loggableObject,
+          reqBody: req.body
+        };
+      }
+      return loggableObject;
+    },
+
   }));
 }
-
-// 解析 URL-encoded 請求體
-app.use(express.urlencoded({ extended: true }));
 
 // ========================================
 // 路由設定

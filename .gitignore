@@ -44,3 +44,4 @@ build/
 .claude/
 encoded.txt
 encoded.*.txt
+.mcp.json
