@@ -38,6 +38,9 @@ const logger = pino({
   // 日誌等級（從環境變數讀取，預設為 info）
   level: process.env.LOG_LEVEL || 'info',
 
+  // 使用 'message' 作為訊息欄位（符合 Google Cloud Logging 標準）
+  messageKey: 'message',
+
   // 格式化選項
   formatters: {
     // 映射日誌等級到 Google Cloud Logging severity
