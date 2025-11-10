@@ -264,7 +264,7 @@ gcloud run deploy firestore-demo-api \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
-  --env-vars-file .env \
+  --env-vars-file env.yaml \
   --memory 512Mi \
   --max-instances 10 \
   --timeout 300
