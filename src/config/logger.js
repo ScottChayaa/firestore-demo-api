@@ -46,8 +46,7 @@ const logger = pino({
     // 映射日誌等級到 Google Cloud Logging severity
     level(label, number) {
       return {
-        severity: SEVERITY_LOOKUP[label] || 'INFO',
-        level: number,
+        severity: SEVERITY_LOOKUP[label] || 'INFO'
       };
     },
 

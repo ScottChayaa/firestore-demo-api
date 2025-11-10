@@ -28,3 +28,22 @@ gcloud run deploy firestore-demo-api \
   --timeout 300
 
 ```
+
+
+```bash
+
+# 查看服務的所有 revisions
+gcloud run revisions list \
+  --service firestore-demo-api \
+  --region asia-east1
+
+# 查看當前生產版本（正在服務的版本）
+
+gcloud run services describe firestore-demo-api \
+  --region asia-east1 \
+  --format="value(status.latestReadyRevisionName)"
+
+# 查看特定 revision 的詳細資訊
+gcloud run revisions describe firestore-demo-api-00008-8t6 --region asia-east1
+
+```
