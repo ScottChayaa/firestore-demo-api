@@ -1,8 +1,7 @@
 
-# @baseUrl = http://localhost:8080
-@baseUrl = https://firestore-demo-api-138350987861.asia-east1.run.app
+@baseUrl = http://localhost:8080
 @contentType = application/json
-@authorization = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjU0NTEzMjA5OWFkNmJmNjEzODJiNmI0Y2RlOWEyZGZlZDhjYjMwZjAiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi6LaZ5bu65ZyLIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2FwcGxlLWU5MTkxIiwiYXVkIjoiYXBwbGUtZTkxOTEiLCJhdXRoX3RpbWUiOjE3NjI0ODI5MzcsInVzZXJfaWQiOiIxMENhMDdTRFdPUW9mUVB4RkNUcWY3N3ZnR2IyIiwic3ViIjoiMTBDYTA3U0RXT1FvZlFQeEZDVHFmNzd2Z0diMiIsImlhdCI6MTc2MjQ4MjkzNywiZXhwIjoxNzYyNDg2NTM3LCJlbWFpbCI6InVzZXI2QGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInVzZXI2QGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.FD0Xae8NU0HIrjFJo_fJaPpo7kOH7ADDWZC3XesBremY8M9aH8fU8CJQMqRkAAE4_hKd5EImR6mrMePONEU8a4QsHZjMrR8bMkHSjJoLocWs8N2spPvcJT30Vgo4ciwQU2w_2VdJDxlq0O553qSUgjKBfgp8Pm1KqzXtTH-5cz_Im_jK91Wtk2bJ5nAa7n_7_Mn8LwGaB2E0BS9G4hs039a0lJI6WFi8cfp395K27TrWntpl_gocrOENWREZEuZ5PHp4DjCnp5nH12f3R6LXH8ojvcLWYiwQiPe2nb1KaNQu7vgYrGzJmuaMXKEKKgZpwXe1cE7i3f6zJEnALRks5A
+@authorization = Bearer {_登入成功後取得token_}
 
 ### ============================================
 ### 登入取得 ID Token

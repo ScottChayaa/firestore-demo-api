@@ -45,3 +45,8 @@ build/
 # Claude Code
 .claude/
 .mcp.json
+
+# Rest API
+*.rest
+!private.example.rest
+!public.example.rest
