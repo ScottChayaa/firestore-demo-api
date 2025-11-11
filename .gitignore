@@ -42,9 +42,6 @@ yarn-error.log*
 dist/
 build/
 
-# Docker
-.dockerignore
-
 # Claude Code
 .claude/
 .mcp.json
