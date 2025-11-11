@@ -1,6 +1,9 @@
 # 使用官方 Node.js 22 LTS 映像作為基礎
 FROM node:22-alpine
 
+# 安裝 curl (用於健康檢查)
+RUN apk add --no-cache curl
+
 # 設定工作目錄
 WORKDIR /app
 
@@ -33,7 +36,7 @@ ENV NODE_ENV=production
 # 健康檢查
 # 每 30 秒檢查一次，超時 10 秒，啟動後 40 秒才開始檢查，失敗 3 次判定為不健康
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD curl -f http://localhost:${PORT:-8080}/health || exit 1
 
 # 啟動應用程式
 CMD ["node", "index.js"]
