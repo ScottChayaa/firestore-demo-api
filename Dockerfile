@@ -30,8 +30,8 @@ USER nodejs
 # 暴露應用程式埠號（Cloud Run 預設使用環境變數 PORT）
 EXPOSE 8080
 
-# 設定環境變數
-ENV NODE_ENV=production
+# 設定環境變數: development, production
+ENV NODE_ENV=development
 
 # 健康檢查
 # 每 30 秒檢查一次，超時 10 秒，啟動後 40 秒才開始檢查，失敗 3 次判定為不健康
