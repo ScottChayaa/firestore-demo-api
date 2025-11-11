@@ -16,6 +16,8 @@ firebase-service-account-*.json
 firebase-service-account.*.json
 *-service-account.json
 .firebase/
+encoded.txt
+encoded.*.txt
 
 # IDE
 .vscode/
@@ -44,6 +46,4 @@ build/
 
 # Claude Code
 .claude/
-encoded.txt
-encoded.*.txt
 .mcp.json
