@@ -2,9 +2,9 @@
 
 **gcloud 部屬設定**
 ```sh
-gcloud config configurations create my-liang-dev          # 建立一個新的 gcloud 設定組態 (configuration)
+gcloud config configurations create default               # 建立一個新的 gcloud 設定組態 (configuration)
 gcloud config configurations list                         # 查看所有組態
-gcloud config configurations activate my-liang-dev        # 切換設定
+gcloud config configurations activate default             # 切換設定
 gcloud config set project liang-dev                       # 設定 gcloud CLI 的預設專案ID
 
 gcloud config list                                        # 顯示目前設定
@@ -18,6 +18,9 @@ gcloud auth configure-docker asia-east1-docker.pkg.dev    # 設定 Docker 對 Go
 # 登入並設定專案
 gcloud auth login
 gcloud config set project liang-dev
+
+# 切換設定: default
+gcloud config configurations activate default
 
 # 建立映像
 docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1 .

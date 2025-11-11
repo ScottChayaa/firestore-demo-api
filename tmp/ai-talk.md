@@ -91,3 +91,10 @@ might contain more information.
 Logs URL: https://console.cloud.google.com/logs/viewer?project=liang-dev&resource=cloud_run_revision/service_name/firestore-demo-api/revision_name/firestore-demo-api-00001-l97&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22firestore-demo-api%22%0Aresource.labels.revision_name%3D%22firestore-demo-api-00001-l97%22
 For more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start
 ```
+
+
+幫我研究一下 app.js, logger.js
+我想要使用查訂單資料 /api/orders 時, 能根據 Authorization 紀錄到 log 裡面
+目前我有紀錄註解 // TODO: not work, 表示有嘗試這樣取 req.user 資料, 但都沒用
+
+幫我研究一下 pino 該怎麼紀錄 api user LOG資訊. use context7

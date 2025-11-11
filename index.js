@@ -46,21 +46,21 @@ const server = app.listen(PORT, () => {
       server: `http://localhost:${PORT}`,
       health: `http://localhost:${PORT}/health`
     }
-  }, 'Firestore Demo API Server Started');
+  }, '🚀 Firestore Demo API 伺服器開啟');
 });
 
 // 優雅地關閉伺服器
 const gracefulShutdown = (signal) => {
-  logger.warn({ signal }, '收到終止信號，正在關閉伺服器...');
+  logger.warn({ signal }, '❗ 收到終止信號，正在關閉伺服器...');
 
   server.close(() => {
-    logger.info('HTTP 伺服器已關閉');
+    logger.info('✅ HTTP 伺服器已關閉');
     process.exit(0);
   });
 
   // 如果 10 秒內無法關閉，強制退出
   setTimeout(() => {
-    logger.error('無法優雅地關閉伺服器，強制退出');
+    logger.error('❗ 無法優雅地關閉伺服器，強制退出');
     process.exit(1);
   }, 10000);
 };
