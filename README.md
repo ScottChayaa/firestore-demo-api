@@ -75,7 +75,7 @@ cp env_example.yaml env.yaml
 
 > 💡 **了解兩種憑證的差異**：本專案使用兩種 Firebase 憑證，用途不同。詳細說明請參考 [Firebase 憑證說明文檔](./docs/firebase-credentials.md)。
 
-### 3. 取得 Firebase Service Account Key
+### 3. 取得 Firebase Service Account Key 並編碼成 Base64
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/)
 2. 新增專案: liang-dev
@@ -86,16 +86,16 @@ cp env_example.yaml env.yaml
 6. 生成 encoded.liang-dev.txt > 複製該值到 `.env` 檔案的 `GOOGLE_CREDENTIALS_BASE64` 變數
 
     ```bash
-    base64 firebase-service-account.json | tr -d '\n' > encoded.txt
+    base64 firebase-service-account.json | tr -d '\n' > encoded.liang-dev.txt
     ```
 
 ### 4. 取得 Firebase Web API Key
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/)
-2. 選擇專案 > Project Settings > General
-3. 在「Your apps」> 選取平台「Web」
+2. 建立/選擇專案 : liang-dev
+3. 專案設定 > 你的應用程式 > 選取平台「Web」
 4. 註冊應用程式: firestore-demo-api
-4. 複製該值到 `.env` 檔案的 `FIREBASE_WEB_API_KEY` 變數
+5. 複製 `apiKey` 該值到 `.env` 檔案的 `FIREBASE_WEB_API_KEY` 變數
 
 ### 5. 啟用 Firebase Authentication
 
@@ -108,8 +108,8 @@ cp env_example.yaml env.yaml
 
 ### 6. 建立 Firestore 資料庫
 
-1. 前往 [Gcloud Console](https://console.cloud.google.com/)
-2. 選擇專案 > Firestore > 建立資料庫
+1. 前往 [Firebase Console](https://console.firebase.google.com/)
+2. 選擇專案 > Firestore Database > 建立資料庫
 3. 資料庫ID: firestore-demo-api
 4. 區域: asia-east1 (台灣)
 
@@ -120,14 +120,10 @@ cp env_example.yaml env.yaml
 # 安裝 Firebase CLI（如果還沒安裝）
 npm install -g firebase-tools
 
-# 登入
+# 登入 (⚠重要)
 firebase login
 
-# 初始化 Firestore（如果尚未初始化）
-#   若先前有完成, 則會出現 firebase.json, .firebaserc
-firebase init firestore
-
-# 確認你有設定哪幾個專案, 
+# 確認你有設定哪幾個專案
 firebase projects:list
 
 # 切換目前使用專案
@@ -231,10 +227,11 @@ gcloud config set project YOUR_PROJECT_ID
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
 
-# 請到 Artifact Registry 後台頁面設定存放區: my-docker
-# 並指定單區域位置: asia-east1 (台灣)
+# 前往 Firebase Console > Artifact Registry 
+# 設定存放區: my-docker
+# 指定單區域位置: asia-east1 (台灣)
 
-# 針對與這個存放區位置相關聯的 Artifact Registry 網域，將 gcloud 設定為其憑證輔助程式：
+# 設定 Docker 對 Google Artifact Registry 的登入憑證
 gcloud auth configure-docker asia-east1-docker.pkg.dev
 
 # 建立映像
@@ -256,7 +253,7 @@ docker run -p 8080:8080 \
 
 ```bash
 # 將 Service Account JSON 轉為 Base64
-base64 firebase-service-account.json | tr -d '\n' > encoded.txt
+base64 firebase-service-account.liang-dev.json | tr -d '\n' > encoded.liang-dev.txt
 
 # 部署到 Cloud Run（包含完整環境變數）
 gcloud run deploy firestore-demo-api \
@@ -267,7 +264,8 @@ gcloud run deploy firestore-demo-api \
   --env-vars-file env.yaml \
   --memory 512Mi \
   --max-instances 10 \
-  --timeout 300
+  --timeout 300 \
+  --project liang-dev
 ```
 
 **參數說明**：
@@ -294,8 +292,8 @@ firebase deploy --only firestore:indexes
 
 部署完成後，您將獲得一個 Cloud Run 服務網址，例如：
 
-```
-https://firestore-demo-api-xxxxx-xx.a.run.app
+```bash
+https://firestore-demo-api-xxxxx.asia-east1.run.app
 ```
 
 ---
@@ -313,10 +311,9 @@ gcloud container images delete asia-east1-docker.pkg.dev/liang-dev/my-docker/fir
 npm run clean:all
 
 # Step 4: 刪除 Firebase 專案（透過 Firebase Console）
-# 1. 前往 Firebase Console
-# 2. Project Settings > General
-# 3. 捲動至底部，點擊「Delete Project」
-# 4. 輸入專案 ID 確認
+# 1. 前往 Firebase Console > 專案設定
+# 2. 捲動至底部，點擊「Delete Project」
+# 3. 輸入專案 ID 確認
 # ⚠️ 注意：專案需等待 30 天才會完全刪除
 ```
 
@@ -377,6 +374,7 @@ npm run clean:all
 
 ## 📝 相關文件
 
+- [快速部屬](./docs/fast-deploy.md) - 用於持續更新開發的簡易文檔
 - [CLAUDE.md](./CLAUDE.md) - 完整開發計畫文檔
 - [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup)
 - [Firestore 查詢文檔](https://firebase.google.com/docs/firestore/query-data/queries)

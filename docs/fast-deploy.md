@@ -1,24 +1,23 @@
 # 快速部屬
 
-**GCP Authorize**
+**gcloud 部屬設定**
 ```sh
-gcloud config configurations create my-liang-dev
-gcloud config configurations list
+gcloud config configurations create my-liang-dev          # 建立一個新的 gcloud 設定組態 (configuration)
+gcloud config configurations list                         # 查看所有組態
 gcloud config configurations activate my-liang-dev        # 切換設定
-gcloud config set project liang-dev                       # 設定專案ID
+gcloud config set project liang-dev                       # 設定 gcloud CLI 的預設專案ID
 
 gcloud config list                                        # 顯示目前設定
 
-gcloud auth login
-gcloud auth configure-docker asia-east1-docker.pkg.dev
+gcloud auth login                                         # 驗證 gcloud CLI 的使用者
+gcloud auth configure-docker asia-east1-docker.pkg.dev    # 設定 Docker 對 Google Artifact Registry 的登入憑證
 ```
 
+**Deploy to Cloud Run**
 ```bash
-
 # 登入並設定專案
 gcloud auth login
 gcloud config set project liang-dev
-
 
 # 建立映像
 docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1 .
@@ -35,13 +34,21 @@ gcloud run deploy firestore-demo-api \
   --env-vars-file env.liang-dev.yaml \
   --memory 512Mi \
   --max-instances 10 \
-  --timeout 300
-
+  --timeout 300 \
+  --project liang-dev
 ```
 
-
+**Deploy to Firestore**
 ```bash
+# 登入 (⚠重要)
+firebase login
 
+# 部署 Rules 和 Indexes 到指定的專案ID
+firebase deploy --only firestore:rules,firestore:indexes --project liang-dev
+```
+
+**Check cloud run infomation**
+```bash
 # 查看服務的所有 revisions
 gcloud run revisions list \
   --service firestore-demo-api \
@@ -54,5 +61,4 @@ gcloud run services describe firestore-demo-api \
 
 # 查看特定 revision 的詳細資訊
 gcloud run revisions describe firestore-demo-api-00008-8t6 --region asia-east1
-
 ```
