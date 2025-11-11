@@ -1,5 +1,12 @@
 # 快速部屬
 
+```bash
+# 顯示當前 gcloud 配置
+gcloud config list
+
+# 查看 gcloud 所有設定
+gcloud config configurations list
+```
 
 ```bash
 
@@ -7,8 +14,6 @@
 gcloud auth login
 gcloud config set project liang-dev
 
-# 查看目前所有配置
-gcloud config configurations list
 
 # 建立映像
 docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.1 .
@@ -22,7 +27,7 @@ gcloud run deploy firestore-demo-api \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
-  --env-vars-file env.yaml \
+  --env-vars-file env.liang-dev.yaml \
   --memory 512Mi \
   --max-instances 10 \
   --timeout 300
@@ -38,7 +43,6 @@ gcloud run revisions list \
   --region asia-east1
 
 # 查看當前生產版本（正在服務的版本）
-
 gcloud run services describe firestore-demo-api \
   --region asia-east1 \
   --format="value(status.latestReadyRevisionName)"
