@@ -151,7 +151,7 @@ cat Dockerfile
 ```
 
 專案已包含優化的 Dockerfile：
-- 使用 Node.js 18 Alpine（輕量）
+- 使用 Node.js 22 Alpine（輕量）
 - 多階段建構
 - 非 root 用戶執行
 - 健康檢查

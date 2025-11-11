@@ -1,11 +1,16 @@
 # 快速部屬
 
-```bash
-# 顯示當前 gcloud 配置
-gcloud config list
-
-# 查看 gcloud 所有設定
+**GCP Authorize**
+```sh
+gcloud config configurations create my-liang-dev
 gcloud config configurations list
+gcloud config configurations activate my-liang-dev        # 切換設定
+gcloud config set project liang-dev                       # 設定專案ID
+
+gcloud config list                                        # 顯示目前設定
+
+gcloud auth login
+gcloud auth configure-docker asia-east1-docker.pkg.dev
 ```
 
 ```bash

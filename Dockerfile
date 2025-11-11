@@ -1,5 +1,5 @@
-# 使用官方 Node.js 18 LTS 映像作為基礎
-FROM node:18-alpine
+# 使用官方 Node.js 22 LTS 映像作為基礎
+FROM node:22-alpine
 
 # 設定工作目錄
 WORKDIR /app

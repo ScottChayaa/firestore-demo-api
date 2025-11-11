@@ -46,7 +46,7 @@
 
 ### 前置需求
 
-- Node.js 18+
+- Node.js 22+
 - Firebase 專案（已啟用 Firestore）
 - Firebase Service Account Key
 
