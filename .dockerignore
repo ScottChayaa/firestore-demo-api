@@ -1,0 +1,84 @@
+# ===== 版本控制 =====
+.git
+.gitignore
+.gitattributes
+
+# ===== 環境與配置 =====
+.env
+.env.*
+!.env.example
+env.yaml
+env.*.yaml
+!env.example.yaml
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# ===== 作業系統文件 =====
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+desktop.ini
+
+# ===== 文檔 =====
+*.md
+!package.json
+docs/
+CLAUDE.md
+
+# ===== 日誌 =====
+logs/
+*.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== 測試與開發 =====
+test/
+tests/
+__tests__/
+coverage/
+.nyc_output
+.eslintcache
+.eslintignore
+.eslintrc*
+.prettierrc*
+
+# ===== 依賴與快取 =====
+node_modules/
+npm-cache/
+.npm/
+.yarn/
+yarn.lock
+
+# ===== Firebase 憑證 =====
+firebase-service-account.json
+firebase-service-account-*.json
+firebase-service-account.*.json
+*-service-account.json
+.firebase/
+encoded.txt
+encoded.*.txt
+
+# ===== 構建輸出 =====
+dist/
+build/
+*.tgz
+
+# ===== CI/CD =====
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# ===== Docker 相關（避免複製到映像） =====
+Dockerfile
+dockerfile.*
+
+# ===== 其他 =====
+*.pid
+.cache
+tmp/
+temp/
