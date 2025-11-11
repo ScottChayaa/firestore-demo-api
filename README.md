@@ -61,9 +61,9 @@ npm install
 ```bash
 # 複製範本
 cp .env.example .env
+cp env_example.yaml env.yaml
 
-# 編輯 .env 檔案
-nano .env
+# 編輯 .env, env.yaml 檔案
 ```
 
 **需要設定的環境變數**：
@@ -81,9 +81,9 @@ nano .env
 2. 新增專案: liang-dev
 2. 選擇專案 > 專案設定 (Project Settings) > 服務帳戶(Service Accounts)
 3. 點擊「產生新的私密金鑰」
-4. 下載 JSON 檔案並重新命名為 `firebase-service-account.json`
+4. 下載 JSON 檔案並重新命名為 `firebase-service-account.liang-dev.json`
 5. 將檔案放在專案根目錄
-6. 生成 encoded.txt > 複製該值到 `.env` 檔案的 `GOOGLE_CREDENTIALS_BASE64` 變數
+6. 生成 encoded.liang-dev.txt > 複製該值到 `.env` 檔案的 `GOOGLE_CREDENTIALS_BASE64` 變數
 
     ```bash
     base64 firebase-service-account.json | tr -d '\n' > encoded.txt

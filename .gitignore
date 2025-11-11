@@ -9,6 +9,7 @@ yarn.lock
 .env.*.local
 env.yaml
 env.*.yaml
+!env.example.yaml
 
 # Firebase
 firebase-service-account.json
