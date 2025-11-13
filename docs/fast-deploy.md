@@ -4,7 +4,7 @@
 ```sh
 gcloud config configurations create default               # 建立一個新的 gcloud 設定組態 (configuration)
 gcloud config configurations list                         # 查看所有組態
-gcloud config configurations activate default             # 切換設定
+gcloud config configurations activate default             # 切換設定: default
 gcloud config set project liang-dev                       # 設定 gcloud CLI 的預設專案ID
 
 gcloud config list                                        # 顯示目前設定
@@ -48,6 +48,9 @@ firebase login
 
 # 部署 Rules 和 Indexes 到指定的專案ID
 firebase deploy --only firestore:rules,firestore:indexes --project liang-dev
+
+# 匯出 Firestore 索引
+firebase firestore:indexes --project liang-dev > firestore.indexes.json
 ```
 
 **Check cloud run infomation**

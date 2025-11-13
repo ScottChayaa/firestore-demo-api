@@ -61,7 +61,7 @@ npm install
 ```bash
 # 複製範本
 cp .env.example .env
-cp env_example.yaml env.yaml
+cp env.example.yaml env.yaml
 
 # 編輯 .env, env.yaml 檔案
 ```
