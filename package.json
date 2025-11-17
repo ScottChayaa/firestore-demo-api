@@ -11,11 +11,16 @@
     "clean:authentication": "node src/utils/cleanAuthentication.js",
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
     "test": "jest",
-    "test:queries": "jest tests/queries/productQueries.test.js --verbose",
-    "collect:indexes": "node scripts/collectMissingIndexes.js",
+    "test:queries:products": "jest tests/queries/productQueries.test.js --verbose",
+    "test:queries:orders": "jest tests/queries/orderQueries.test.js --verbose",
+    "test:queries:all": "jest tests/queries/*.test.js --verbose",
+    "collect:indexes:products": "node scripts/collectProductIndexes.js",
+    "collect:indexes:orders": "node scripts/collectOrderIndexes.js",
+    "collect:indexes:all": "node scripts/collectAllIndexes.js",
+    "collect:indexes": "node scripts/collectAllIndexes.js",
     "update:indexes": "node scripts/updateIndexes.js",
-    "verify:indexes": "npm run test:queries && echo '✅ 所有查詢組合測試通過'",
-    "index:workflow": "npm run collect:indexes && npm run update:indexes"
+    "verify:indexes": "npm run test:queries:all && echo '✅ 所有查詢組合測試通過'",
+    "index:workflow": "npm run collect:indexes:all && npm run update:indexes"
   },
   "keywords": [
     "firestore",
