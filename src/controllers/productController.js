@@ -15,8 +15,8 @@ const COLLECTION_NAME = "products";
  * - category: 商品分類
  * - minPrice: 最低價格
  * - maxPrice: 最高價格
- * - orderBy: 排序欄位（createdAt, price）
- * - order: 排序方向（asc, desc）
+ * - orderBy: 排序欄位（createdAt, price）預設 createdAt
+ * - order: 排序方向（asc, desc）預設 desc
  */
 async function getProducts(req, res) {
   const collection = db.collection(COLLECTION_NAME);

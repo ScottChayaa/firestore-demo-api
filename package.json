@@ -10,7 +10,12 @@
     "clean:firestore": "node src/utils/cleanFirestore.js",
     "clean:authentication": "node src/utils/cleanAuthentication.js",
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:queries": "jest tests/queries/productQueries.test.js --verbose",
+    "collect:indexes": "node scripts/collectMissingIndexes.js",
+    "update:indexes": "node scripts/updateIndexes.js",
+    "verify:indexes": "npm run test:queries && echo '✅ 所有查詢組合測試通過'",
+    "index:workflow": "npm run collect:indexes && npm run update:indexes"
   },
   "keywords": [
     "firestore",
@@ -35,9 +40,21 @@
     "pino-std-serializers": "^7.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.4"
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testTimeout": 30000
   }
 }
