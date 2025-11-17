@@ -91,22 +91,6 @@ async function testQuery(config) {
 }
 
 /**
- * 從錯誤訊息中提取索引定義
- */
-function parseIndexFromError(errorMessage) {
-  // Firestore 錯誤訊息通常包含建立索引的連結
-  // 範例: "The query requires an index. You can create it here: https://..."
-
-  // 嘗試從錯誤訊息中提取索引資訊
-  // 這是一個簡化版本，實際上可能需要更複雜的解析邏輯
-
-  return {
-    note: "請根據錯誤訊息手動建立索引，或點擊 Firestore 提供的連結",
-    errorMessage: errorMessage,
-  };
-}
-
-/**
  * 主函數
  */
 async function main() {
@@ -126,8 +110,7 @@ async function main() {
       missingIndexes.push({
         queryName: config.name,
         params: config.params,
-        description: config.description,
-        indexInfo: parseIndexFromError(result.error),
+        errorMessage: result.error,
       });
     }
   }
