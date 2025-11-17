@@ -1,9 +1,9 @@
-const { db, FieldValue, Timestamp } = require('../config/firebase');
-const { executePaginatedQuery, defaultMapper } = require('../utils/pagination');
-const { NotFoundError, ValidationError } = require('../middleware/errorHandler');
-const logger = require('../config/logger');
+const { db, FieldValue, Timestamp } = require("../config/firebase");
+const { executePaginatedQuery, defaultMapper } = require("../utils/pagination");
+const { NotFoundError, ValidationError } = require("../middleware/errorHandler");
+const logger = require("../config/logger");
 
-const COLLECTION_NAME = 'orders';
+const COLLECTION_NAME = "orders";
 
 /**
  * 取得訂單列表（支援 Cursor 分頁和多條件篩選）
@@ -21,93 +21,64 @@ const COLLECTION_NAME = 'orders';
  * - order: 排序方向（asc, desc）
  */
 async function getOrders(req, res) {
-  try {
-    const collection = db.collection(COLLECTION_NAME);
-    const {
-      memberId,
-      status,
-      minAmount,
-      maxAmount,
-      orderBy = 'createdAt',
-      order = 'desc',
-    } = req.query;
-    const { limit, cursor } = req.pagination;
-    const dateRange = req.dateRange || {};
+  const collection = db.collection(COLLECTION_NAME);
+  const { memberId, status, minAmount, maxAmount, orderBy = "createdAt", order = "desc" } = req.query;
+  const { limit, cursor } = req.pagination;
+  const dateRange = req.dateRange || {};
 
-    // 建立基礎查詢
-    let query = collection;
+  // 建立基礎查詢
+  let query = collection;
 
-    // 篩選：會員 ID
-    if (memberId) {
-      query = query.where('memberId', '==', memberId);
-    }
-
-    // 篩選：訂單狀態
-    if (status) {
-      const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
-      if (!validStatuses.includes(status)) {
-        throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(', ')}`);
-      }
-      query = query.where('status', '==', status);
-    }
-
-    // 篩選：日期範圍
-    if (dateRange.startDate) {
-      query = query.where('createdAt', '>=', Timestamp.fromDate(dateRange.startDate));
-    }
-    if (dateRange.endDate) {
-      query = query.where('createdAt', '<=', Timestamp.fromDate(dateRange.endDate));
-    }
-
-    // 篩選：金額範圍
-    if (minAmount) {
-      const min = parseFloat(minAmount);
-      if (!isNaN(min)) {
-        query = query.where('totalAmount', '>=', min);
-      }
-    }
-    if (maxAmount) {
-      const max = parseFloat(maxAmount);
-      if (!isNaN(max)) {
-        query = query.where('totalAmount', '<=', max);
-      }
-    }
-
-    // 排序
-    const orderDirection = order === 'asc' ? 'asc' : 'desc';
-    if (orderBy === 'totalAmount') {
-      query = query.orderBy('totalAmount', orderDirection);
-    } else {
-      query = query.orderBy('createdAt', orderDirection);
-    }
-
-    // 執行分頁查詢
-    const result = await executePaginatedQuery(
-      query,
-      collection,
-      limit,
-      cursor,
-      defaultMapper
-    );
-
-    res.json({
-      ...result,
-    });
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return res.status(400).json({
-        error: 'ValidationError',
-        message: error.message,
-      });
-    }
-
-    console.error('❌ Error fetching orders:', error);
-    res.status(500).json({
-      error: 'InternalServerError',
-      message: '查詢訂單失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  // 篩選：會員 ID
+  if (memberId) {
+    query = query.where("memberId", "==", memberId);
   }
+
+  // 篩選：訂單狀態
+  if (status) {
+    const validStatuses = ["pending", "processing", "completed", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(", ")}`);
+    }
+    query = query.where("status", "==", status);
+  }
+
+  // 篩選：日期範圍
+  if (dateRange.startDate) {
+    query = query.where("createdAt", ">=", Timestamp.fromDate(dateRange.startDate));
+  }
+  if (dateRange.endDate) {
+    query = query.where("createdAt", "<=", Timestamp.fromDate(dateRange.endDate));
+  }
+
+  // 篩選：金額範圍
+  if (minAmount) {
+    const min = parseFloat(minAmount);
+    if (!isNaN(min)) {
+      query = query.where("totalAmount", ">=", min);
+    }
+  }
+  if (maxAmount) {
+    const max = parseFloat(maxAmount);
+    if (!isNaN(max)) {
+      query = query.where("totalAmount", "<=", max);
+    }
+  }
+
+  // 排序
+  const orderDirection = order === "asc" ? "asc" : "desc";
+  if (orderBy === "totalAmount") {
+    query = query.orderBy("totalAmount", orderDirection);
+  } else {
+    query = query.orderBy("createdAt", orderDirection);
+  }
+
+  // 執行分頁查詢
+  const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
+
+  res.json({
+    ...result,
+  });
 }
 
 /**
@@ -117,33 +88,17 @@ async function getOrders(req, res) {
  * - id: 訂單 ID
  */
 async function getOrderById(req, res) {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const doc = await db.collection(COLLECTION_NAME).doc(id).get();
+  const doc = await db.collection(COLLECTION_NAME).doc(id).get();
 
-    if (!doc.exists) {
-      throw new NotFoundError(`找不到訂單 ID: ${id}`);
-    }
-
-    res.json({
-      data: defaultMapper(doc),
-    });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return res.status(404).json({
-        error: 'NotFound',
-        message: error.message,
-      });
-    }
-
-    console.error('❌ Error fetching order:', error);
-    res.status(500).json({
-      error: 'InternalServerError',
-      message: '查詢訂單失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  if (!doc.exists) {
+    throw new NotFoundError(`找不到訂單 ID: ${id}`);
   }
+
+  res.json({
+    data: defaultMapper(doc),
+  });
 }
 
 /**
@@ -156,62 +111,46 @@ async function getOrderById(req, res) {
  * - status: 訂單狀態（可選，預設 pending）
  */
 async function createOrder(req, res) {
-  try {
-    const { memberId, items, totalAmount, status = 'pending' } = req.body;
+  const { memberId, items, totalAmount, status = "pending" } = req.body;
 
-    // 驗證必填欄位
-    if (!memberId || !items || !totalAmount) {
-      throw new ValidationError('memberId, items, totalAmount 為必填欄位');
-    }
-
-    if (!Array.isArray(items) || items.length === 0) {
-      throw new ValidationError('items 必須是非空陣列');
-    }
-
-    // 驗證會員是否存在
-    const memberDoc = await db.collection('members').doc(memberId).get();
-    if (!memberDoc.exists) {
-      throw new ValidationError(`找不到會員 ID: ${memberId}`);
-    }
-
-    // 產生訂單編號
-    const orderNumber = generateOrderNumber();
-
-    // 建立訂單資料
-    const orderData = {
-      memberId,
-      orderNumber,
-      items,
-      totalAmount: parseFloat(totalAmount),
-      status,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-
-    const docRef = await db.collection(COLLECTION_NAME).add(orderData);
-
-    // 取得新建立的訂單資料
-    const newOrder = await docRef.get();
-
-    res.status(201).json({
-      data: defaultMapper(newOrder),
-      message: '訂單建立成功',
-    });
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return res.status(400).json({
-        error: 'ValidationError',
-        message: error.message,
-      });
-    }
-
-    console.error('❌ Error creating order:', error);
-    res.status(500).json({
-      error: 'InternalServerError',
-      message: '建立訂單失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  // 驗證必填欄位
+  if (!memberId || !items || !totalAmount) {
+    throw new ValidationError("memberId, items, totalAmount 為必填欄位");
   }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new ValidationError("items 必須是非空陣列");
+  }
+
+  // 驗證會員是否存在
+  const memberDoc = await db.collection("members").doc(memberId).get();
+  if (!memberDoc.exists) {
+    throw new ValidationError(`找不到會員 ID: ${memberId}`);
+  }
+
+  // 產生訂單編號
+  const orderNumber = generateOrderNumber();
+
+  // 建立訂單資料
+  const orderData = {
+    memberId,
+    orderNumber,
+    items,
+    totalAmount: parseFloat(totalAmount),
+    status,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  const docRef = await db.collection(COLLECTION_NAME).add(orderData);
+
+  // 取得新建立的訂單資料
+  const newOrder = await docRef.get();
+
+  res.status(201).json({
+    data: defaultMapper(newOrder),
+    message: "訂單建立成功",
+  });
 }
 
 /**
@@ -226,73 +165,50 @@ async function createOrder(req, res) {
  * - totalAmount: 總金額
  */
 async function updateOrder(req, res) {
-  try {
-    const { id } = req.params;
-    const { status, items, totalAmount } = req.body;
+  const { id } = req.params;
+  const { status, items, totalAmount } = req.body;
 
-    // 檢查訂單是否存在
-    const orderRef = db.collection(COLLECTION_NAME).doc(id);
-    const order = await orderRef.get();
+  // 檢查訂單是否存在
+  const orderRef = db.collection(COLLECTION_NAME).doc(id);
+  const order = await orderRef.get();
 
-    if (!order.exists) {
-      throw new NotFoundError(`找不到訂單 ID: ${id}`);
-    }
-
-    // 建立更新資料
-    const updateData = {
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-
-    if (status !== undefined) {
-      const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
-      if (!validStatuses.includes(status)) {
-        throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(', ')}`);
-      }
-      updateData.status = status;
-    }
-
-    if (items !== undefined) {
-      if (!Array.isArray(items)) {
-        throw new ValidationError('items 必須是陣列');
-      }
-      updateData.items = items;
-    }
-
-    if (totalAmount !== undefined) {
-      updateData.totalAmount = parseFloat(totalAmount);
-    }
-
-    await orderRef.update(updateData);
-
-    // 取得更新後的資料
-    const updatedOrder = await orderRef.get();
-
-    res.json({
-      data: defaultMapper(updatedOrder),
-      message: '訂單更新成功',
-    });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return res.status(404).json({
-        error: 'NotFound',
-        message: error.message,
-      });
-    }
-
-    if (error instanceof ValidationError) {
-      return res.status(400).json({
-        error: 'ValidationError',
-        message: error.message,
-      });
-    }
-
-    console.error('❌ Error updating order:', error);
-    res.status(500).json({
-      error: 'InternalServerError',
-      message: '更新訂單失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  if (!order.exists) {
+    throw new NotFoundError(`找不到訂單 ID: ${id}`);
   }
+
+  // 建立更新資料
+  const updateData = {
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  if (status !== undefined) {
+    const validStatuses = ["pending", "processing", "completed", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(", ")}`);
+    }
+    updateData.status = status;
+  }
+
+  if (items !== undefined) {
+    if (!Array.isArray(items)) {
+      throw new ValidationError("items 必須是陣列");
+    }
+    updateData.items = items;
+  }
+
+  if (totalAmount !== undefined) {
+    updateData.totalAmount = parseFloat(totalAmount);
+  }
+
+  await orderRef.update(updateData);
+
+  // 取得更新後的資料
+  const updatedOrder = await orderRef.get();
+
+  res.json({
+    data: defaultMapper(updatedOrder),
+    message: "訂單更新成功",
+  });
 }
 
 /**
@@ -302,39 +218,23 @@ async function updateOrder(req, res) {
  * - id: 訂單 ID
  */
 async function deleteOrder(req, res) {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    // 檢查訂單是否存在
-    const orderRef = db.collection(COLLECTION_NAME).doc(id);
-    const order = await orderRef.get();
+  // 檢查訂單是否存在
+  const orderRef = db.collection(COLLECTION_NAME).doc(id);
+  const order = await orderRef.get();
 
-    if (!order.exists) {
-      throw new NotFoundError(`找不到訂單 ID: ${id}`);
-    }
-
-    // 刪除訂單
-    await orderRef.delete();
-
-    res.json({
-      message: '訂單刪除成功',
-      data: { id },
-    });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return res.status(404).json({
-        error: 'NotFound',
-        message: error.message,
-      });
-    }
-
-    console.error('❌ Error deleting order:', error);
-    res.status(500).json({
-      error: 'InternalServerError',
-      message: '刪除訂單失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  if (!order.exists) {
+    throw new NotFoundError(`找不到訂單 ID: ${id}`);
   }
+
+  // 刪除訂單
+  await orderRef.delete();
+
+  res.json({
+    message: "訂單刪除成功",
+    data: { id },
+  });
 }
 
 /**
@@ -343,7 +243,7 @@ async function deleteOrder(req, res) {
  */
 function generateOrderNumber() {
   const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
   const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `ORD-${dateStr}-${randomStr}`;
 }

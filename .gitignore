@@ -53,3 +53,4 @@ build/
 
 # Firestore
 missing-indexes.json
+missing-*-indexes.json

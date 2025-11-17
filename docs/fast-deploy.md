@@ -43,8 +43,9 @@ gcloud run deploy firestore-demo-api \
 
 **Deploy to Firestore**
 ```bash
-# 登入 (⚠重要)
+# 登入 (⚠重要), 確認目前使用的專案
 firebase login
+firebase use liang-dev
 
 # 部署 Rules 和 Indexes 到指定的專案ID
 firebase deploy --only firestore:rules,firestore:indexes --project liang-dev
