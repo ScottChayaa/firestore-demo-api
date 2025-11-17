@@ -92,26 +92,47 @@ function readExistingIndexes() {
 /**
  * 顯示索引建立指南
  */
-function showIndexCreationGuide(missingIndexes) {
+function showIndexCreationGuide(missingIndexesData) {
   console.log("===========================================");
   console.log("缺失的索引清單");
   console.log("===========================================\n");
 
-  missingIndexes.missingIndexes.forEach((index, i) => {
-    console.log(`${i + 1}. ${index.queryName}`);
-    console.log(`   篩選條件: ${JSON.stringify(index.filters)}`);
-    console.log(`   排序: ${index.orderBy} ${index.order}`);
-    console.log(`   錯誤訊息: ${index.indexInfo.errorMessage}\n`);
+  let totalCount = 0;
+
+  // 遍歷所有 collection 的缺失索引
+  Object.entries(missingIndexesData.collections).forEach(([collectionName, collectionData]) => {
+    if (collectionData.missingIndexes.length > 0) {
+      console.log(`📦 Collection: ${collectionName}`);
+      console.log(`   缺失索引數: ${collectionData.missingIndexes.length}\n`);
+
+      collectionData.missingIndexes.forEach((index, i) => {
+        totalCount++;
+        console.log(`${totalCount}. ${index.queryName}`);
+        console.log(`   查詢參數: ${JSON.stringify(index.params)}`);
+
+        // 提取索引建立連結
+        const match = index.errorMessage.match(/https:\/\/[^\s]+/);
+        if (match) {
+          console.log(`   建立連結: ${match[0]}`);
+        }
+        console.log();
+      });
+    }
   });
+
+  if (totalCount === 0) {
+    console.log("✅ 沒有缺失的索引！\n");
+    return;
+  }
 
   console.log("===========================================");
   console.log("建立索引步驟");
   console.log("===========================================\n");
   console.log("方案 A：自動建立（推薦）");
-  console.log("  1. 執行 npm run collect:indexes");
-  console.log("  2. 點擊錯誤訊息中的連結，自動建立索引");
-  console.log("  3. 等待索引建立完成（可能需要數分鐘）");
-  console.log("  4. 執行 npm run update:indexes");
+  console.log("  1. 點擊上方錯誤訊息中的連結，自動建立索引");
+  console.log("  2. 等待索引建立完成（可能需要數分鐘）");
+  console.log("  3. 再次執行 npm run collect:indexes 確認");
+  console.log("  4. 執行 npm run update:indexes 更新配置檔");
   console.log();
   console.log("方案 B：手動建立");
   console.log("  1. 前往 Firebase Console > Firestore Database > Indexes");
@@ -143,11 +164,18 @@ function main() {
   }
 
   // 2. 檢查是否有缺失的索引
-  if (missingIndexes.missingIndexes.length === 0) {
+  const totalIndexesNeeded = missingIndexes.summary?.totalIndexesNeeded || 0;
+
+  if (totalIndexesNeeded === 0) {
     console.log("✅ 沒有缺失的索引！\n");
     console.log("所有查詢都有對應的索引配置。\n");
+    console.log(`總查詢數: ${missingIndexes.summary.totalQueries}`);
+    console.log(`成功: ${missingIndexes.summary.totalSuccessful}`);
+    console.log(`失敗: ${missingIndexes.summary.totalFailed}\n`);
     process.exit(0);
   }
+
+  console.log(`發現 ${totalIndexesNeeded} 個缺失的索引\n`);
 
   // 3. 顯示缺失索引的建立指南
   showIndexCreationGuide(missingIndexes);
