@@ -368,6 +368,16 @@ npm run seed
 
 # 清空 Firestore 和 Authentication 資料
 npm run clean:all
+
+# 測試相關
+npm test                    # 執行所有測試
+npm run test:queries        # 測試商品查詢組合（檢查索引）
+
+# 索引管理
+npm run collect:indexes     # 收集缺失的索引資訊
+npm run update:indexes      # 更新索引配置檔
+npm run verify:indexes      # 驗證所有查詢組合
+npm run index:workflow      # 完整索引管理流程（收集 + 更新）
 ```
 
 ---

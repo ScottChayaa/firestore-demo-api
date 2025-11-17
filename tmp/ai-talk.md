@@ -98,3 +98,34 @@ For more troubleshooting guidance, see https://cloud.google.com/run/docs/trouble
 目前我有紀錄註解 // TODO: not work, 表示有嘗試這樣取 req.user 資料, 但都沒用
 
 幫我研究一下 pino 該怎麼紀錄 api user LOG資訊. use context7
+
+---
+
+幫我想一下 : 
+
+src\controllers\productController.js
+ - getProducts() 是一個查詢功能
+ - 有多種查詢條件組合
+
+我現在困擾的是, 若我執行了查詢時, 沒在 firestore.indexes.json 的規範裡,
+firestore 會噴錯, 並提供一個連結請我去創建那個新的索引 => 這件事情如果發生在正式環境會被客訴
+
+有沒有什麼辦法 :
+ - 我可以事先完整的產生好正確的 firestore.indexes.json ?
+ - 或是有什麼機制能當下自動產生 ? (完全信任) 自動產生時會有紀錄, 可以讓我事後去維護更新 firestore.indexes.json
+ 
+---
+
+補充:
+ - 同意使用方案 2 + 4
+ - 執行所有查詢組合的測試功能, 希望能與實際功能共用查詢邏輯, 簡單來說就是, 我想要維護同一份查詢邏輯就好, 不需要正式功能和測試功能分別維護
+
+---
+
+collectMissingIndexes.js 和 productQueries.js 這兩個有什麼差別?
+
+我看起來有執行 collectMissingIndexes.js 的話, 就有包含 productQueries.js?
+
+
+---
+
