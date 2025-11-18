@@ -14,9 +14,7 @@ const httpLogger = require("./middleware/httpLogger");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 
 // 匯入測試資料生成函數
-const { seedAll } = require("./utils/seedData");
 const { authenticate } = require("./middleware/auth");
-const { asyncHandler } = require("./middleware/errorHandler");
 
 // 創建 Express 應用
 const app = express();
