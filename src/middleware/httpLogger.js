@@ -5,14 +5,16 @@ const logger = require("../config/logger");
  * HTTP 請求日誌中間件
  * 使用 pino-http 自動記錄所有 HTTP 請求和響應
  *
- * 在測試環境自動禁用
+ * 在正式環境自動禁用
  */
 
-// 如果是測試環境，返回空中間件
-if (process.env.NODE_ENV === "test") {
-  module.exports = (req, res, next) => next();
+let httpLogger;
+
+// 如果是正式環境，使用空中間件
+if (process.env.NODE_ENV === "production") {
+  httpLogger = (req, res, next) => next();
 } else {
-  module.exports = pinoHttp({
+  httpLogger = pinoHttp({
     logger,
 
     // 自動記錄每個請求的資訊
@@ -58,7 +60,7 @@ if (process.env.NODE_ENV === "test") {
     // 自訂成功請求的額外日誌資料
     customSuccessObject: function (req, res, loggableObject) {
       // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
-      if (process.env.NODE_ENV === "development" && req.body && Object.keys(req.body).length > 0) {
+      if (req.body && Object.keys(req.body).length > 0) {
         return {
           ...loggableObject,
           reqBody: req.body,
@@ -70,7 +72,7 @@ if (process.env.NODE_ENV === "test") {
     // 自訂錯誤請求的額外日誌資料
     customErrorObject: function (req, res, err, loggableObject) {
       // 在開發環境記錄 req.body（幫助除錯錯誤請求）
-      if (process.env.NODE_ENV === "development" && req.body && Object.keys(req.body).length > 0) {
+      if (req.body && Object.keys(req.body).length > 0) {
         return {
           ...loggableObject,
           reqBody: req.body,
@@ -114,3 +116,5 @@ if (process.env.NODE_ENV === "test") {
     },
   });
 }
+
+module.exports = httpLogger;

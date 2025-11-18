@@ -1,7 +1,9 @@
+require('express-async-errors');
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-require("dotenv").config();
 
 // 匯入路由
 const authRouter = require("./routes/auth");

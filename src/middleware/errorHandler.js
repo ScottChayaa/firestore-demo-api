@@ -8,7 +8,7 @@
 function errorHandler(err, req, res, next) {
   // 將錯誤資訊附加到 res.err，供 pino-http 記錄
   res.err = err;
-
+  
   // 預設錯誤狀態碼
   const statusCode = err.statusCode || 500;
 
@@ -25,6 +25,10 @@ function errorHandler(err, req, res, next) {
   // 開發環境顯示詳細錯誤資訊
   if (process.env.NODE_ENV === 'development') {
     errorResponse.stack = err.stack?.split('\n') ?? [];
+  }
+
+  if (err.message.slice(0, 51) === '9 FAILED_PRECONDITION: The query requires an index.') {
+    errorResponse.message = 'Firestore 索引需求錯誤';
   }
 
   res.status(statusCode).json(errorResponse);

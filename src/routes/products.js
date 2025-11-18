@@ -6,7 +6,6 @@ const {
   getCategories,
 } = require('../controllers/productController');
 const { validatePagination } = require('../middleware/validator');
-const { asyncHandler } = require('../middleware/errorHandler');
 
 /**
  * 公開 API 路由 - 商品瀏覽
@@ -15,14 +14,14 @@ const { asyncHandler } = require('../middleware/errorHandler');
 
 // 取得商品列表（支援分頁和篩選）
 // GET /api/public/products?limit=20&cursor=abc&category=electronics&minPrice=100
-router.get('/', validatePagination, asyncHandler(getProducts));
+router.get('/', validatePagination, getProducts);
 
 // 取得商品分類列表
 // GET /api/public/products/categories
-router.get('/categories', asyncHandler(getCategories));
+router.get('/categories', getCategories);
 
 // 取得單一商品詳情
 // GET /api/public/products/:id
-router.get('/:id', asyncHandler(getProductById));
+router.get('/:id', getProductById);
 
 module.exports = router;

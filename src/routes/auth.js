@@ -3,7 +3,6 @@ const router = express.Router();
 const { body } = require('express-validator');
 const { register, login } = require('../controllers/authController');
 const { validate } = require('../middleware/validator');
-const { asyncHandler } = require('../middleware/errorHandler');
 
 /**
  * 公開 API 路由 - 認證
@@ -23,7 +22,7 @@ router.post(
     body('phone').notEmpty().isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
-  asyncHandler(register)
+  register
 );
 
 // 登入
@@ -35,7 +34,7 @@ router.post(
     body('password').notEmpty().withMessage('密碼為必填欄位'),
     validate,
   ],
-  asyncHandler(login)
+  login
 );
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const logger = require('../config/logger');
 const { db } = require('../config/firebase');
+const { ForbiddenError } = require('./errorHandler');
 
 /**
  * 檢查用戶是否為管理員
@@ -23,7 +24,7 @@ async function checkAdminStatus(req, res, next) {
 
     next();
   } catch (error) {
-    console.error('❌ Error checking admin status:', error);
+    console.error('❌ Error checking admin status:', error); // TODO: 待處理
     // 即使檢查失敗，也繼續處理（預設為非管理員）
     req.user.isAdmin = false;
     next();
@@ -39,10 +40,7 @@ async function checkAdminStatus(req, res, next) {
  */
 function requireAdmin(req, res, next) {
   if (!req.user || !req.user.isAdmin) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: '需要管理員權限才能存取此資源',
-    });
+    throw new ForbiddenError('需要管理員權限才能存取此資源');
   }
 
   next();

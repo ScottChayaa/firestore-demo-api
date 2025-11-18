@@ -1,6 +1,6 @@
-const logger = require('../config/logger');
-const { auth } = require('../config/firebase');
-const { checkAdminStatus } = require('./adminCheck');
+const { auth } = require("../config/firebase");
+const { checkAdminStatus } = require("./adminCheck");
+const { UnauthorizedError } = require("./errorHandler");
 
 /**
  * Firebase Auth 驗證中間件
@@ -14,26 +14,20 @@ const { checkAdminStatus } = require('./adminCheck');
  * });
  */
 async function authenticate(req, res, next) {
+  // 取得 Authorization Header
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    throw new UnauthorizedError("請提供 Authorization header: Bearer <token>");
+  }
+
+  // 檢查格式：Bearer <token>
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    throw new UnauthorizedError("格式應為: Bearer <token>");
+  }
+
   try {
-    // 取得 Authorization Header
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({
-        error: 'Missing Authorization header',
-        message: '請提供 Authorization header: Bearer <token>',
-      });
-    }
-
-    // 檢查格式：Bearer <token>
-    const parts = authHeader.split(' ');
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      return res.status(401).json({
-        error: 'Invalid Authorization header format',
-        message: '格式應為: Bearer <token>',
-      });
-    }
-
     const idToken = parts[1];
 
     // 驗證 Firebase ID Token
@@ -51,29 +45,17 @@ async function authenticate(req, res, next) {
     // 檢查管理員狀態並繼續
     await checkAdminStatus(req, res, next);
   } catch (error) {
-    logger.error({ err: error }, 'Authentication error');
-
     // 處理不同類型的錯誤
-    if (error.code === 'auth/id-token-expired') {
-      return res.status(401).json({
-        error: 'Token expired',
-        message: 'ID Token 已過期，請重新登入',
-      });
+    if (error.code === "auth/id-token-expired") {
+      throw new UnauthorizedError("ID Token 已過期，請重新登入");
     }
 
-    if (error.code === 'auth/argument-error') {
-      return res.status(401).json({
-        error: 'Invalid token',
-        message: 'ID Token 格式不正確',
-      });
+    if (error.code === "auth/argument-error") {
+      throw new UnauthorizedError("ID Token 格式不正確");
     }
 
     // 其他驗證錯誤
-    return res.status(401).json({
-      error: 'Authentication failed',
-      message: '身份驗證失敗',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+    throw new UnauthorizedError("身份驗證失敗");
   }
 }
 

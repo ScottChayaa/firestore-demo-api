@@ -8,9 +8,7 @@ const {
   deleteMember,
   listMembers,
 } = require('../controllers/memberController');
-const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validator');
-const { asyncHandler } = require('../middleware/errorHandler');
 
 /**
  * 私有 API 路由 - 會員管理
@@ -20,12 +18,9 @@ const { asyncHandler } = require('../middleware/errorHandler');
  * 這裡的路由主要用於管理現有會員資料
  */
 
-// 套用驗證中間件到所有路由
-// router.use(authenticate);
-
 // 列出會員列表
 // GET /api/members
-router.get('/', asyncHandler(listMembers));
+router.get('/', listMembers);
 
 // 創建會員（已棄用 - 請使用 POST /api/auth/register）
 // POST /api/members
@@ -38,12 +33,12 @@ router.post(
     body('phone').notEmpty().withMessage('電話為必填欄位'),
     validate,
   ],
-  asyncHandler(createMember)
+  createMember
 );
 
 // 取得單一會員資料
 // GET /api/members/:id
-router.get('/:id', asyncHandler(getMemberById));
+router.get('/:id', getMemberById);
 
 // 更新會員資料
 // PUT /api/members/:id
@@ -55,11 +50,11 @@ router.put(
     body('phone').optional().notEmpty().withMessage('電話不可為空'),
     validate,
   ],
-  asyncHandler(updateMember)
+  updateMember
 );
 
 // 刪除會員
 // DELETE /api/members/:id
-router.delete('/:id', asyncHandler(deleteMember));
+router.delete('/:id', deleteMember);
 
 module.exports = router;
