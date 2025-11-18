@@ -41,16 +41,20 @@ function validatePagination(req, res, next) {
   // 驗證 limit
   if (limit) {
     const parsedLimit = parseInt(limit);
+
     if (isNaN(parsedLimit) || parsedLimit < 1) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: "limit 必須是大於 0 的整數",
+      throw new ValidationError({
+        field: "limit",
+        message: "必須是大於 0 的整數",
+        value: limit,
       });
     }
+
     if (parsedLimit > MAX_LIMIT) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: `limit 不能超過 ${MAX_LIMIT}`,
+      throw new ValidationError({
+        field: "limit",
+        message: `不能超過 ${MAX_LIMIT}`,
+        value: limit,
       });
     }
     req.pagination = { limit: parsedLimit };
@@ -74,32 +78,39 @@ function validateDateRange(req, res, next) {
 
   if (startDate) {
     const start = new Date(startDate);
+
     if (isNaN(start.getTime())) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: "startDate 格式不正確（應為 ISO 8601 格式）",
+      throw new ValidationError({
+        field: "startDate",
+        message: `格式不正確（應為 ISO 8601 格式）`,
+        value: startDate,
       });
     }
+
     req.dateRange = { startDate: start };
   }
 
   if (endDate) {
     const end = new Date(endDate);
+
     if (isNaN(end.getTime())) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: "endDate 格式不正確（應為 ISO 8601 格式）",
+      throw new ValidationError({
+        field: "endDate",
+        message: `格式不正確（應為 ISO 8601 格式）`,
+        value: endDate,
       });
     }
+
     req.dateRange = { ...req.dateRange, endDate: end };
   }
 
   // 檢查日期範圍是否合理
   if (req.dateRange && req.dateRange.startDate && req.dateRange.endDate) {
     if (req.dateRange.startDate > req.dateRange.endDate) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: "startDate 不能晚於 endDate",
+      throw new ValidationError({
+        field: "startDate",
+        message: `startDate 不能晚於 endDate`,
+        value: startDate,
       });
     }
   }
