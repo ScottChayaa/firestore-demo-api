@@ -23,7 +23,7 @@ function errorHandler(err, req, res, next) {
   }
 
   // 開發環境顯示詳細錯誤資訊
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && !(err instanceof ValidationError)) {
     errorResponse.stack = err.stack?.split('\n') ?? [];
   }
 
