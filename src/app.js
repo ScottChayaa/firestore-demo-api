@@ -12,8 +12,6 @@ const ordersRouter = require("./routes/orders");
 // 匯入中間件
 const httpLogger = require("./middleware/httpLogger");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
-
-// 匯入測試資料生成函數
 const { authenticate } = require("./middleware/auth");
 
 // 創建 Express 應用
