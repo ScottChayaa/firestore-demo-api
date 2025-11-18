@@ -36,10 +36,6 @@ async function getOrders(req, res) {
 
   // 篩選：訂單狀態
   if (status) {
-    const validStatuses = ["pending", "processing", "completed", "cancelled"];
-    if (!validStatuses.includes(status)) {
-      throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(", ")}`);
-    }
     query = query.where("status", "==", status);
   }
 
@@ -66,11 +62,10 @@ async function getOrders(req, res) {
   }
 
   // 排序
-  const orderDirection = order === "asc" ? "asc" : "desc";
   if (orderBy === "totalAmount") {
-    query = query.orderBy("totalAmount", orderDirection);
+    query = query.orderBy("totalAmount", order);
   } else {
-    query = query.orderBy("createdAt", orderDirection);
+    query = query.orderBy("createdAt", order);
   }
 
   // 執行分頁查詢

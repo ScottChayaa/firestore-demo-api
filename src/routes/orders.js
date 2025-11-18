@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 const {
   getOrders,
   getOrderById,
@@ -37,6 +37,12 @@ router.get(
   filterOrdersByOwnership,
   validatePagination,
   validateDateRange,
+  [
+    query('order').default('desc').isIn(["desc", "asc"]),
+    query('orderBy').default('createdAt').isIn(["createdAt", "totalAmount"]),
+    query('status').optional().isIn(["pending", "processing", "completed", "cancelled"]),
+    validate,
+  ],
   asyncHandler(getOrders)
 );
 
