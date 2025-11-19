@@ -11,7 +11,6 @@ let status_withMessage = "status 必須是 pending, processing, completed 或 ca
 
 /**
  * 私有 API 路由 - 訂單管理
- * 所有端點都需要 Firebase Auth 驗證
  */
 
 // 取得訂單列表（支援分頁和多條件篩選）

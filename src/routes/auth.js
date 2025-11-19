@@ -6,7 +6,6 @@ const { validate } = require('../middleware/validator');
 
 /**
  * 公開 API 路由 - 認證
- * 這些端點不需要 Firebase Auth 驗證
  */
 
 // 註冊

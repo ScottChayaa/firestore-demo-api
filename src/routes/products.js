@@ -9,7 +9,6 @@ const { validatePagination } = require('../middleware/validator');
 
 /**
  * 公開 API 路由 - 商品瀏覽
- * 這些端點不需要身份驗證
  */
 
 // 取得商品列表（支援分頁和篩選）

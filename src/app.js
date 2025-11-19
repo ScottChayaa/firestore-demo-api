@@ -6,6 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 
 // 匯入路由
+const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
 const productsRouter = require("./routes/products");
 const membersRouter = require("./routes/members");
@@ -46,24 +47,8 @@ app.use(httpLogger);
 // 路由設定
 // ========================================
 
-// 健康檢查端點（公開）
-app.get("/health", (req, res) => {
-  res.json({
-    message: "Firestore Demo API is running",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-  });
-});
-
-// 根路徑
-app.get("/", (req, res) => {
-  res.json({
-    message: "Welcome to Firestore Demo API",
-    version: "1.0.0",
-  });
-});
-
 // 公開 API 路由（無需驗證）
+app.use("/", indexRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/public/products", productsRouter);
 
