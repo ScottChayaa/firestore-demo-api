@@ -21,18 +21,18 @@ const httpLogger = pinoHttp({
   // 生成唯一的 Request ID
   genReqId: function (req, res) {
     // 優先使用上游傳遞的 request ID（如 Load Balancer、API Gateway）
-    const existingID = req.headers['x-request-id'] || req.headers['x-correlation-id'];
+    const existingID = req.id ?? req.headers["x-request-id"];
     if (existingID) {
       return existingID;
     }
-    // 否則生成新的 UUID
-    return crypto.randomUUID();
+    const id = crypto.randomUUID();
+    req.headers["x-request-id"] = id; // req.headers 新增 request 的追蹤的 uuid, 後續 req.log.info() 都可以套用
+    res.setHeader("X-Request-ID", id);
+    return id;
   },
 
   customProps: (req, res) => {
-    const props = {
-      requestId: req.id, // 將 requestId 加入每個日誌, pino-http 自動將 genReqId 的結果存到 req.id
-    };
+    const props = {};
 
     // 如果有 authenticated user，也加入
     if (req.user) {
@@ -77,7 +77,7 @@ const httpLogger = pinoHttp({
     const extras = {};
 
     // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
-    if (process.env.NODE_ENV !== 'production' && req.body && Object.keys(req.body).length > 0) {
+    if (process.env.NODE_ENV !== "production" && req.body && Object.keys(req.body).length > 0) {
       extras.reqBody = req.body;
     }
 
@@ -97,7 +97,7 @@ const httpLogger = pinoHttp({
     const extras = {};
 
     // 在開發環境記錄 req.body（幫助除錯錯誤請求）
-    if (process.env.NODE_ENV !== 'production' && req.body && Object.keys(req.body).length > 0) {
+    if (process.env.NODE_ENV !== "production" && req.body && Object.keys(req.body).length > 0) {
       extras.reqBody = req.body;
     }
 
@@ -119,9 +119,11 @@ const httpLogger = pinoHttp({
         url: req.url,
         query: req.query,
         params: req.params,
-        headers: { // 簡化 hearders 的 log 顯示
+        headers: {
+          // 簡化 hearders 的 log 顯示
           "user-agent": req.headers["user-agent"],
           "content-type": req.headers["content-type"],
+          "x-request-id": req.headers["x-request-id"],
         },
         remoteAddress: req.remoteAddress,
         remotePort: req.remotePort,
@@ -134,7 +136,7 @@ const httpLogger = pinoHttp({
       statusCode: res.statusCode,
       headers: {
         "content-type": res.getHeader("content-type"),
-      }
+      },
     }),
 
     err: (err) => {
