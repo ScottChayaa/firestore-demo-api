@@ -56,11 +56,12 @@ async function getProducts(req, res) {
 
   // 執行分頁查詢
   const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
-
+  
   logger.info("查詢商品");
 
   res.json({
-    ...result,
+    message: "查詢商品",
+    ...result
   });
 }
 

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const {
-  createMember,
   getMemberById,
   updateMember,
   deleteMember,
@@ -22,20 +21,6 @@ const { validate } = require('../middleware/validator');
 // GET /api/members
 router.get('/', listMembers);
 
-// 創建會員（已棄用 - 請使用 POST /api/auth/register）
-// POST /api/members
-// @deprecated 改用 POST /api/auth/register，會同時建立 Firebase Auth 用戶和 Firestore document
-router.post(
-  '/',
-  [
-    body('name').notEmpty().withMessage('姓名為必填欄位'),
-    body('email').isEmail().withMessage('Email 格式不正確'),
-    body('phone').notEmpty().withMessage('電話為必填欄位'),
-    validate,
-  ],
-  createMember
-);
-
 // 取得單一會員資料
 // GET /api/members/:id
 router.get('/:id', getMemberById);
@@ -45,9 +30,11 @@ router.get('/:id', getMemberById);
 router.put(
   '/:id',
   [
-    body('name').optional().notEmpty().withMessage('姓名不可為空'),
-    body('email').optional().isEmail().withMessage('Email 格式不正確'),
-    body('phone').optional().notEmpty().withMessage('電話不可為空'),
+    body('name')
+      .notEmpty().withMessage('姓名為必填欄位'),
+    body('phone')
+      .notEmpty().withMessage('電話為必填欄位')
+      .isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
   updateMember

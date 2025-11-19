@@ -103,7 +103,7 @@ if (process.env.NODE_ENV === "production") {
         statusCode: res.statusCode,
         headers: {
           "content-type": res.getHeader("content-type"),
-        },
+        }
       }),
 
       err: (err) => {
