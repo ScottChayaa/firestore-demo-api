@@ -59,26 +59,42 @@ if (process.env.NODE_ENV === "production") {
 
     // 自訂成功請求的額外日誌資料
     customSuccessObject: function (req, res, loggableObject) {
+      const extras = {};
+
       // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
       if (req.body && Object.keys(req.body).length > 0) {
-        return {
-          ...loggableObject,
-          reqBody: req.body,
-        };
+        extras.reqBody = req.body;
       }
-      return loggableObject;
+
+      // 記錄 response body（從 res.locals 取得，由 responseBodyLogger 設定）
+      if (res.locals.responseBody !== undefined) {
+        extras.resBody = res.locals.responseBody;
+      }
+
+      return {
+        ...loggableObject,
+        ...extras,
+      };
     },
 
     // 自訂錯誤請求的額外日誌資料
     customErrorObject: function (req, res, err, loggableObject) {
+      const extras = {};
+
       // 在開發環境記錄 req.body（幫助除錯錯誤請求）
       if (req.body && Object.keys(req.body).length > 0) {
-        return {
-          ...loggableObject,
-          reqBody: req.body,
-        };
+        extras.reqBody = req.body;
       }
-      return loggableObject;
+
+      // 錯誤時也記錄 response body
+      if (res.locals.responseBody !== undefined) {
+        extras.resBody = res.locals.responseBody;
+      }
+
+      return {
+        ...loggableObject,
+        ...extras,
+      };
     },
 
     serializers: {
