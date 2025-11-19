@@ -96,7 +96,7 @@ const httpLogger = pinoHttp({
   customErrorObject: function (req, res, err, loggableObject) {
     const extras = {};
 
-    // 在開發環境記錄 req.body（幫助除錯錯誤請求）
+    // 非正式環境會記錄 req.body（幫助除錯錯誤請求）
     if (process.env.NODE_ENV !== "production" && req.body && Object.keys(req.body).length > 0) {
       extras.reqBody = req.body;
     }
