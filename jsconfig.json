@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", // 讓 VS Code 知道根目錄
+    "paths": {
+      "@/*": [
+        "src/*"
+      ] // 配合你的 alias 設定
+    }
+  },
+  "include": [
+    "src",
+    "tests"
+  ]
+}

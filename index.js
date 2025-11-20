@@ -3,9 +3,10 @@
  *
  * Node.js + Express + Firestore 會員訂單查詢系統
  */
-
+require('module-alias/register');
 require('dotenv').config();
-const logger = require('./src/config/logger');
+
+const logger = require('@/config/logger');
 
 // 驗證必要的環境變數
 logger.info('檢查環境變數...');
