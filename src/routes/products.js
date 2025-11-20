@@ -4,8 +4,8 @@ const {
   getProducts,
   getProductById,
   getCategories,
-} = require('../controllers/productController');
-const { validatePagination } = require('../middleware/validator');
+} = require('@/controllers/productController');
+const { validatePagination } = require('@/middleware/validator');
 
 /**
  * 公開 API 路由 - 商品瀏覽

@@ -1,4 +1,4 @@
-const { auth, db, FieldValue } = require("../config/firebase");
+const { auth, db, FieldValue } = require("@/config/firebase");
 const {
   ValidationError,
   BadError,
@@ -7,9 +7,9 @@ const {
   TooManyRequestsError,
   AppError,
   NotFoundError,
-} = require("../middleware/errorHandler");
+} = require("@/middleware/errorHandler");
 const axios = require("axios");
-const logger = require("../config/logger");
+const logger = require("@/config/logger");
 
 /**
  * 會員註冊

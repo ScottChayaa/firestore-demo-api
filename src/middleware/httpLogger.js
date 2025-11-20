@@ -1,5 +1,5 @@
 const pinoHttp = require("pino-http");
-const logger = require("../config/logger");
+const logger = require("@/config/logger");
 const crypto = require("crypto");
 
 /**

@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { body, query } = require("express-validator");
-const { getOrders, getOrderById, createOrder, updateOrder, deleteOrder } = require("../controllers/orderController");
-const { validate, validatePagination, validateDateRange } = require("../middleware/validator");
-const { filterOrdersByOwnership, checkOrderOwnership, enforceOwnershipOnCreate } = require("../middleware/ownership");
+const { getOrders, getOrderById, createOrder, updateOrder, deleteOrder } = require("@/controllers/orderController");
+const { validate, validatePagination, validateDateRange } = require("@/middleware/validator");
+const { filterOrdersByOwnership, checkOrderOwnership, enforceOwnershipOnCreate } = require("@/middleware/ownership");
 
 
 let status_isIn = ["pending", "processing", "completed", "cancelled"];

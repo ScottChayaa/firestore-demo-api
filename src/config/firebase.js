@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
 require('dotenv').config();
-const logger = require('./logger');
+const logger = require('@/config/logger');
 
 /**
  * 初始化 Firebase Admin SDK

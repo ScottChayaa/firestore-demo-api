@@ -6,17 +6,17 @@ const cors = require("cors");
 const helmet = require("helmet");
 
 // 匯入路由
-const indexRouter = require("./routes/index");
-const authRouter = require("./routes/auth");
-const productsRouter = require("./routes/products");
-const membersRouter = require("./routes/members");
-const ordersRouter = require("./routes/orders");
+const indexRouter = require("@/routes/index");
+const authRouter = require("@/routes/auth");
+const productsRouter = require("@/routes/products");
+const membersRouter = require("@/routes/members");
+const ordersRouter = require("@/routes/orders");
 
 // 匯入中間件
-const responseBodyLogger = require("./middleware/responseBodyLogger");
-const httpLogger = require("./middleware/httpLogger");
-const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
-const { authenticate } = require("./middleware/auth");
+const responseBodyLogger = require("@/middleware/responseBodyLogger");
+const httpLogger = require("@/middleware/httpLogger");
+const { errorHandler, notFoundHandler } = require("@/middleware/errorHandler");
+const { authenticate } = require("@/middleware/auth");
 
 // 創建 Express 應用
 const app = express();

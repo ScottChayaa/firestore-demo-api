@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const { ValidationError } = require("./errorHandler");
+const { ValidationError } = require("@/middleware/errorHandler");
 
 /**
  * 驗證中間件

@@ -1,6 +1,6 @@
-const logger = require('../config/logger');
-const { db } = require('../config/firebase');
-const { ForbiddenError } = require('./errorHandler');
+const logger = require('@/config/logger');
+const { db } = require('@/config/firebase');
+const { ForbiddenError } = require('@/middleware/errorHandler');
 
 /**
  * 檢查用戶是否為管理員

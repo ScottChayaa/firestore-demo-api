@@ -1,4 +1,4 @@
-const logger = require('../config/logger');
+const logger = require('@/config/logger');
 /**
  * Cursor 分頁工具
  * 提供 Firestore Cursor-based Pagination 的輔助函數

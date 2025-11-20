@@ -6,8 +6,8 @@ const {
   updateMember,
   deleteMember,
   listMembers,
-} = require('../controllers/memberController');
-const { validate } = require('../middleware/validator');
+} = require('@/controllers/memberController');
+const { validate } = require('@/middleware/validator');
 
 /**
  * 私有 API 路由 - 會員管理

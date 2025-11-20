@@ -1,6 +1,6 @@
-const { auth } = require("../config/firebase");
-const { checkAdminStatus } = require("./adminCheck");
-const { UnauthorizedError } = require("./errorHandler");
+const { auth } = require("@/config/firebase");
+const { checkAdminStatus } = require("@/middleware/adminCheck");
+const { UnauthorizedError } = require("@/middleware/errorHandler");
 
 /**
  * Firebase Auth 驗證中間件

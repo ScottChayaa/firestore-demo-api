@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { register, login } = require('../controllers/authController');
-const { validate } = require('../middleware/validator');
+const { register, login } = require('@/controllers/authController');
+const { validate } = require('@/middleware/validator');
 
 const bodyEmailValidator = () => body('email')
       .notEmpty().withMessage('Email 為必填欄位')

@@ -1,6 +1,6 @@
-const logger = require('../config/logger');
-const { db } = require('../config/firebase');
-const { ForbiddenError, NotFoundError } = require('./errorHandler');
+const logger = require('@/config/logger');
+const { db } = require('@/config/firebase');
+const { ForbiddenError, NotFoundError } = require('@/middleware/errorHandler');
 
 /**
  * 訂單權限過濾 middleware

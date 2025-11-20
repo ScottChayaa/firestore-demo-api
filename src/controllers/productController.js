@@ -1,7 +1,7 @@
-const { db } = require("../config/firebase");
-const { executePaginatedQuery, defaultMapper } = require("../utils/pagination");
-const { NotFoundError } = require("../middleware/errorHandler");
-const logger = require("../config/logger");
+const { db } = require("@/config/firebase");
+const { executePaginatedQuery, defaultMapper } = require("@/utils/pagination");
+const { NotFoundError } = require("@/middleware/errorHandler");
+const logger = require("@/config/logger");
 
 const COLLECTION_NAME = "products";
 
