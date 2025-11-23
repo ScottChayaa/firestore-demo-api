@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const {
-  getMemberById,
-  updateMember,
-  deleteMember,
-  listMembers,
-} = require('@/controllers/memberController');
+const memberController = require('@/controllers/memberController');
 const { validate } = require('@/middleware/validator');
 
 /**
@@ -19,11 +14,11 @@ const { validate } = require('@/middleware/validator');
 
 // 列出會員列表
 // GET /api/members
-router.get('/', listMembers);
+router.get('/', memberController.listMembers);
 
 // 取得單一會員資料
 // GET /api/members/:id
-router.get('/:id', getMemberById);
+router.get('/:id', memberController.getMemberById);
 
 // 更新會員資料
 // PUT /api/members/:id
@@ -37,11 +32,11 @@ router.put(
       .isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
-  updateMember
+  memberController.updateMember
 );
 
 // 刪除會員
 // DELETE /api/members/:id
-router.delete('/:id', deleteMember);
+router.delete('/:id', memberController.deleteMember);
 
 module.exports = router;

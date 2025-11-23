@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { register, login } = require('@/controllers/authController');
+const authController = require('@/controllers/authController');
 const { validate } = require('@/middleware/validator');
 
 const bodyEmailValidator = () => body('email')
@@ -26,7 +26,7 @@ router.post(
       .isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
-  register
+  authController.register
 );
 
 // 登入
@@ -38,7 +38,7 @@ router.post(
     bodyPasswordValidator(),
     validate,
   ],
-  login
+  authController.login
 );
 
 module.exports = router;

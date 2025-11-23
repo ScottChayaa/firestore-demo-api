@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { body, query } = require("express-validator");
-const { getOrders, getOrderById, createOrder, updateOrder, deleteOrder } = require("@/controllers/orderController");
+const orderController = require("@/controllers/orderController");
 const { validate, validatePagination, validateDateRange } = require("@/middleware/validator");
 const { filterOrdersByOwnership, checkOrderOwnership, enforceOwnershipOnCreate } = require("@/middleware/ownership");
 
@@ -30,7 +30,7 @@ router.get(
       .withMessage(status_withMessage),
     validate,
   ],
-  getOrders
+  orderController.getOrders
 );
 
 // 創建訂單
@@ -50,13 +50,13 @@ router.post(
       .withMessage(status_withMessage),
     validate,
   ],
-  createOrder
+  orderController.createOrder
 );
 
 // 取得單一訂單
 // GET /api/orders/:id
 // 會員只能查詢自己的訂單，管理員可查詢所有訂單
-router.get("/:id", checkOrderOwnership, getOrderById);
+router.get("/:id", checkOrderOwnership, orderController.getOrderById);
 
 // 更新訂單
 // PUT /api/orders/:id
@@ -73,12 +73,12 @@ router.put(
     body("totalAmount").optional().isNumeric().withMessage("總金額必須是數字"),
     validate,
   ],
-  updateOrder
+  orderController.updateOrder
 );
 
 // 刪除訂單
 // DELETE /api/orders/:id
 // 會員只能刪除自己的訂單，管理員可刪除所有訂單
-router.delete("/:id", checkOrderOwnership, deleteOrder);
+router.delete("/:id", checkOrderOwnership, orderController.deleteOrder);
 
 module.exports = router;
