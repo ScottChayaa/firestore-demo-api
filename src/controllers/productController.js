@@ -57,12 +57,6 @@ class ProductController {
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
 
-    // 使用 pino-http 官方預設 req.log 紀錄
-    req.log.info({
-      message: "測試訊息: 查詢商品",
-      details: ["測試資料",2,3]
-    });
-
     res.json({
       message: "查詢商品",
       ...result

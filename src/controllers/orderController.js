@@ -1,7 +1,6 @@
 const { db, FieldValue, Timestamp } = require("@/config/firebase");
 const { executePaginatedQuery, defaultMapper } = require("@/utils/pagination");
 const { NotFoundError, ValidationError } = require("@/middleware/errorHandler");
-const logger = require("@/config/logger");
 
 const COLLECTION_NAME = "orders";
 

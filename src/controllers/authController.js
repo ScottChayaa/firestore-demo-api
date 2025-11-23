@@ -9,7 +9,6 @@ const {
   NotFoundError,
 } = require("@/middleware/errorHandler");
 const axios = require("axios");
-const logger = require("@/config/logger");
 
 class AuthController {
   /**
@@ -98,7 +97,6 @@ class AuthController {
     // 取得 Firebase Web API Key
     const apiKey = process.env.FIREBASE_WEB_API_KEY;
     if (!apiKey) {
-      logger.error("FIREBASE_WEB_API_KEY 未設定");
       throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
     }
 
