@@ -19,7 +19,8 @@ router.get(
   validatePagination,
   validateDateRange,
   [
-    query('order').default("desc").isIn(["desc", "asc"]),
+    query("order").default("desc").isIn(["desc", "asc"]),
+    query("orderBy").default("createdAt").isIn(["createdAt"]),
     validate,
   ],
   memberController.getMembers

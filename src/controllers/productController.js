@@ -1,5 +1,5 @@
 const { db } = require("@/config/firebase");
-const { executePaginatedQuery, defaultMapper } = require("@/utils/pagination");
+const { executePaginatedQuery, mapDocumentToJSON } = require("@/utils/firestore");
 const { NotFoundError } = require("@/middleware/errorHandler");
 
 const COLLECTION_NAME = "products";
@@ -57,12 +57,11 @@ class ProductController {
     }
 
     // 執行分頁查詢
-    const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
+    const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
-    res.json({
-      message: "查詢商品",
-      ...result
-    });
+    req.log.info('取得商品列表');
+
+    res.json(result);
   }
 
   /**
@@ -80,14 +79,13 @@ class ProductController {
       throw new NotFoundError(`找不到商品 ID: ${id}`);
     }
 
-    const product = defaultMapper(doc);
+    const product = mapDocumentToJSON(doc);
 
-    res.json({
-      data: product,
-    });
+    res.json(product);
   }
 
   /**
+   * TODO: 當產品數量變多時, 效能可能不好, 須找時間研究一下
    * 取得商品分類列表（公開 API）
    * 回傳所有可用的商品分類
    */

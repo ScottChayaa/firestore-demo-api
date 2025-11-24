@@ -1,5 +1,5 @@
 const { db, FieldValue, Timestamp } = require("@/config/firebase");
-const { executePaginatedQuery, defaultMapper } = require("@/utils/pagination");
+const { executePaginatedQuery, mapDocumentToJSON } = require("@/utils/firestore");
 const { NotFoundError, ValidationError } = require("@/middleware/errorHandler");
 
 const COLLECTION_NAME = "orders";
@@ -69,7 +69,7 @@ class OrderController {
     }
 
     // 執行分頁查詢
-    const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
+    const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
     res.json({
       ...result,
@@ -92,7 +92,7 @@ class OrderController {
     }
 
     res.json({
-      data: defaultMapper(doc),
+      data: mapDocumentToJSON(doc),
     });
   }
 
@@ -143,7 +143,7 @@ class OrderController {
     const newOrder = await docRef.get();
 
     res.status(201).json({
-      data: defaultMapper(newOrder),
+      data: mapDocumentToJSON(newOrder),
       message: "訂單建立成功",
     });
   }
@@ -201,7 +201,7 @@ class OrderController {
     const updatedOrder = await orderRef.get();
 
     res.json({
-      data: defaultMapper(updatedOrder),
+      data: mapDocumentToJSON(updatedOrder),
       message: "訂單更新成功",
     });
   }

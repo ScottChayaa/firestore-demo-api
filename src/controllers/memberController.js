@@ -1,5 +1,5 @@
 const { db, FieldValue, Timestamp } = require('@/config/firebase');
-const { defaultMapper, executePaginatedQuery } = require('@/utils/pagination');
+const { executePaginatedQuery, mapDocumentToJSON } = require('@/utils/firestore');
 const { NotFoundError, ValidationError } = require('@/middleware/errorHandler');
 
 const COLLECTION_NAME = 'members';
@@ -17,9 +17,9 @@ class MemberController {
    */
   getMembers = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    const { order = 'desc' } = req.query;
     const { limit, cursor } = req.pagination;
     const dateRange = req.dateRange || {};
+    const { order, orderBy } = req.query;
 
     // 建立基礎查詢
     let query = collection;
@@ -33,12 +33,15 @@ class MemberController {
     }
 
     // 排序：固定使用 createdAt
-    query = query.orderBy('createdAt', order);
-
+    if (orderBy === "createdAt") {
+      query = query.orderBy("createdAt", order);
+    }
+    
     // 執行分頁查詢
-    const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
+    const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
     res.json({
+      message: "取得會員列表",
       ...result,
     });
   };
@@ -59,7 +62,7 @@ class MemberController {
     }
 
     res.json({
-      data: defaultMapper(doc),
+      data: mapDocumentToJSON(doc),
     });
   };
 
@@ -101,7 +104,7 @@ class MemberController {
     const updatedMember = await memberRef.get();
 
     res.json({
-      data: defaultMapper(updatedMember),
+      data: mapDocumentToJSON(updatedMember),
       message: '會員資料更新成功',
     });
   };
