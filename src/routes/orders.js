@@ -41,7 +41,7 @@ router.post(
   enforceOwnershipOnCreate,
   [
     // memberId 會由 middleware 自動設定，所以改為 optional
-    body("memberId").optional().notEmpty().withMessage("會員 ID 不可為空"),
+    body("memberId").notEmpty().withMessage("會員 ID 不可為空"),
     body("items").isArray({ min: 1 }).withMessage("items 必須是非空陣列"),
     body("totalAmount").isNumeric().withMessage("總金額必須是數字"),
     body("status")

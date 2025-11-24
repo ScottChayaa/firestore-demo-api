@@ -20,11 +20,14 @@ class ProductController {
    */
   getProducts = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    const { category, minPrice, maxPrice, orderBy = "createdAt", order = "desc" } = req.query;
     const { limit, cursor } = req.pagination;
+    const { category, minPrice, maxPrice, orderBy, order} = req.query;
 
     // 建立基礎查詢
     let query = collection;
+
+    // TODO: 篩選: 商品關鍵字
+    //   建立商品訊息資料時, 根據標題、描述... 等資訊, 算出這商品的關鍵字並更新到 DB, 供日後快速查找
 
     // 篩選: 商品分類
     if (category) {
@@ -47,11 +50,10 @@ class ProductController {
     }
 
     // 排序欄位 + 排序方向
-    const orderDirection = order === "asc" ? "asc" : "desc";
     if (orderBy === "price") {
-      query = query.orderBy("price", orderDirection);
+      query = query.orderBy("price", order);
     } else {
-      query = query.orderBy("createdAt", orderDirection);
+      query = query.orderBy("createdAt", order);
     }
 
     // 執行分頁查詢
