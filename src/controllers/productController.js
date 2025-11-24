@@ -50,11 +50,7 @@ class ProductController {
     }
 
     // 排序欄位 + 排序方向
-    if (orderBy === "price") {
-      query = query.orderBy("price", order);
-    } else {
-      query = query.orderBy("createdAt", order);
-    }
+    query = query.orderBy(orderBy, order);
 
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);

@@ -62,11 +62,7 @@ class OrderController {
     }
 
     // 排序
-    if (orderBy === "totalAmount") {
-      query = query.orderBy("totalAmount", order);
-    } else {
-      query = query.orderBy("createdAt", order);
-    }
+    query = query.orderBy(orderBy, order);
 
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);

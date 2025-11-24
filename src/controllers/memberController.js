@@ -33,9 +33,7 @@ class MemberController {
     }
 
     // 排序：固定使用 createdAt
-    if (orderBy === "createdAt") {
-      query = query.orderBy("createdAt", order);
-    }
+    query = query.orderBy(orderBy, order);
     
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);

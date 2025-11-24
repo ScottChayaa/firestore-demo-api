@@ -6,6 +6,10 @@ const { validate, validatePagination, validateDateRange } = require("@/middlewar
 const { filterOrdersByOwnership, checkOrderOwnership, enforceOwnershipOnCreate } = require("@/middleware/ownership");
 
 
+const statusValidator = () => query("status")
+    .notEmpty().withMessage("status 不可為空")
+    .isIn(["pending", "processing", "completed", "cancelled"]).withMessage("status 必須是 pending, processing, completed 或 cancelled");
+
 let status_isIn = ["pending", "processing", "completed", "cancelled"];
 let status_withMessage = "status 必須是 pending, processing, completed 或 cancelled";
 
@@ -24,10 +28,9 @@ router.get(
   [
     query("order").default("desc").isIn(["desc", "asc"]),
     query("orderBy").default("createdAt").isIn(["createdAt", "totalAmount"]),
-    query("status")
-      .optional()
-      .isIn(status_isIn)
-      .withMessage(status_withMessage),
+    query("minAmount").isNumeric(),
+    query("maxAmount").isNumeric(),
+    statusValidator(),
     validate,
   ],
   orderController.getOrders
@@ -40,14 +43,10 @@ router.post(
   "/",
   enforceOwnershipOnCreate,
   [
-    // memberId 會由 middleware 自動設定，所以改為 optional
     body("memberId").notEmpty().withMessage("會員 ID 不可為空"),
     body("items").isArray({ min: 1 }).withMessage("items 必須是非空陣列"),
     body("totalAmount").isNumeric().withMessage("總金額必須是數字"),
-    body("status")
-      .optional()
-      .isIn(status_isIn)
-      .withMessage(status_withMessage),
+    statusValidator(),
     validate,
   ],
   orderController.createOrder
@@ -65,12 +64,9 @@ router.put(
   "/:id",
   checkOrderOwnership,
   [
-    body("status")
-      .optional()
-      .isIn(status_isIn)
-      .withMessage(status_withMessage),
     body("items").optional().isArray().withMessage("items 必須是陣列"),
     body("totalAmount").optional().isNumeric().withMessage("總金額必須是數字"),
+    statusValidator(),
     validate,
   ],
   orderController.updateOrder
