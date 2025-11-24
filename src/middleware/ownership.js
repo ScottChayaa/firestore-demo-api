@@ -1,6 +1,6 @@
 const logger = require('@/config/logger');
 const { db } = require('@/config/firebase');
-const { ForbiddenError, NotFoundError } = require('@/middleware/errorHandler');
+const { ForbiddenError, NotFoundError, UnauthorizedError } = require('@/middleware/errorHandler');
 
 /**
  * 訂單權限過濾 middleware
@@ -24,10 +24,7 @@ function filterOrdersByOwnership(req, res, next) {
   }
 
   // 沒有用戶資訊（不應該發生，因為有 authenticate middleware）
-  return res.status(401).json({
-    error: 'Unauthorized',
-    message: '需要登入才能查詢訂單',
-  });
+  throw new UnauthorizedError("需要登入");
 }
 
 /**
