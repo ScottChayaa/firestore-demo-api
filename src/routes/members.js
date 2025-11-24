@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 const memberController = require('@/controllers/memberController');
-const { validate } = require('@/middleware/validator');
+const { validate, validatePagination, validateDateRange } = require('@/middleware/validator');
 
 /**
  * 私有 API 路由 - 會員管理
@@ -12,9 +12,18 @@ const { validate } = require('@/middleware/validator');
  * 這裡的路由主要用於管理現有會員資料
  */
 
-// 列出會員列表
-// GET /api/members
-router.get('/', memberController.listMembers);
+// 列出會員列表（支援分頁、日期範圍篩選）
+// GET /api/members?limit=20&cursor=xxx&startDate=2025-01-01&endDate=2025-01-31&order=desc
+router.get(
+  '/',
+  validatePagination,
+  validateDateRange,
+  [
+    query('order').default("desc").isIn(["desc", "asc"]),
+    validate,
+  ],
+  memberController.getMembers
+);
 
 // 取得單一會員資料
 // GET /api/members/:id

@@ -1,10 +1,48 @@
-const { db, FieldValue } = require("@/config/firebase");
-const { defaultMapper } = require("@/utils/pagination");
-const { NotFoundError, ValidationError } = require("@/middleware/errorHandler");
+const { db, FieldValue, Timestamp } = require('@/config/firebase');
+const { defaultMapper, executePaginatedQuery } = require('@/utils/pagination');
+const { NotFoundError, ValidationError } = require('@/middleware/errorHandler');
 
-const COLLECTION_NAME = "members";
+const COLLECTION_NAME = 'members';
 
 class MemberController {
+  /**
+   * 取得會員列表（支援 Cursor 分頁和日期篩選）
+   *
+   * Query 參數：
+   * - limit: 每頁數量（預設 20，最大 100）
+   * - cursor: 分頁游標（文檔 ID）
+   * - startDate: 註冊日期起始（ISO 8601 格式）
+   * - endDate: 註冊日期結束（ISO 8601 格式）
+   * - order: 排序方向（asc | desc，預設 desc）
+   */
+  getMembers = async (req, res) => {
+    const collection = db.collection(COLLECTION_NAME);
+    const { order = 'desc' } = req.query;
+    const { limit, cursor } = req.pagination;
+    const dateRange = req.dateRange || {};
+
+    // 建立基礎查詢
+    let query = collection;
+
+    // 篩選：日期範圍
+    if (dateRange.startDate) {
+      query = query.where('createdAt', '>=', Timestamp.fromDate(dateRange.startDate));
+    }
+    if (dateRange.endDate) {
+      query = query.where('createdAt', '<=', Timestamp.fromDate(dateRange.endDate));
+    }
+
+    // 排序：固定使用 createdAt
+    query = query.orderBy('createdAt', order);
+
+    // 執行分頁查詢
+    const result = await executePaginatedQuery(query, collection, limit, cursor, defaultMapper);
+
+    res.json({
+      ...result,
+    });
+  };
+
   /**
    * 取得單一會員資料
    *
@@ -23,7 +61,7 @@ class MemberController {
     res.json({
       data: defaultMapper(doc),
     });
-  }
+  };
 
   /**
    * 更新會員資料
@@ -64,9 +102,9 @@ class MemberController {
 
     res.json({
       data: defaultMapper(updatedMember),
-      message: "會員資料更新成功",
+      message: '會員資料更新成功',
     });
-  }
+  };
 
   /**
    * 刪除會員
@@ -89,27 +127,10 @@ class MemberController {
     await memberRef.delete();
 
     res.json({
-      message: "會員刪除成功",
+      message: '會員刪除成功',
       data: { id },
     });
-  }
-
-  /**
-   * 列出所有會員（簡化版，實際應用應加入分頁）
-   */
-  listMembers = async (req, res) => {
-    const snapshot = await db.collection(COLLECTION_NAME).orderBy("createdAt", "desc").limit(100).get();
-
-    const members = [];
-    snapshot.forEach((doc) => {
-      members.push(defaultMapper(doc));
-    });
-
-    res.json({
-      data: members,
-      count: members.length,
-    });
-  }
+  };
 }
 
 // 導出實例
