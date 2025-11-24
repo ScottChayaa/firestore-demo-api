@@ -89,11 +89,6 @@ class AuthController {
   login = async (req, res) => {
     const { email, password } = req.body;
 
-    // 驗證必填欄位
-    if (!email || !password) {
-      throw new ValidationError("email 和 password 為必填欄位");
-    }
-
     // 取得 Firebase Web API Key
     const apiKey = process.env.FIREBASE_WEB_API_KEY;
     if (!apiKey) {
