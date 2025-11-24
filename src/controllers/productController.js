@@ -101,9 +101,7 @@ class ProductController {
       }
     });
 
-    res.json({
-      data: Array.from(categories).sort(),
-    });
+    res.json(Array.from(categories).sort());
   }
 }
 

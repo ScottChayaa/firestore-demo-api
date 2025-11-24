@@ -71,9 +71,7 @@ class OrderController {
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
-    res.json({
-      ...result,
-    });
+    res.json(result);
   }
 
   /**
@@ -91,9 +89,7 @@ class OrderController {
       throw new NotFoundError(`找不到訂單 ID: ${id}`);
     }
 
-    res.json({
-      data: mapDocumentToJSON(doc),
-    });
+    res.json(mapDocumentToJSON(doc));
   }
 
   /**
@@ -142,10 +138,7 @@ class OrderController {
     // 取得新建立的訂單資料
     const newOrder = await docRef.get();
 
-    res.status(201).json({
-      data: mapDocumentToJSON(newOrder),
-      message: "訂單建立成功",
-    });
+    res.status(201).json(mapDocumentToJSON(newOrder));
   }
 
   /**
@@ -200,10 +193,7 @@ class OrderController {
     // 取得更新後的資料
     const updatedOrder = await orderRef.get();
 
-    res.json({
-      data: mapDocumentToJSON(updatedOrder),
-      message: "訂單更新成功",
-    });
+    res.json(mapDocumentToJSON(updatedOrder));
   }
 
   /**
@@ -227,8 +217,7 @@ class OrderController {
     await orderRef.delete();
 
     res.json({
-      message: "訂單刪除成功",
-      data: { id },
+      id: id,
     });
   }
 

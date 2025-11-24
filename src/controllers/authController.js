@@ -132,6 +132,7 @@ class AuthController {
     const memberData = memberDoc.data();
 
     res.status(200).json({
+      message: "登入成功",
       data: {
         idToken,
         refreshToken,
@@ -143,7 +144,6 @@ class AuthController {
           phone: memberData.phone,
         },
       },
-      message: "登入成功",
     });
   }
 }

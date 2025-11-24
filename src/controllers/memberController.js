@@ -40,10 +40,7 @@ class MemberController {
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
-    res.json({
-      message: "取得會員列表",
-      ...result,
-    });
+    res.json(result);
   };
 
   /**
@@ -61,9 +58,7 @@ class MemberController {
       throw new NotFoundError(`找不到會員 ID: ${id}`);
     }
 
-    res.json({
-      data: mapDocumentToJSON(doc),
-    });
+    res.json(mapDocumentToJSON(doc));
   };
 
   /**
@@ -103,10 +98,7 @@ class MemberController {
     // 取得更新後的資料
     const updatedMember = await memberRef.get();
 
-    res.json({
-      data: mapDocumentToJSON(updatedMember),
-      message: '會員資料更新成功',
-    });
+    res.json(mapDocumentToJSON(updatedMember));
   };
 
   /**
@@ -130,8 +122,7 @@ class MemberController {
     await memberRef.delete();
 
     res.json({
-      message: '會員刪除成功',
-      data: { id },
+      id: id,
     });
   };
 }
