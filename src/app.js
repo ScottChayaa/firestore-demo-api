@@ -13,7 +13,6 @@ const membersRouter = require("@/routes/members");
 const ordersRouter = require("@/routes/orders");
 
 // 匯入中間件
-const responseBodyLogger = require("@/middleware/responseBodyLogger");
 const httpLogger = require("@/middleware/httpLogger");
 const { errorHandler, notFoundHandler } = require("@/middleware/errorHandler");
 const { authenticate } = require("@/middleware/auth");
@@ -40,13 +39,6 @@ app.use(express.json());
 
 // 解析 URL-encoded 請求體
 app.use(express.urlencoded({ extended: true }));
-
-// Response Body Logger（必須在 httpLogger 之前，僅開發環境啟用）
-// app.use(responseBodyLogger({
-//   enabled: process.env.LOG_RESPONSE_BODY !== 'false' && process.env.NODE_ENV !== 'production',
-//   maxBodyLength: parseInt(process.env.MAX_RESPONSE_BODY_LENGTH || '10000'),
-//   sanitize: true,
-// }));
 
 // HTTP 請求日誌（使用 pino-http）
 app.use(httpLogger);
