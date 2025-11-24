@@ -11,31 +11,23 @@ const { ForbiddenError, NotFoundError } = require('@/middleware/errorHandler');
  * - 管理員：允許查詢所有訂單或指定 memberId
  */
 function filterOrdersByOwnership(req, res, next) {
-  try {
-    // 管理員不限制
-    if (req.user && req.user.isAdmin) {
-      return next();
-    }
-
-    // 一般會員：強制只能查詢自己的訂單
-    if (req.user && req.user.uid) {
-      // 強制設定 memberId 為當前用戶的 UID
-      req.query.memberId = req.user.uid;
-      return next();
-    }
-
-    // 沒有用戶資訊（不應該發生，因為有 authenticate middleware）
-    return res.status(401).json({
-      error: 'Unauthorized',
-      message: '需要登入才能查詢訂單',
-    });
-  } catch (error) {
-    console.error('❌ Error in filterOrdersByOwnership:', error);
-    return res.status(500).json({
-      error: 'InternalServerError',
-      message: '權限檢查失敗',
-    });
+  // 管理員不限制
+  if (req.user && req.user.isAdmin) {
+    return next();
   }
+
+  // 一般會員：強制只能查詢自己的訂單
+  if (req.user && req.user.uid) {
+    // 強制設定 memberId 為當前用戶的 UID
+    req.query.memberId = req.user.uid;
+    return next();
+  }
+
+  // 沒有用戶資訊（不應該發生，因為有 authenticate middleware）
+  return res.status(401).json({
+    error: 'Unauthorized',
+    message: '需要登入才能查詢訂單',
+  });
 }
 
 /**
