@@ -129,3 +129,39 @@ collectMissingIndexes.js 和 productQueries.js 這兩個有什麼差別?
 
 ---
 
+
+
+
+優化 app.js 的路由
+
+- 入口應該只會有 2 種
+  - /api/member
+    - 會員登入的相關 api 操作, 如
+      - GET /api/member : 取得自己的會員資料 (name, phone...)
+      - PUT /api/member : 更新自己的會員資料
+      - GET /api/member/orders : 取得自己的訂單紀錄
+  - /api/admin
+    - 管理員登入的相關 api 操作, 如
+      - GET /api/admin/members : 查詢會員列表
+      - POST /api/admin/members : 新增會員資料
+      - PUT /api/admin/members/:id : 更新會員資料
+      - DELETE /api/admin/members/:id : 刪除會員資料
+      - GET /api/admin/orders
+      - POST /api/admin/orders
+      - PUT /api/admin/orders/:id
+      - DELET /api/admin/orders/:id
+      - GET /api/admin/admins : 查詢管理員列表
+      - POST /api/admin/admins : 新增管理員資料
+      - PUT /api/admin/admins/:id : 更新管理員資料
+      - DELETE /api/admin/admins/:id : 刪除管理員資料
+      - 然後, 我沒看到之前規劃的 create-admin-role, create-member-role ?
+        - POST /api/admin/members/create-role : 賦予會員權限
+        - POST /api/admin/admins/create-role : 賦予管理員權限
+
+請依照上面的方向進行調整 (順便檢查一下看有沒有沒想到的部分)
+
+
+
+
+create-role 端點：只建立 Firestore 文檔，不修改 Custom Claims
+ => 這段是什麼意思? 詳細說明一下

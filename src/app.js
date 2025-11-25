@@ -9,14 +9,12 @@ const helmet = require("helmet");
 const indexRouter = require("@/routes/index");
 const authRouter = require("@/routes/auth");
 const productsRouter = require("@/routes/products");
-const membersRouter = require("@/routes/members");
 const memberRoutes = require("@/routes/member");
 const adminRoutes = require("@/routes/admin");
 
 // 匯入中間件
 const httpLogger = require("@/middleware/httpLogger");
 const { errorHandler, notFoundHandler } = require("@/middleware/errorHandler");
-const { authenticate } = require("@/middleware/auth");
 
 // 創建 Express 應用
 const app = express();
@@ -54,7 +52,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/public/products", productsRouter);
 
 // 私有 API 路由（需要 Firebase Auth 驗證）
-app.use("/api/members", authenticate, membersRouter);
 app.use("/api/member", memberRoutes);  // 會員專屬端點（內建 authMember）
 app.use("/api/admin", adminRoutes);    // 管理員專屬端點（內建 authAdmin）
 

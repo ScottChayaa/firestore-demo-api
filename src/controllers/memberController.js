@@ -1,4 +1,4 @@
-const { db, FieldValue, Timestamp } = require('@/config/firebase');
+const { db, auth, FieldValue, Timestamp } = require('@/config/firebase');
 const { executePaginatedQuery, mapDocumentToJSON } = require('@/utils/firestore');
 const { NotFoundError, ValidationError } = require('@/middleware/errorHandler');
 
@@ -100,6 +100,58 @@ class MemberController {
   };
 
   /**
+   * 建立會員（同時建立 Firebase Auth 帳號和 Firestore 文檔）
+   *
+   * Body 參數：
+   * - email: 會員 Email（必填，唯一）
+   * - password: 密碼（必填，至少 6 字元）
+   * - name: 會員姓名（必填）
+   * - phone: 電話（可選）
+   */
+  createMember = async (req, res) => {
+    const { email, password, name, phone } = req.body;
+
+    // 驗證必填欄位
+    if (!email || !password || !name) {
+      throw new ValidationError('email, password, name 為必填欄位');
+    }
+
+    if (password.length < 6) {
+      throw new ValidationError('密碼至少需要 6 個字元');
+    }
+
+    // 1. 建立 Firebase Auth 帳號
+    const userRecord = await auth.createUser({
+      email,
+      password,
+      displayName: name,
+    });
+
+    req.log.info({ uid: userRecord.uid, email }, '建立 Firebase Auth 帳號成功');
+
+    // 2. 在 Firestore 建立會員文檔
+    const memberData = {
+      email: userRecord.email,
+      name,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    if (phone) {
+      memberData.phone = phone;
+    }
+
+    await db.collection(COLLECTION_NAME).doc(userRecord.uid).set(memberData);
+
+    req.log.info({ uid: userRecord.uid }, '建立會員 Firestore 文檔成功');
+
+    // 3. 取得完整的會員資料
+    const memberDoc = await db.collection(COLLECTION_NAME).doc(userRecord.uid).get();
+
+    res.status(201).json(mapDocumentToJSON(memberDoc));
+  };
+
+  /**
    * 刪除會員
    *
    * Path 參數：
@@ -116,8 +168,13 @@ class MemberController {
       throw new NotFoundError(`找不到會員 ID: ${id}`);
     }
 
-    // 刪除會員
+    // 刪除 Firestore 文檔
     await memberRef.delete();
+
+    req.log.info({ uid: id }, '刪除會員 Firestore 文檔成功');
+
+    // 注意：不刪除 Firebase Auth 帳號，因為可能同時是管理員
+    // 如果需要完全刪除帳號，請另外呼叫 Firebase Auth API
 
     res.json({
       id: id,
