@@ -29,40 +29,52 @@ router.post(
   authController.memberRegister
 );
 
-// 基礎驗證（Email/Password 取得 Token）
-// POST /api/auth/login
+// 會員登入（Email/Password 直接取得含角色的 ID Token）
+// POST /api/auth/member/signInWithPassword
 router.post(
-  '/login',
+  '/member/signInWithPassword',
   [
     bodyEmailValidator(),
     bodyPasswordValidator(),
     validate,
   ],
-  authController.getTokenByEmail
+  authController.memberSignInWithPassword
 );
 
-// 會員登入（設定角色）
-// POST /api/auth/member/login
+// 管理員登入（Email/Password 直接取得含角色的 ID Token）
+// POST /api/auth/admin/signInWithPassword
 router.post(
-  '/member/login',
+  '/admin/signInWithPassword',
   [
-    body('idToken')
-      .notEmpty().withMessage('idToken 為必填欄位'),
+    bodyEmailValidator(),
+    bodyPasswordValidator(),
     validate,
   ],
-  authController.memberLogin
+  authController.adminSignInWithPassword
 );
 
-// 管理員登入（設定角色）
-// POST /api/auth/admin/login
+// 會員 Custom Token 轉換（用於手機 App 等外部來源）
+// POST /api/auth/member/signInWithCustomToken
 router.post(
-  '/admin/login',
+  '/member/signInWithCustomToken',
   [
-    body('idToken')
-      .notEmpty().withMessage('idToken 為必填欄位'),
+    body('customToken')
+      .notEmpty().withMessage('customToken 為必填欄位'),
     validate,
   ],
-  authController.adminLogin
+  authController.memberSignInWithCustomToken
+);
+
+// 管理員 Custom Token 轉換（用於手機 App 等外部來源）
+// POST /api/auth/admin/signInWithCustomToken
+router.post(
+  '/admin/signInWithCustomToken',
+  [
+    body('customToken')
+      .notEmpty().withMessage('customToken 為必填欄位'),
+    validate,
+  ],
+  authController.adminSignInWithCustomToken
 );
 
 module.exports = router;

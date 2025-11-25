@@ -63,7 +63,7 @@ class AuthController {
     await db.collection("members").doc(userRecord.uid).set(memberData);
 
     res.status(201).json({
-      message: "註冊成功，請使用 /api/auth/login 登入取得 token",
+      message: "註冊成功，請使用 /api/auth/member/signInWithPassword 登入取得 token",
       data: {
         uid: userRecord.uid,
         email: userRecord.email,
@@ -74,24 +74,20 @@ class AuthController {
   }
 
   /**
-   * 基礎身份驗證（Email/Password 取得 Token）
-   * 使用 Firebase REST API 驗證密碼並取得 ID Token
-   * 此方法僅進行基礎驗證，不設定角色 (loginAs)
-   *
-   * 若要設定角色，請使用：
-   * - memberLogin() - 設定為會員身份
-   * - adminLogin() - 設定為管理員身份
+   * 會員登入（Email/Password 直接取得含角色的 ID Token）
+   * 驗證密碼、檢查會員身份、設定 Custom Claims 並返回可用的 ID Token
    *
    * Body 參數：
    * - email: Email（必填）
    * - password: 密碼（必填）
    *
    * 回傳：
-   * - idToken: Firebase ID Token（用於後續 API 請求）
-   * - refreshToken: Refresh Token（用於更新 token）
+   * - idToken: 包含 loginAs='member' 的 ID Token（可直接用於 API 請求）
+   * - refreshToken: Refresh Token
    * - expiresIn: Token 有效期限（秒）
+   * - user: 用戶資料
    */
-  getTokenByEmail = async (req, res) => {
+  memberSignInWithPassword = async (req, res) => {
     const { email, password } = req.body;
 
     // 取得 Firebase Web API Key
@@ -100,83 +96,41 @@ class AuthController {
       throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
     }
 
-    let response = null;
-
+    // 1. 使用 Firebase REST API 驗證密碼
+    let authResponse = null;
     try {
-      // 使用 Firebase REST API 驗證密碼
-      response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`, {
-        email,
-        password,
-        returnSecureToken: true,
-      });
+      authResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+        {
+          email,
+          password,
+          returnSecureToken: true,
+        }
+      );
     } catch (error) {
       // Firebase REST API 錯誤處理
       if (error.response && error.response.data) {
         const errorCode = error.response.data.error.message;
 
         if (errorCode === "EMAIL_NOT_FOUND" || errorCode === "INVALID_PASSWORD" || errorCode === "INVALID_LOGIN_CREDENTIALS") {
-          throw new UnauthorizedError(`Email 或密碼錯誤`);
+          throw new UnauthorizedError("Email 或密碼錯誤");
         } else if (errorCode === "USER_DISABLED") {
-          throw new ForbiddenError(`此帳號已被停用`);
+          throw new ForbiddenError("此帳號已被停用");
         } else if (errorCode === "TOO_MANY_ATTEMPTS_TRY_LATER") {
-          throw new TooManyRequestsError(`登入嘗試次數過多，請稍後再試`);
+          throw new TooManyRequestsError("登入嘗試次數過多，請稍後再試");
         } else {
-          throw new BadError(`${error.response.data.error.message}`);
+          throw new BadError(`登入失敗: ${errorCode}`);
         }
       }
+      throw new AppError(500, "登入服務異常，請稍後再試");
     }
 
-    const { idToken, refreshToken, expiresIn, localId } = response.data;
+    const { localId: uid } = authResponse.data;
 
-    // 取得 Firestore 中的會員資料
-    const memberDoc = await db.collection("members").doc(localId).get();
-    if (!memberDoc.exists) {
-      throw new NotFoundError("找不到對應的會員資料");
-    }
-
-    const memberData = memberDoc.data();
-
-    res.status(200).json({
-      message: "登入成功",
-      data: {
-        idToken,
-        refreshToken,
-        expiresIn,
-        user: {
-          uid: localId,
-          email: memberData.email,
-          name: memberData.name,
-          phone: memberData.phone,
-        },
-      },
-    });
-  }
-
-  /**
-   * 會員登入（設定角色）
-   * 驗證用戶的會員身份並設定 Custom Claims
-   *
-   * Body 參數：
-   * - idToken: Firebase ID Token（必填，從 getTokenByEmail 取得）
-   *
-   * 回傳：
-   * - 包含 loginAs='member' 的新 Token
-   */
-  memberLogin = async (req, res) => {
-    const { idToken } = req.body;
-
-    if (!idToken) {
-      throw new ValidationError("idToken 為必填欄位");
-    }
-
-    // 1. 驗證 token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const uid = decodedToken.uid;
-
-    // 2. 檢查是否為會員
+    // 2. 檢查是否為會員（嚴格驗證）
     const memberDoc = await db.collection("members").doc(uid).get();
     if (!memberDoc.exists) {
-      throw new ValidationError("該帳號不是會員，請先註冊");
+      throw new NotFoundError("該帳號不是會員，請先註冊");
     }
 
     // 3. 設定 custom claims
@@ -184,55 +138,119 @@ class AuthController {
       loginAs: "member",
     });
 
-    req.log.info({ uid }, '設定會員 Custom Claims 成功');
+    req.log.info({ uid, email }, "設定會員 Custom Claims 成功");
 
     // 4. 生成 custom token
     const customToken = await auth.createCustomToken(uid);
 
-    // 5. 取得會員資料
+    // 5. 使用 Custom Token 換取包含 claims 的 ID Token
+    let tokenResponse = null;
+    try {
+      tokenResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`,
+        {
+          token: customToken,
+          returnSecureToken: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
+        req.log.error({ uid, errorCode }, "Custom Token 轉換失敗");
+
+        if (errorCode === "INVALID_CUSTOM_TOKEN") {
+          throw new UnauthorizedError("Token 生成失敗，請重試");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else {
+          throw new BadError(`Token 轉換失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "Token 生成失敗，請稍後再試");
+    }
+
+    const { idToken, refreshToken, expiresIn } = tokenResponse.data;
+
+    // 6. 取得會員資料
     const memberData = memberDoc.data();
+
+    req.log.info({ uid, email }, "會員登入成功");
 
     res.json({
       message: "會員登入成功",
       data: {
-        uid,
-        email: decodedToken.email,
-        role: "member",
-        customToken: customToken,
+        idToken,
+        refreshToken,
+        expiresIn,
         user: {
+          uid,
+          email: memberData.email,
+          role: "member",
           name: memberData.name,
           phone: memberData.phone,
         },
       },
-      instructions: "請使用 customToken 呼叫 Firebase signInWithCustomToken() 換取新的 ID Token",
     });
-  }
+  };
 
   /**
-   * 管理員登入（設定角色）
-   * 驗證用戶的管理員身份並設定 Custom Claims
+   * 管理員登入（Email/Password 直接取得含角色的 ID Token）
+   * 驗證密碼、檢查管理員身份、設定 Custom Claims 並返回可用的 ID Token
    *
    * Body 參數：
-   * - idToken: Firebase ID Token（必填，從 getTokenByEmail 取得）
+   * - email: Email（必填）
+   * - password: 密碼（必填）
    *
    * 回傳：
-   * - 包含 loginAs='admin' 的新 Token
+   * - idToken: 包含 loginAs='admin' 的 ID Token（可直接用於 API 請求）
+   * - refreshToken: Refresh Token
+   * - expiresIn: Token 有效期限（秒）
+   * - user: 用戶資料
    */
-  adminLogin = async (req, res) => {
-    const { idToken } = req.body;
+  adminSignInWithPassword = async (req, res) => {
+    const { email, password } = req.body;
 
-    if (!idToken) {
-      throw new ValidationError("idToken 為必填欄位");
+    // 取得 Firebase Web API Key
+    const apiKey = process.env.FIREBASE_WEB_API_KEY;
+    if (!apiKey) {
+      throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
     }
 
-    // 1. 驗證 token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const uid = decodedToken.uid;
+    // 1. 使用 Firebase REST API 驗證密碼
+    let authResponse = null;
+    try {
+      authResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+        {
+          email,
+          password,
+          returnSecureToken: true,
+        }
+      );
+    } catch (error) {
+      // Firebase REST API 錯誤處理
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
 
-    // 2. 檢查是否為管理員
+        if (errorCode === "EMAIL_NOT_FOUND" || errorCode === "INVALID_PASSWORD" || errorCode === "INVALID_LOGIN_CREDENTIALS") {
+          throw new UnauthorizedError("Email 或密碼錯誤");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else if (errorCode === "TOO_MANY_ATTEMPTS_TRY_LATER") {
+          throw new TooManyRequestsError("登入嘗試次數過多，請稍後再試");
+        } else {
+          throw new BadError(`登入失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "登入服務異常，請稍後再試");
+    }
+
+    const { localId: uid } = authResponse.data;
+
+    // 2. 檢查是否為管理員（嚴格驗證）
     const adminDoc = await db.collection("admins").doc(uid).get();
     if (!adminDoc.exists) {
-      throw new ValidationError("該帳號不是管理員");
+      throw new NotFoundError("該帳號不是管理員");
     }
 
     // 3. 設定 custom claims
@@ -240,28 +258,232 @@ class AuthController {
       loginAs: "admin",
     });
 
-    req.log.info({ uid }, '設定管理員 Custom Claims 成功');
+    req.log.info({ uid, email }, "設定管理員 Custom Claims 成功");
 
     // 4. 生成 custom token
     const customToken = await auth.createCustomToken(uid);
 
-    // 5. 取得管理員資料
+    // 5. 使用 Custom Token 換取包含 claims 的 ID Token
+    let tokenResponse = null;
+    try {
+      tokenResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`,
+        {
+          token: customToken,
+          returnSecureToken: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
+        req.log.error({ uid, errorCode }, "Custom Token 轉換失敗");
+
+        if (errorCode === "INVALID_CUSTOM_TOKEN") {
+          throw new UnauthorizedError("Token 生成失敗，請重試");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else {
+          throw new BadError(`Token 轉換失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "Token 生成失敗，請稍後再試");
+    }
+
+    const { idToken, refreshToken, expiresIn } = tokenResponse.data;
+
+    // 6. 取得管理員資料
     const adminData = adminDoc.data();
+
+    req.log.info({ uid, email }, "管理員登入成功");
 
     res.json({
       message: "管理員登入成功",
       data: {
-        uid,
-        email: decodedToken.email,
-        role: "admin",
-        customToken: customToken,
+        idToken,
+        refreshToken,
+        expiresIn,
         user: {
+          uid,
+          email: adminData.email,
+          role: "admin",
           name: adminData.name,
         },
       },
-      instructions: "請使用 customToken 呼叫 Firebase signInWithCustomToken() 換取新的 ID Token",
     });
-  }
+  };
+
+  /**
+   * 會員 Custom Token 轉換（用於手機 App 等外部來源）
+   * 將 customToken 轉換為包含會員角色的 ID Token
+   *
+   * Body 參數：
+   * - customToken: Custom Token（必填，來自外部如手機 App）
+   *
+   * 回傳：
+   * - idToken: 包含 loginAs='member' 的 ID Token
+   * - refreshToken: Refresh Token
+   * - expiresIn: Token 有效期限（秒）
+   * - user: 用戶資料
+   */
+  memberSignInWithCustomToken = async (req, res) => {
+    const { customToken } = req.body;
+
+    // 取得 Firebase Web API Key
+    const apiKey = process.env.FIREBASE_WEB_API_KEY;
+    if (!apiKey) {
+      throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
+    }
+
+    // 1. 使用 Custom Token 換取 ID Token
+    let tokenResponse = null;
+    try {
+      tokenResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`,
+        {
+          token: customToken,
+          returnSecureToken: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
+
+        if (errorCode === "INVALID_CUSTOM_TOKEN") {
+          throw new UnauthorizedError("Custom Token 無效或已過期");
+        } else if (errorCode === "CREDENTIAL_TOO_OLD_LOGIN_AGAIN") {
+          throw new UnauthorizedError("Custom Token 已過期，請重新登入");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else {
+          throw new BadError(`Token 轉換失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "Token 轉換失敗，請稍後再試");
+    }
+
+    const { idToken, refreshToken, expiresIn } = tokenResponse.data;
+
+    // 2. 驗證 ID Token 並檢查角色（嚴格驗證）
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    const role = decodedToken.loginAs;
+
+    if (role !== "member") {
+      throw new ForbiddenError("此 Token 不是會員角色，請使用正確的登入端點");
+    }
+
+    // 3. 取得會員資料
+    const memberDoc = await db.collection("members").doc(uid).get();
+    if (!memberDoc.exists) {
+      throw new NotFoundError("找不到對應的會員資料");
+    }
+
+    const memberData = memberDoc.data();
+
+    req.log.info({ uid, role }, "會員 Custom Token 轉換成功");
+
+    res.json({
+      message: "Token 轉換成功",
+      data: {
+        idToken,
+        refreshToken,
+        expiresIn,
+        user: {
+          uid,
+          email: decodedToken.email,
+          role: "member",
+          name: memberData.name,
+          phone: memberData.phone,
+        },
+      },
+    });
+  };
+
+  /**
+   * 管理員 Custom Token 轉換（用於手機 App 等外部來源）
+   * 將 customToken 轉換為包含管理員角色的 ID Token
+   *
+   * Body 參數：
+   * - customToken: Custom Token（必填，來自外部如手機 App）
+   *
+   * 回傳：
+   * - idToken: 包含 loginAs='admin' 的 ID Token
+   * - refreshToken: Refresh Token
+   * - expiresIn: Token 有效期限（秒）
+   * - user: 用戶資料
+   */
+  adminSignInWithCustomToken = async (req, res) => {
+    const { customToken } = req.body;
+
+    // 取得 Firebase Web API Key
+    const apiKey = process.env.FIREBASE_WEB_API_KEY;
+    if (!apiKey) {
+      throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
+    }
+
+    // 1. 使用 Custom Token 換取 ID Token
+    let tokenResponse = null;
+    try {
+      tokenResponse = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`,
+        {
+          token: customToken,
+          returnSecureToken: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
+
+        if (errorCode === "INVALID_CUSTOM_TOKEN") {
+          throw new UnauthorizedError("Custom Token 無效或已過期");
+        } else if (errorCode === "CREDENTIAL_TOO_OLD_LOGIN_AGAIN") {
+          throw new UnauthorizedError("Custom Token 已過期，請重新登入");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else {
+          throw new BadError(`Token 轉換失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "Token 轉換失敗，請稍後再試");
+    }
+
+    const { idToken, refreshToken, expiresIn } = tokenResponse.data;
+
+    // 2. 驗證 ID Token 並檢查角色（嚴格驗證）
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    const role = decodedToken.loginAs;
+
+    if (role !== "admin") {
+      throw new ForbiddenError("此 Token 不是管理員角色，請使用正確的登入端點");
+    }
+
+    // 3. 取得管理員資料
+    const adminDoc = await db.collection("admins").doc(uid).get();
+    if (!adminDoc.exists) {
+      throw new NotFoundError("找不到對應的管理員資料");
+    }
+
+    const adminData = adminDoc.data();
+
+    req.log.info({ uid, role }, "管理員 Custom Token 轉換成功");
+
+    res.json({
+      message: "Token 轉換成功",
+      data: {
+        idToken,
+        refreshToken,
+        expiresIn,
+        user: {
+          uid,
+          email: decodedToken.email,
+          role: "admin",
+          name: adminData.name,
+        },
+      },
+    });
+  };
 }
 
 // 導出實例
