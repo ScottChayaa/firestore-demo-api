@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
 const { authAdmin } = require('@/middleware/authAdmin');
-const { paginationValidator, dateRangeValidator } = require('@/middleware/validator');
+const { validatePagination, validateDateRange } = require('@/middleware/validator');
 const { body } = require('express-validator');
 const { validate } = require('@/middleware/validator');
 
@@ -19,8 +19,8 @@ const { validate } = require('@/middleware/validator');
 router.get(
   '/',
   authAdmin,
-  paginationValidator,
-  dateRangeValidator,
+  validatePagination,
+  validateDateRange,
   orderController.getOrders
 );
 

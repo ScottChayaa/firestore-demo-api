@@ -3,7 +3,7 @@ const router = express.Router();
 const orderController = require('@/controllers/orderController');
 const { authMember } = require('@/middleware/authMember');
 const { memberOwnership } = require('@/middleware/memberOwnership');
-const { paginationValidator, dateRangeValidator } = require('@/middleware/validator');
+const { validatePagination, validateDateRange } = require('@/middleware/validator');
 
 /**
  * 會員訂單路由
@@ -20,8 +20,8 @@ router.get(
   '/',
   authMember,
   memberOwnership,
-  paginationValidator,
-  dateRangeValidator,
+  validatePagination,
+  validateDateRange,
   orderController.getOrders
 );
 
