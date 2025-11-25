@@ -184,21 +184,27 @@ class AuthController {
       loginAs: "member",
     });
 
-    // 4. 取得會員資料
+    req.log.info({ uid }, '設定會員 Custom Claims 成功');
+
+    // 4. 生成 custom token
+    const customToken = await auth.createCustomToken(uid);
+
+    // 5. 取得會員資料
     const memberData = memberDoc.data();
 
     res.json({
-      message: "會員登入成功，請使用新的 Token",
+      message: "會員登入成功",
       data: {
         uid,
         email: decodedToken.email,
         role: "member",
+        customToken: customToken,
         user: {
           name: memberData.name,
           phone: memberData.phone,
         },
-        requireTokenRefresh: true,
       },
+      instructions: "請使用 customToken 呼叫 Firebase signInWithCustomToken() 換取新的 ID Token",
     });
   }
 
@@ -234,20 +240,26 @@ class AuthController {
       loginAs: "admin",
     });
 
-    // 4. 取得管理員資料
+    req.log.info({ uid }, '設定管理員 Custom Claims 成功');
+
+    // 4. 生成 custom token
+    const customToken = await auth.createCustomToken(uid);
+
+    // 5. 取得管理員資料
     const adminData = adminDoc.data();
 
     res.json({
-      message: "管理員登入成功，請使用新的 Token",
+      message: "管理員登入成功",
       data: {
         uid,
         email: decodedToken.email,
         role: "admin",
+        customToken: customToken,
         user: {
           name: adminData.name,
         },
-        requireTokenRefresh: true,
       },
+      instructions: "請使用 customToken 呼叫 Firebase signInWithCustomToken() 換取新的 ID Token",
     });
   }
 }

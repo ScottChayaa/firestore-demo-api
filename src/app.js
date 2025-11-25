@@ -2,6 +2,7 @@ require('express-async-errors');
 require("dotenv").config();
 
 const express = require("express");
+const listEndpoints = require('express-list-endpoints'); // 套件: 列出所有路由
 const cors = require("cors");
 const helmet = require("helmet");
 
@@ -64,6 +65,9 @@ app.use(notFoundHandler);
 
 // 統一錯誤處理
 app.use(errorHandler);
+
+// 測試用: 列出目前所有路由結構
+// console.log(listEndpoints(app));
 
 // ========================================
 // 匯出應用
