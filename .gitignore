@@ -50,6 +50,8 @@ build/
 *.rest
 !private.example.rest
 !public.example.rest
+!admin.example.rest
+!member.example.rest
 
 # Firestore
 missing-indexes.json
