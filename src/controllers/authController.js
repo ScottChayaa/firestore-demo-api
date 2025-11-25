@@ -21,7 +21,7 @@ class AuthController {
    * - name: 姓名（必填）
    * - phone: 電話（必填）
    */
-  register = async (req, res) => {
+  memberRegister = async (req, res) => {
     const { email, password, name, phone } = req.body;
 
     // 檢查 Email 是否已存在於 Firestore
@@ -74,8 +74,13 @@ class AuthController {
   }
 
   /**
-   * 會員登入
+   * 基礎身份驗證（Email/Password 取得 Token）
    * 使用 Firebase REST API 驗證密碼並取得 ID Token
+   * 此方法僅進行基礎驗證，不設定角色 (loginAs)
+   *
+   * 若要設定角色，請使用：
+   * - memberLogin() - 設定為會員身份
+   * - adminLogin() - 設定為管理員身份
    *
    * Body 參數：
    * - email: Email（必填）
@@ -86,7 +91,7 @@ class AuthController {
    * - refreshToken: Refresh Token（用於更新 token）
    * - expiresIn: Token 有效期限（秒）
    */
-  login = async (req, res) => {
+  getTokenByEmail = async (req, res) => {
     const { email, password } = req.body;
 
     // 取得 Firebase Web API Key

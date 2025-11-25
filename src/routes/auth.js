@@ -12,7 +12,7 @@ const bodyPasswordValidator = () => body('password')
       .notEmpty().withMessage('密碼為必填欄位')
       .isLength({ min: 6 }).withMessage('密碼至少需要 6 個字元');
 
-// 註冊
+// 會員註冊
 // POST /api/auth/register
 router.post(
   '/register',
@@ -26,10 +26,10 @@ router.post(
       .isMobilePhone('zh-TW').withMessage('請輸入正確的台灣手機號碼'),
     validate,
   ],
-  authController.register
+  authController.memberRegister
 );
 
-// 登入
+// 基礎驗證（Email/Password 取得 Token）
 // POST /api/auth/login
 router.post(
   '/login',
@@ -38,7 +38,7 @@ router.post(
     bodyPasswordValidator(),
     validate,
   ],
-  authController.login
+  authController.getTokenByEmail
 );
 
 module.exports = router;
