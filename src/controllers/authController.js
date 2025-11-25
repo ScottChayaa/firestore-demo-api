@@ -151,6 +151,105 @@ class AuthController {
       },
     });
   }
+
+  /**
+   * 會員登入（設定角色）
+   * 驗證用戶的會員身份並設定 Custom Claims
+   *
+   * Body 參數：
+   * - idToken: Firebase ID Token（必填，從 getTokenByEmail 取得）
+   *
+   * 回傳：
+   * - 包含 loginAs='member' 的新 Token
+   */
+  memberLogin = async (req, res) => {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      throw new ValidationError("idToken 為必填欄位");
+    }
+
+    // 1. 驗證 token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    // 2. 檢查是否為會員
+    const memberDoc = await db.collection("members").doc(uid).get();
+    if (!memberDoc.exists) {
+      throw new ValidationError("該帳號不是會員，請先註冊");
+    }
+
+    // 3. 設定 custom claims
+    await auth.setCustomUserClaims(uid, {
+      loginAs: "member",
+    });
+
+    // 4. 取得會員資料
+    const memberData = memberDoc.data();
+
+    res.json({
+      message: "會員登入成功，請使用新的 Token",
+      data: {
+        uid,
+        email: decodedToken.email,
+        role: "member",
+        user: {
+          name: memberData.name,
+          phone: memberData.phone,
+        },
+        requireTokenRefresh: true,
+      },
+    });
+  }
+
+  /**
+   * 管理員登入（設定角色）
+   * 驗證用戶的管理員身份並設定 Custom Claims
+   *
+   * Body 參數：
+   * - idToken: Firebase ID Token（必填，從 getTokenByEmail 取得）
+   *
+   * 回傳：
+   * - 包含 loginAs='admin' 的新 Token
+   */
+  adminLogin = async (req, res) => {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      throw new ValidationError("idToken 為必填欄位");
+    }
+
+    // 1. 驗證 token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    // 2. 檢查是否為管理員
+    const adminDoc = await db.collection("admins").doc(uid).get();
+    if (!adminDoc.exists) {
+      throw new ValidationError("該帳號不是管理員");
+    }
+
+    // 3. 設定 custom claims
+    await auth.setCustomUserClaims(uid, {
+      loginAs: "admin",
+    });
+
+    // 4. 取得管理員資料
+    const adminData = adminDoc.data();
+
+    res.json({
+      message: "管理員登入成功，請使用新的 Token",
+      data: {
+        uid,
+        email: decodedToken.email,
+        role: "admin",
+        user: {
+          name: adminData.name,
+        },
+        requireTokenRefresh: true,
+      },
+    });
+  }
 }
 
 // 導出實例

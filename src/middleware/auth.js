@@ -40,6 +40,7 @@ async function authenticate(req, res, next) {
       emailVerified: decodedToken.email_verified,
       name: decodedToken.name,
       picture: decodedToken.picture,
+      loginAs: decodedToken.loginAs || null,  // 讀取 Custom Claims
     };
 
     // 檢查管理員狀態並繼續

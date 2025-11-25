@@ -41,4 +41,28 @@ router.post(
   authController.getTokenByEmail
 );
 
+// 會員登入（設定角色）
+// POST /api/auth/member/login
+router.post(
+  '/member/login',
+  [
+    body('idToken')
+      .notEmpty().withMessage('idToken 為必填欄位'),
+    validate,
+  ],
+  authController.memberLogin
+);
+
+// 管理員登入（設定角色）
+// POST /api/auth/admin/login
+router.post(
+  '/admin/login',
+  [
+    body('idToken')
+      .notEmpty().withMessage('idToken 為必填欄位'),
+    validate,
+  ],
+  authController.adminLogin
+);
+
 module.exports = router;
