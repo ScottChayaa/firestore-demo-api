@@ -10,6 +10,8 @@
     "clean:firestore": "node src/utils/cleanFirestore.js",
     "clean:authentication": "node src/utils/cleanAuthentication.js",
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
+    "migrate": "node src/migrations/index.js",
+    "migrate:dry": "node src/migrations/index.js --dry-run",
     "test": "jest",
     "test:queries:products": "jest tests/queries/productQueries.test.js --verbose",
     "test:queries:orders": "jest tests/queries/orderQueries.test.js --verbose",

@@ -27,7 +27,7 @@ class MemberController {
     let query = collection;
 
     // 篩選：預設排除已軟刪除的記錄
-    if (includeDeleted !== 'true') {
+    if (includeDeleted == 'false') {
       query = query.where('deletedAt', '==', null);
     }
 
