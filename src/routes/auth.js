@@ -53,28 +53,4 @@ router.post(
   authController.adminSignInWithPassword
 );
 
-// 會員 Custom Token 轉換（用於手機 App 等外部來源）
-// POST /api/auth/member/signInWithCustomToken
-router.post(
-  '/member/signInWithCustomToken',
-  [
-    body('customToken')
-      .notEmpty().withMessage('customToken 為必填欄位'),
-    validate,
-  ],
-  authController.memberSignInWithCustomToken
-);
-
-// 管理員 Custom Token 轉換（用於手機 App 等外部來源）
-// POST /api/auth/admin/signInWithCustomToken
-router.post(
-  '/admin/signInWithCustomToken',
-  [
-    body('customToken')
-      .notEmpty().withMessage('customToken 為必填欄位'),
-    validate,
-  ],
-  authController.adminSignInWithCustomToken
-);
-
 module.exports = router;
