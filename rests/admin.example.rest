@@ -1,0 +1,328 @@
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@adminToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ1YTZjMGMyYjgwMDcxN2EzNGQ1Y2JiYmYzOWI4NGI2NzYxMjgyNjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi57O757Wx566h55CG5ZOhIiwibG9naW5BcyI6ImFkbWluIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2NDE1NjUwMywidXNlcl9pZCI6IkJRSVF2bWd2cWVkVUs5Q0pNQm1NckdGOWlHYTIiLCJzdWIiOiJCUUlRdm1ndnFlZFVLOUNKTUJtTXJHRjlpR2EyIiwiaWF0IjoxNzY0MTU2NTAzLCJleHAiOjE3NjQxNjAxMDMsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYWRtaW5AZXhhbXBsZS5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.GZat1xgc6M9y6-rbG7tbmLFebmKku0teqZuPrQ9--J8GNQd_hlXI_N0FWo_M9Jb90gCCFLObLEMD6ua0X3Ot6JQn2gPGdw3REW1Age4yPkYvqwak7k2zFkT98wC-D2SxcE2YTeTkq83ns4CUnHXZkBHjT_yFKF3j6pgygxW7XPq7_7ykP_jciiP7-a9KJsx4gp2gllImZghJDO80CnYnJYDKaauucY4LYztA4C8dcWHgJpOD0n_hdKsVJ-hhe8Bw6-uYVQlrAS8aXPnHS1U4TnoYw8yaO0HFmIw3GoLCAeKeE5xJVGmfLty2YrNZluafEJznAg8_gdeB4UDtFNbSwA
+
+### ============================================
+### 管理員登入（Email/Password 直接取得含管理員角色的 ID Token）
+### ============================================
+POST {{baseUrl}}/api/auth/admin/signInWithPassword
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "password": "qwer1234"
+}
+
+### ============================================
+### 會員管理 - 查詢會員列表
+### ============================================
+GET {{baseUrl}}/api/admin/members
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/members?limit=10
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/members?limit=10&cursor=xxx
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/members?startDate=2025-01-01
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 建立會員（含 Auth 帳號）
+### ============================================
+POST {{baseUrl}}/api/admin/members
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "email": "newmember2@example.com",
+  "password": "qwer1234",
+  "name": "新會員2",
+  "phone": "0912345678"
+}
+
+### ============================================
+### 會員管理 - 賦予會員角色（現有帳號）
+### ============================================
+POST {{baseUrl}}/api/admin/members/create-role
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "uid": "zK0Tzfb0LGRQGfLip98AMovXfbI2",
+  "name": "香蕉人"
+}
+
+### ============================================
+### 會員管理 - 查詢單一會員
+### ============================================
+GET {{baseUrl}}/api/admin/members/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 更新會員資料
+### ============================================
+PUT {{baseUrl}}/api/admin/members/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "name": "新.新會員2",
+  "phone": "0987654321"
+}
+
+### ============================================
+### 會員管理 - 刪除會員（軟刪除）
+### ============================================
+DELETE {{baseUrl}}/api/admin/members/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 切換會員啟用/停用狀態
+### ============================================
+PATCH {{baseUrl}}/api/admin/members/o5hpcO7pPIVcJdiEZeIoenYVm773/toggle-status
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 恢復已軟刪除的會員
+### ============================================
+POST {{baseUrl}}/api/admin/members/o5hpcO7pPIVcJdiEZeIoenYVm773/restore
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 查詢會員列表（包含已刪除）
+### ============================================
+GET {{baseUrl}}/api/admin/members?includeDeleted=true
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/members?includeDeleted=true&limit=3
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 查詢會員列表（僅啟用）😍
+### ============================================
+GET {{baseUrl}}/api/admin/members?isActive=true&limit=3
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 會員管理 - 查詢會員列表（僅停用））😍
+### ============================================
+GET {{baseUrl}}/api/admin/members?isActive=false
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 查詢管理員列表）
+### ============================================
+GET {{baseUrl}}/api/admin/admins
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/admins?limit=10
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 建立管理員（含 Auth 帳號）
+### ============================================
+POST {{baseUrl}}/api/admin/admins
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "email": "newadmin@example.com",
+  "password": "admin123456",
+  "name": "新管理員"
+}
+
+### ============================================
+### 管理員管理 - 賦予管理員角色（現有帳號）
+### ============================================
+POST {{baseUrl}}/api/admin/admins/create-role
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "uid": "o5hpcO7pPIVcJdiEZeIoenYVm773",
+  "name": "黃金管理員"
+}
+
+### ============================================
+### 管理員管理 - 查詢單一管理員
+### ============================================
+GET {{baseUrl}}/api/admin/admins/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 更新管理員資料
+### ============================================
+PUT {{baseUrl}}/api/admin/admins/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "name": "黃金管理員222"
+}
+
+### ============================================
+### 管理員管理 - 刪除管理員（軟刪除）
+### ============================================
+DELETE {{baseUrl}}/api/admin/admins/o5hpcO7pPIVcJdiEZeIoenYVm773
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 切換管理員啟用/停用狀態
+### ============================================
+PATCH {{baseUrl}}/api/admin/admins/o5hpcO7pPIVcJdiEZeIoenYVm773/toggle-status
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 恢復已軟刪除的管理員
+### ============================================
+POST {{baseUrl}}/api/admin/admins/o5hpcO7pPIVcJdiEZeIoenYVm773/restore
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 查詢管理員列表（包含已刪除）
+### ============================================
+GET {{baseUrl}}/api/admin/admins?includeDeleted=false
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 查詢管理員列表（僅啟用）
+### ============================================
+GET {{baseUrl}}/api/admin/admins?isActive=true
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 管理員管理 - 查詢管理員列表（僅停用）
+### ============================================
+GET {{baseUrl}}/api/admin/admins?isActive=false
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（基本）
+### ============================================
+GET {{baseUrl}}/api/admin/orders
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（分頁）
+### ============================================
+GET {{baseUrl}}/api/admin/orders?limit=20
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/orders?limit=20&cursor=xxx
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（依會員篩選）
+### ============================================
+GET {{baseUrl}}/api/admin/orders?memberId=test_member_123
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（依狀態篩選）
+### ============================================
+GET {{baseUrl}}/api/admin/orders?status=pending
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+###
+GET {{baseUrl}}/api/admin/orders?status=completed
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（日期範圍）
+### ============================================
+GET {{baseUrl}}/api/admin/orders?startDate=2025-01-01&endDate=2025-12-31
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（金額範圍）😍
+### ============================================
+GET {{baseUrl}}/api/admin/orders?minAmount=100&maxAmount=5000
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢所有訂單（複合條件）
+### ============================================
+GET {{baseUrl}}/api/admin/orders?memberId=test_member_123&status=pending&minAmount=100&maxAmount=5000&orderBy=totalAmount&order=asc
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 查詢單一訂單
+### ============================================
+GET {{baseUrl}}/api/admin/orders/ORDER_ID_HERE
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
+### 訂單管理 - 建立訂單
+### ============================================
+POST {{baseUrl}}/api/admin/orders
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "memberId": "x1lk1SSt4ygSg8zfPpxuAnQHIyt1",
+  "items": [
+    {
+      "productId": "product111111",
+      "productName": "測試商品",
+      "quantity": 2,
+      "price": 100
+    },
+    {
+      "productId": "product222222",
+      "productName": "測試商品2",
+      "quantity": 1,
+      "price": 222
+    }
+  ],
+  "totalAmount": 422
+}
+
+### ============================================
+### 訂單管理 - 更新訂單
+### ============================================
+PUT {{baseUrl}}/api/admin/orders/ORDER_ID_HERE
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "status": "completed"
+}
+
+### ============================================
+### 訂單管理 - 刪除訂單
+### ============================================
+DELETE {{baseUrl}}/api/admin/orders/bHjjjzRktfORAicGbhWI
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
