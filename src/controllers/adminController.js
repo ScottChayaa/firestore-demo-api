@@ -282,7 +282,7 @@ class AdminController {
     // 2. 檢查是否已經是管理員
     const existingAdmin = await db.collection(COLLECTION_NAME).doc(uid).get();
     if (existingAdmin.exists) {
-      throw new ValidationError('該帳號已經具有管理員角色');
+      throw new BadError('該帳號已經具有管理員角色');
     }
 
     // 3. 在 Firestore 建立管理員文檔
