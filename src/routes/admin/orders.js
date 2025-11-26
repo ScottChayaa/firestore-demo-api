@@ -8,9 +8,6 @@ const { orderQueryValidators, createOrderValidators } = require('@/middleware/or
 /**
  * 管理員訂單路由
  * 基礎路徑：/api/admin/orders
- *
- * 所有端點都需要：
- * - authAdmin - 驗證管理員身份
  */
 
 // 取得所有訂單列表（支援多條件篩選）

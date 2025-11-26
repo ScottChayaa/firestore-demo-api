@@ -22,8 +22,8 @@ class OrderController {
    */
   getOrders = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    const { memberId, status, minAmount, maxAmount, orderBy = "createdAt", order = "desc" } = req.query;
     const { limit, cursor } = req.pagination;
+    const { memberId, status, minAmount, maxAmount, orderBy, order } = req.query;
     const dateRange = req.dateRange || {};
 
     // 建立基礎查詢
@@ -49,16 +49,10 @@ class OrderController {
 
     // 篩選：金額範圍
     if (minAmount) {
-      const min = parseFloat(minAmount);
-      if (!isNaN(min)) {
-        query = query.where("totalAmount", ">=", min);
-      }
+      query = query.where("totalAmount", ">=", minAmount);
     }
     if (maxAmount) {
-      const max = parseFloat(maxAmount);
-      if (!isNaN(max)) {
-        query = query.where("totalAmount", "<=", max);
-      }
+      query = query.where("totalAmount", "<=", maxAmount);
     }
 
     // 排序
@@ -68,7 +62,7 @@ class OrderController {
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
     res.json(result);
-  }
+  };
 
   /**
    * 取得單一訂單
@@ -86,7 +80,7 @@ class OrderController {
     }
 
     res.json(mapDocumentToJSON(doc));
-  }
+  };
 
   /**
    * 創建訂單
@@ -135,7 +129,7 @@ class OrderController {
     const newOrder = await docRef.get();
 
     res.status(201).json(mapDocumentToJSON(newOrder));
-  }
+  };
 
   /**
    * 更新訂單
@@ -190,7 +184,7 @@ class OrderController {
     const updatedOrder = await orderRef.get();
 
     res.json(mapDocumentToJSON(updatedOrder));
-  }
+  };
 
   /**
    * 刪除訂單
@@ -215,7 +209,7 @@ class OrderController {
     res.json({
       id: id,
     });
-  }
+  };
 
   /**
    * 產生訂單編號（私有方法）

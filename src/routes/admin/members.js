@@ -11,9 +11,6 @@ const { validate } = require('@/middleware/validator');
 /**
  * 管理員會員管理路由
  * 基礎路徑：/api/admin/members
- *
- * 所有端點都需要：
- * - authAdmin - 驗證管理員身份
  */
 
 // 取得所有會員列表（支援多條件篩選）
