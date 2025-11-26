@@ -95,8 +95,6 @@ class MemberController {
       throw new NotFoundError(`找不到會員 ID: ${id}`);
     }
 
-    // TODO: 如果要更新 Email, 需要一併更新 firebase auth email (待確認)
-
     // 建立更新資料（只更新有提供的欄位）
     const updateData = {
       updatedAt: FieldValue.serverTimestamp(),
