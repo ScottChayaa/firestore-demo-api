@@ -1,15 +1,9 @@
 const express = require('express');
-const { body, query } = require('express-validator');
-
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
 const { authAdmin } = require('@/middleware/authAdmin');
-const { validatePagination, validateDateRange } = require('@/middleware/validator');
-const { validate } = require('@/middleware/validator');
-
-const statusValidator = () => query("status")
-    .default("pending")
-    .isIn(["pending", "processing", "completed", "cancelled"]).withMessage("status 必須是 pending, processing, completed 或 cancelled");
+const { validate, validatePagination, validateDateRange } = require('@/middleware/validator');
+const { orderQueryValidators, createOrderValidators } = require('@/middleware/orderValidators');
 
 /**
  * 管理員訂單路由
@@ -26,14 +20,8 @@ router.get(
   authAdmin,
   validatePagination,
   validateDateRange,
-  [
-    query("order").default("desc").isIn(["desc", "asc"]),
-    query("orderBy").default("createdAt").isIn(["createdAt", "totalAmount"]),
-    query("minAmount").optional().isNumeric(),
-    query("maxAmount").optional().isNumeric(),
-    statusValidator(),
-    validate,
-  ],
+  orderQueryValidators,
+  validate,
   orderController.getOrders
 );
 
@@ -50,12 +38,8 @@ router.get(
 router.post(
   '/',
   authAdmin,
-  [
-    body('memberId').notEmpty().withMessage('memberId 為必填欄位'),
-    body('items').isArray({ min: 1 }).withMessage('items 必須是非空陣列'),
-    body('totalAmount').isNumeric().withMessage('totalAmount 必須是數字'),
-    validate,
-  ],
+  createOrderValidators,
+  validate,
   orderController.createOrder
 );
 
