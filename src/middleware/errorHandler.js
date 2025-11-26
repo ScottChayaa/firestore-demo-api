@@ -26,7 +26,8 @@ function errorHandler(err, req, res, next) {
   }
 
   if (err.message.slice(0, 51) === '9 FAILED_PRECONDITION: The query requires an index.') {
-    err.message = errorResponse.message = 'Firestore 索引需求錯誤';
+    err.error = errorResponse.error = "FirestoreIndexError";
+    err.message = errorResponse.message = 'Firestore 需要建立索引';
   }
 
   // 將錯誤資訊附加到 res.err，供 pino-http 記錄
