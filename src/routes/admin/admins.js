@@ -1,9 +1,10 @@
 const express = require('express');
+const { body, query } = require('express-validator');
+
 const router = express.Router();
 const adminController = require('@/controllers/adminController');
 const { authAdmin } = require('@/middleware/authAdmin');
 const { validatePagination, validateDateRange } = require('@/middleware/validator');
-const { body } = require('express-validator');
 const { validate } = require('@/middleware/validator');
 
 /**

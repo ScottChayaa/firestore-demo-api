@@ -1,13 +1,14 @@
 const express = require('express');
+const { body, query } = require("express-validator");
+
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
 const { authMember } = require('@/middleware/authMember');
 const { memberOwnership } = require('@/middleware/memberOwnership');
-const { validatePagination, validateDateRange } = require('@/middleware/validator');
-
+const { validate, validatePagination, validateDateRange } = require('@/middleware/validator');
 
 const statusValidator = () => query("status")
-    .notEmpty().withMessage("status 不可為空")
+    .default("pending")
     .isIn(["pending", "processing", "completed", "cancelled"]).withMessage("status 必須是 pending, processing, completed 或 cancelled");
 
 /**
@@ -30,8 +31,8 @@ router.get(
   [
     query("order").default("desc").isIn(["desc", "asc"]),
     query("orderBy").default("createdAt").isIn(["createdAt", "totalAmount"]),
-    query("minAmount").isNumeric(),
-    query("maxAmount").isNumeric(),
+    query("minAmount").optional().isNumeric(),
+    query("maxAmount").optional().isNumeric(),
     statusValidator(),
     validate,
   ],
