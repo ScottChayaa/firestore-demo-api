@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
-const { authAdmin } = require('@/middleware/authAdmin');
 const { validate, validatePagination, validateDateRange } = require('@/middleware/validator');
 const { orderQueryValidators, createOrderValidators } = require('@/middleware/orderValidators');
 
@@ -14,7 +13,6 @@ const { orderQueryValidators, createOrderValidators } = require('@/middleware/or
 // GET /api/admin/orders?memberId=xxx&status=completed&startDate=2025-01-01
 router.get(
   '/',
-  authAdmin,
   validatePagination,
   validateDateRange,
   orderQueryValidators,
@@ -26,7 +24,6 @@ router.get(
 // GET /api/admin/orders/:id
 router.get(
   '/:id',
-  authAdmin,
   orderController.getOrderById
 );
 
@@ -34,7 +31,6 @@ router.get(
 // POST /api/admin/orders
 router.post(
   '/',
-  authAdmin,
   createOrderValidators,
   validate,
   orderController.createOrder
@@ -44,7 +40,6 @@ router.post(
 // PUT /api/admin/orders/:id
 router.put(
   '/:id',
-  authAdmin,
   orderController.updateOrder
 );
 
@@ -52,7 +47,6 @@ router.put(
 // DELETE /api/admin/orders/:id
 router.delete(
   '/:id',
-  authAdmin,
   orderController.deleteOrder
 );
 

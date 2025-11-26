@@ -4,7 +4,6 @@ const { body, query } = require('express-validator');
 const router = express.Router();
 const memberController = require('@/controllers/memberController');
 const adminController = require('@/controllers/adminController');
-const { authAdmin } = require('@/middleware/authAdmin');
 const { validatePagination, validateDateRange } = require('@/middleware/validator');
 const { validate } = require('@/middleware/validator');
 
@@ -17,9 +16,13 @@ const { validate } = require('@/middleware/validator');
 // GET /api/admin/members?startDate=2025-01-01
 router.get(
   '/',
-  authAdmin,
   validatePagination,
   validateDateRange,
+  [
+    query("order").default("desc").isIn(["desc", "asc"]),
+    query("orderBy").default("createdAt").isIn(["createdAt"]),
+    validate,
+  ],
   memberController.getMembers
 );
 
@@ -27,7 +30,6 @@ router.get(
 // POST /api/admin/members
 router.post(
   '/',
-  authAdmin,
   [
     body('email').isEmail().withMessage('email 格式不正確'),
     body('password').isLength({ min: 6 }).withMessage('password 至少需要 6 個字元'),
@@ -41,7 +43,6 @@ router.post(
 // POST /api/admin/members/create-role
 router.post(
   '/create-role',
-  authAdmin,
   [
     body('uid').notEmpty().withMessage('uid 為必填欄位'),
     body('name').notEmpty().withMessage('name 為必填欄位'),
@@ -54,7 +55,6 @@ router.post(
 // GET /api/admin/members/:id
 router.get(
   '/:id',
-  authAdmin,
   memberController.getMemberById
 );
 
@@ -62,7 +62,6 @@ router.get(
 // PUT /api/admin/members/:id
 router.put(
   '/:id',
-  authAdmin,
   memberController.updateMember
 );
 
@@ -70,7 +69,6 @@ router.put(
 // DELETE /api/admin/members/:id
 router.delete(
   '/:id',
-  authAdmin,
   memberController.deleteMember
 );
 

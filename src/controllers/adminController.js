@@ -1,6 +1,6 @@
 const { db, auth, FieldValue, Timestamp } = require('@/config/firebase');
 const { executePaginatedQuery, mapDocumentToJSON } = require('@/utils/firestore');
-const { NotFoundError, ValidationError } = require('@/middleware/errorHandler');
+const { NotFoundError, ValidationError, BadError } = require('@/middleware/errorHandler');
 
 const COLLECTION_NAME = 'admins';
 
@@ -189,11 +189,6 @@ class AdminController {
   createMemberRole = async (req, res) => {
     const { uid, name, phone } = req.body;
 
-    // 驗證必填欄位
-    if (!uid || !name) {
-      throw new ValidationError('uid, name 為必填欄位');
-    }
-
     // 1. 檢查 Firebase Auth 帳號是否存在
     let userRecord;
     try {
@@ -205,24 +200,21 @@ class AdminController {
     // 2. 檢查是否已經是會員
     const existingMember = await db.collection('members').doc(uid).get();
     if (existingMember.exists) {
-      throw new ValidationError('該帳號已經具有會員角色');
+      throw new BadError('該帳號已經具有會員角色');
     }
 
     // 3. 在 Firestore 建立會員文檔
     const memberData = {
       email: userRecord.email,
       name,
+      phone,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-    if (phone) {
-      memberData.phone = phone;
-    }
-
     await db.collection('members').doc(uid).set(memberData);
 
-    req.log.info({ uid }, '為現有帳號賦予會員角色成功');
+    req.log.info({ uid }, `為現有帳號賦予會員角色成功 : ${uid}`);
 
     // 4. 取得完整的會員資料
     const memberDoc = await db.collection('members').doc(uid).get();
