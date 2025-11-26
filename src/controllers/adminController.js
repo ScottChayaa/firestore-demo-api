@@ -14,15 +14,29 @@ class AdminController {
    * - startDate: 建立日期起始（ISO 8601 格式）
    * - endDate: 建立日期結束（ISO 8601 格式）
    * - order: 排序方向（asc | desc，預設 desc）
+   * - includeDeleted: 是否包含已軟刪除的記錄（預設 false）
+   * - isActive: 篩選啟用狀態（true | false | all，預設 all）
    */
   getAdmins = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
     const { limit, cursor } = req.pagination;
     const dateRange = req.dateRange || {};
-    const { order = 'desc', orderBy = 'createdAt' } = req.query;
+    const { order = 'desc', orderBy = 'createdAt', includeDeleted = 'false', isActive = 'all' } = req.query;
 
     // 建立基礎查詢
     let query = collection;
+
+    // 篩選：預設排除已軟刪除的記錄
+    if (includeDeleted !== 'true') {
+      query = query.where('deletedAt', '==', null);
+    }
+
+    // 篩選：啟用狀態
+    if (isActive === 'true') {
+      query = query.where('isActive', '==', true);
+    } else if (isActive === 'false') {
+      query = query.where('isActive', '==', false);
+    }
 
     // 篩選：日期範圍
     if (dateRange.startDate) {
@@ -92,6 +106,9 @@ class AdminController {
     const adminData = {
       email: userRecord.email,
       name,
+      isActive: true,
+      deletedAt: null,
+      deletedBy: null,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
@@ -148,13 +165,14 @@ class AdminController {
   };
 
   /**
-   * 刪除管理員
+   * 軟刪除管理員（設定 deletedAt 和 deletedBy）
    *
    * Path 參數：
    * - id: 管理員 ID（UID）
    */
   deleteAdmin = async (req, res) => {
     const { id } = req.params;
+    const deletedBy = req.user?.uid || 'system';
 
     // 檢查管理員是否存在
     const adminRef = db.collection(COLLECTION_NAME).doc(id);
@@ -164,16 +182,25 @@ class AdminController {
       throw new NotFoundError(`找不到管理員 ID: ${id}`);
     }
 
-    // 刪除 Firestore 文檔
-    await adminRef.delete();
+    // 檢查是否已被軟刪除
+    const adminData = admin.data();
+    if (adminData.deletedAt) {
+      throw new BadError('該管理員已被刪除');
+    }
 
-    req.log.info({ uid: id }, '刪除管理員 Firestore 文檔成功');
+    // 軟刪除：設定 deletedAt 和 deletedBy
+    await adminRef.update({
+      deletedAt: FieldValue.serverTimestamp(),
+      deletedBy: deletedBy,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
-    // 注意：不刪除 Firebase Auth 帳號，因為可能同時是會員
-    // 如果需要完全刪除帳號，請另外呼叫 Firebase Auth API
+    req.log.info({ uid: id, deletedBy }, '軟刪除管理員成功');
 
     res.json({
       id: id,
+      deletedBy: deletedBy,
+      message: '管理員已軟刪除',
     });
   };
 
@@ -208,6 +235,9 @@ class AdminController {
       email: userRecord.email,
       name,
       phone,
+      isActive: true,
+      deletedAt: null,
+      deletedBy: null,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
@@ -259,6 +289,9 @@ class AdminController {
     const adminData = {
       email: userRecord.email,
       name,
+      isActive: true,
+      deletedAt: null,
+      deletedBy: null,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
@@ -273,6 +306,89 @@ class AdminController {
     res.status(201).json({
       message: '管理員角色建立成功',
       data: mapDocumentToJSON(adminDoc),
+    });
+  };
+
+  /**
+   * 切換管理員啟用/停用狀態
+   *
+   * Path 參數：
+   * - id: 管理員 ID（UID）
+   */
+  toggleAdminStatus = async (req, res) => {
+    const { id } = req.params;
+
+    // 檢查管理員是否存在
+    const adminRef = db.collection(COLLECTION_NAME).doc(id);
+    const admin = await adminRef.get();
+
+    if (!admin.exists) {
+      throw new NotFoundError(`找不到管理員 ID: ${id}`);
+    }
+
+    const adminData = admin.data();
+
+    // 檢查是否已被軟刪除
+    if (adminData.deletedAt) {
+      throw new BadError('無法操作已刪除的管理員，請先恢復');
+    }
+
+    // 切換 isActive 狀態
+    const newStatus = !adminData.isActive;
+
+    await adminRef.update({
+      isActive: newStatus,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id, isActive: newStatus }, `管理員狀態已${newStatus ? '啟用' : '停用'}`);
+
+    res.json({
+      id: id,
+      isActive: newStatus,
+      message: `管理員已${newStatus ? '啟用' : '停用'}`,
+    });
+  };
+
+  /**
+   * 恢復已軟刪除的管理員
+   *
+   * Path 參數：
+   * - id: 管理員 ID（UID）
+   */
+  restoreAdmin = async (req, res) => {
+    const { id } = req.params;
+
+    // 檢查管理員是否存在
+    const adminRef = db.collection(COLLECTION_NAME).doc(id);
+    const admin = await adminRef.get();
+
+    if (!admin.exists) {
+      throw new NotFoundError(`找不到管理員 ID: ${id}`);
+    }
+
+    const adminData = admin.data();
+
+    // 檢查是否已被軟刪除
+    if (!adminData.deletedAt) {
+      throw new BadError('該管理員未被刪除，無需恢復');
+    }
+
+    // 恢復：清除 deletedAt 和 deletedBy
+    await adminRef.update({
+      deletedAt: null,
+      deletedBy: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id }, '恢復已刪除的管理員成功');
+
+    // 取得恢復後的資料
+    const restoredAdmin = await adminRef.get();
+
+    res.json({
+      message: '管理員已恢復',
+      data: mapDocumentToJSON(restoredAdmin),
     });
   };
 }

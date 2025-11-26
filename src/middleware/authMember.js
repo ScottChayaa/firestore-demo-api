@@ -26,6 +26,18 @@ async function authMember(req, res, next) {
       throw new ForbiddenError("會員資料不存在");
     }
 
+    const memberData = memberDoc.data();
+
+    // 3. 檢查是否已被軟刪除
+    if (memberData.deletedAt) {
+      throw new ForbiddenError("會員帳號已被刪除");
+    }
+
+    // 4. 檢查是否已被停用
+    if (memberData.isActive === false) {
+      throw new ForbiddenError("會員帳號已被停用");
+    }
+
     // 驗證通過，繼續
     next();
   });

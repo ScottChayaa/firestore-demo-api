@@ -65,11 +65,25 @@ router.put(
   memberController.updateMember
 );
 
-// 刪除會員
+// 刪除會員（軟刪除）
 // DELETE /api/admin/members/:id
 router.delete(
   '/:id',
   memberController.deleteMember
+);
+
+// 切換會員啟用/停用狀態
+// PATCH /api/admin/members/:id/toggle-status
+router.patch(
+  '/:id/toggle-status',
+  memberController.toggleMemberStatus
+);
+
+// 恢復已軟刪除的會員
+// POST /api/admin/members/:id/restore
+router.post(
+  '/:id/restore',
+  memberController.restoreMember
 );
 
 module.exports = router;

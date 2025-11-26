@@ -19,8 +19,31 @@ async function checkAdminStatus(req, res, next) {
     // 查詢 admins collection
     const adminDoc = await db.collection('admins').doc(req.user.uid).get();
 
-    // 附加管理員狀態到 req.user
-    req.user.isAdmin = adminDoc.exists;
+    // 檢查管理員是否存在
+    if (!adminDoc.exists) {
+      req.user.isAdmin = false;
+      return next();
+    }
+
+    const adminData = adminDoc.data();
+
+    // 檢查是否已被軟刪除
+    if (adminData.deletedAt) {
+      req.user.isAdmin = false;
+      req.user.adminDeletedAt = adminData.deletedAt;
+      return next();
+    }
+
+    // 檢查是否已被停用
+    if (adminData.isActive === false) {
+      req.user.isAdmin = false;
+      req.user.adminIsActive = false;
+      return next();
+    }
+
+    // 管理員存在且啟用中
+    req.user.isAdmin = true;
+    req.user.adminIsActive = true;
 
     next();
   } catch (error) {

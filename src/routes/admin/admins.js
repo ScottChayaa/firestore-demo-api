@@ -59,11 +59,25 @@ router.put(
   adminController.updateAdmin
 );
 
-// 刪除管理員
+// 刪除管理員（軟刪除）
 // DELETE /api/admin/admins/:id
 router.delete(
   '/:id',
   adminController.deleteAdmin
+);
+
+// 切換管理員啟用/停用狀態
+// PATCH /api/admin/admins/:id/toggle-status
+router.patch(
+  '/:id/toggle-status',
+  adminController.toggleAdminStatus
+);
+
+// 恢復已軟刪除的管理員
+// POST /api/admin/admins/:id/restore
+router.post(
+  '/:id/restore',
+  adminController.restoreAdmin
 );
 
 module.exports = router;

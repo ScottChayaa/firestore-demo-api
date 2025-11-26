@@ -1,6 +1,6 @@
 const { db, auth, FieldValue, Timestamp } = require('@/config/firebase');
 const { executePaginatedQuery, mapDocumentToJSON } = require('@/utils/firestore');
-const { NotFoundError, ValidationError } = require('@/middleware/errorHandler');
+const { NotFoundError, ValidationError, BadError } = require('@/middleware/errorHandler');
 
 const COLLECTION_NAME = 'members';
 
@@ -14,15 +14,29 @@ class MemberController {
    * - startDate: 註冊日期起始（ISO 8601 格式）
    * - endDate: 註冊日期結束（ISO 8601 格式）
    * - order: 排序方向（asc | desc，預設 desc）
+   * - includeDeleted: 是否包含已軟刪除的記錄（預設 false）
+   * - isActive: 篩選啟用狀態（true | false | all，預設 all）
    */
   getMembers = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
     const { limit, cursor } = req.pagination;
     const dateRange = req.dateRange || {};
-    const { order, orderBy } = req.query;
+    const { order, orderBy, includeDeleted = 'false', isActive = 'all' } = req.query;
 
     // 建立基礎查詢
     let query = collection;
+
+    // 篩選：預設排除已軟刪除的記錄
+    if (includeDeleted !== 'true') {
+      query = query.where('deletedAt', '==', null);
+    }
+
+    // 篩選：啟用狀態
+    if (isActive === 'true') {
+      query = query.where('isActive', '==', true);
+    } else if (isActive === 'false') {
+      query = query.where('isActive', '==', false);
+    }
 
     // 篩選：日期範圍
     if (dateRange.startDate) {
@@ -34,7 +48,7 @@ class MemberController {
 
     // 排序：固定使用 createdAt
     query = query.orderBy(orderBy, order);
-    
+
     // 執行分頁查詢
     const result = await executePaginatedQuery(query, collection, limit, cursor, mapDocumentToJSON);
 
@@ -133,6 +147,9 @@ class MemberController {
     const memberData = {
       email: userRecord.email,
       name,
+      isActive: true,
+      deletedAt: null,
+      deletedBy: null,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
@@ -152,12 +169,52 @@ class MemberController {
   };
 
   /**
-   * 刪除會員
+   * 軟刪除會員（設定 deletedAt 和 deletedBy）
    *
    * Path 參數：
    * - id: 會員 ID
    */
   deleteMember = async (req, res) => {
+    const { id } = req.params;
+    const deletedBy = req.user?.uid || 'system';
+
+    // 檢查會員是否存在
+    const memberRef = db.collection(COLLECTION_NAME).doc(id);
+    const member = await memberRef.get();
+
+    if (!member.exists) {
+      throw new NotFoundError(`找不到會員 ID: ${id}`);
+    }
+
+    // 檢查是否已被軟刪除
+    const memberData = member.data();
+    if (memberData.deletedAt) {
+      throw new BadError('該會員已被刪除');
+    }
+
+    // 軟刪除：設定 deletedAt 和 deletedBy
+    await memberRef.update({
+      deletedAt: FieldValue.serverTimestamp(),
+      deletedBy: deletedBy,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id, deletedBy }, '軟刪除會員成功');
+
+    res.json({
+      id: id,
+      deletedBy: deletedBy,
+      message: '會員已軟刪除',
+    });
+  };
+
+  /**
+   * 切換會員啟用/停用狀態
+   *
+   * Path 參數：
+   * - id: 會員 ID
+   */
+  toggleMemberStatus = async (req, res) => {
     const { id } = req.params;
 
     // 檢查會員是否存在
@@ -168,16 +225,69 @@ class MemberController {
       throw new NotFoundError(`找不到會員 ID: ${id}`);
     }
 
-    // 刪除 Firestore 文檔
-    await memberRef.delete();
+    const memberData = member.data();
 
-    req.log.info({ uid: id }, '刪除會員 Firestore 文檔成功');
+    // 檢查是否已被軟刪除
+    if (memberData.deletedAt) {
+      throw new BadError('無法操作已刪除的會員，請先恢復');
+    }
 
-    // 注意：不刪除 Firebase Auth 帳號，因為可能同時是管理員
-    // 如果需要完全刪除帳號，請另外呼叫 Firebase Auth API
+    // 切換 isActive 狀態
+    const newStatus = !memberData.isActive;
+
+    await memberRef.update({
+      isActive: newStatus,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id, isActive: newStatus }, `會員狀態已${newStatus ? '啟用' : '停用'}`);
 
     res.json({
       id: id,
+      isActive: newStatus,
+      message: `會員已${newStatus ? '啟用' : '停用'}`,
+    });
+  };
+
+  /**
+   * 恢復已軟刪除的會員
+   *
+   * Path 參數：
+   * - id: 會員 ID
+   */
+  restoreMember = async (req, res) => {
+    const { id } = req.params;
+
+    // 檢查會員是否存在
+    const memberRef = db.collection(COLLECTION_NAME).doc(id);
+    const member = await memberRef.get();
+
+    if (!member.exists) {
+      throw new NotFoundError(`找不到會員 ID: ${id}`);
+    }
+
+    const memberData = member.data();
+
+    // 檢查是否已被軟刪除
+    if (!memberData.deletedAt) {
+      throw new BadError('該會員未被刪除，無需恢復');
+    }
+
+    // 恢復：清除 deletedAt 和 deletedBy
+    await memberRef.update({
+      deletedAt: null,
+      deletedBy: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id }, '恢復已刪除的會員成功');
+
+    // 取得恢復後的資料
+    const restoredMember = await memberRef.get();
+
+    res.json({
+      message: '會員已恢復',
+      data: mapDocumentToJSON(restoredMember),
     });
   };
 }
