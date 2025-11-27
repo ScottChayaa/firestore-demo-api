@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
 @contentType = application/json
-@adminToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ1YTZjMGMyYjgwMDcxN2EzNGQ1Y2JiYmYzOWI4NGI2NzYxMjgyNjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi57O757Wx566h55CG5ZOhIiwibG9naW5BcyI6ImFkbWluIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2NDE1NjUwMywidXNlcl9pZCI6IkJRSVF2bWd2cWVkVUs5Q0pNQm1NckdGOWlHYTIiLCJzdWIiOiJCUUlRdm1ndnFlZFVLOUNKTUJtTXJHRjlpR2EyIiwiaWF0IjoxNzY0MTU2NTAzLCJleHAiOjE3NjQxNjAxMDMsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYWRtaW5AZXhhbXBsZS5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.GZat1xgc6M9y6-rbG7tbmLFebmKku0teqZuPrQ9--J8GNQd_hlXI_N0FWo_M9Jb90gCCFLObLEMD6ua0X3Ot6JQn2gPGdw3REW1Age4yPkYvqwak7k2zFkT98wC-D2SxcE2YTeTkq83ns4CUnHXZkBHjT_yFKF3j6pgygxW7XPq7_7ykP_jciiP7-a9KJsx4gp2gllImZghJDO80CnYnJYDKaauucY4LYztA4C8dcWHgJpOD0n_hdKsVJ-hhe8Bw6-uYVQlrAS8aXPnHS1U4TnoYw8yaO0HFmIw3GoLCAeKeE5xJVGmfLty2YrNZluafEJznAg8_gdeB4UDtFNbSwA
+@adminToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ1YTZjMGMyYjgwMDcxN2EzNGQ1Y2JiYmYzOWI4NGI2NzYxMjgyNjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi57O757Wx566h55CG5ZOhIiwibG9naW5BcyI6ImFkbWluIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2NDIxMzI2OSwidXNlcl9pZCI6IkJRSVF2bWd2cWVkVUs5Q0pNQm1NckdGOWlHYTIiLCJzdWIiOiJCUUlRdm1ndnFlZFVLOUNKTUJtTXJHRjlpR2EyIiwiaWF0IjoxNzY0MjEzMjY5LCJleHAiOjE3NjQyMTY4NjksImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYWRtaW5AZXhhbXBsZS5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.mviVgtPbPKasw8WqarX980LUfXcduhB4sZlUvX2-MAo_nXWqzH2-JpaYH2v4HMPkS2Ga3A8qwqCrn80M50G3ms49wKqUfRfmCGjOnKvnUeyE-HsoumMDQzbuh7VnxBoFEny15qX6wqzT6HhbpChTK1NAG5fihRBpaantW9SucaEVoKnoStFr3q31qpsRllr4NkcdpCLBYUDm2bfMuUkP7r4vKJJmgVDQ2oFXUiEmmyZmxK0r4x2aJXiGi2c-TxEDIQylN6PbPxmq2nsyZscf_uDSD11BiEkz5xIwcqk16FYDVDU1q-0jn8qP0s0eD8Va3V73KpnM8V7cDMN0Jz-lHQ
 
 ### ============================================
 ### 管理員登入（Email/Password 直接取得含管理員角色的 ID Token）
@@ -110,14 +110,14 @@ Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
 ### ============================================
-### 會員管理 - 查詢會員列表（僅啟用）😍
+### 會員管理 - 查詢會員列表（僅啟用）
 ### ============================================
 GET {{baseUrl}}/api/admin/members?isActive=true&limit=3
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
 ### ============================================
-### 會員管理 - 查詢會員列表（僅停用））😍
+### 會員管理 - 查詢會員列表（僅停用）
 ### ============================================
 GET {{baseUrl}}/api/admin/members?isActive=false
 Content-Type: {{contentType}}
@@ -263,7 +263,7 @@ Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
 ### ============================================
-### 訂單管理 - 查詢所有訂單（金額範圍）😍
+### 訂單管理 - 查詢所有訂單（金額範圍）
 ### ============================================
 GET {{baseUrl}}/api/admin/orders?minAmount=100&maxAmount=5000
 Content-Type: {{contentType}}
