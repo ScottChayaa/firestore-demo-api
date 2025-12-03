@@ -20,14 +20,15 @@ function errorHandler(err, req, res, next) {
     errorResponse.details = err.details;
   }
 
-  // 開發環境顯示詳細錯誤資訊
-  if (process.env.NODE_ENV === 'development' && !(err instanceof ValidationError)) {
+  // 非正式環境顯示詳細錯誤資訊
+  if (process.env.NODE_ENV !== 'production') {
     errorResponse.stack = err.stack?.split('\n') ?? [];
   }
 
   if (err.message.slice(0, 51) === '9 FAILED_PRECONDITION: The query requires an index.') {
     err.error = errorResponse.error = "FirestoreIndexError";
     err.message = errorResponse.message = 'Firestore 需要建立索引';
+    err.stack = errorResponse.stack = [errorResponse.stack[0], errorResponse.stack.at(-1)]; // 特化: 只顯示開頭和最後的 stack 資訊
   }
 
   // 將錯誤資訊附加到 res.err，供 pino-http 記錄

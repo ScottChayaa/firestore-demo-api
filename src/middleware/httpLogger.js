@@ -143,7 +143,7 @@ const httpLogger = pinoHttp({
       if (!err) return undefined;
       return {
         error: err.error,
-        stack: err.stack?.split("\n") ?? [],
+        stack: String(err.stack || "").split("\n"),
       };
     },
   },

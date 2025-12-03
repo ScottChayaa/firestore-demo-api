@@ -4,17 +4,22 @@ const app = require("../../src/app");
 // 引用共用的查詢組合配置（單一來源）
 const { validQueryCombinations } = require("./productQueryConfigurations");
 
+// 引用索引收集工具
+const { handleQueryTestResult } = require("../helpers/collectIndexesFromTests");
+
 /**
  * 商品查詢測試
  *
  * 目的：
  * 1. 測試所有查詢組合，確保 API 正常運作
- * 2. 在測試過程中發現缺少的 Firestore 索引
+ * 2. 在測試過程中自動收集缺少的 Firestore 索引
+ * 3. 測試結束後自動匯出至 missing-indexes.json
  *
  * 重要：
  * - 這些測試完全共用 productController.js 的查詢邏輯
  * - 查詢組合定義在 queryConfigurations.js（單一來源）
  * - 不需要重複維護查詢程式碼！
+ * - 替代了舊的 scripts/collectProductIndexes.js
  */
 
 // ===========================================
@@ -22,34 +27,37 @@ const { validQueryCombinations } = require("./productQueryConfigurations");
 // ===========================================
 
 describe("Product Queries", () => {
-  test.each(validQueryCombinations)("$name", async ({ params, description }) => {
+  test.each(validQueryCombinations)("$name", async ({ name, params, description }) => {
     const queryString = new URLSearchParams(params).toString();
     const url = `/api/public/products${queryString ? "?" + queryString : ""}`;
 
-    console.log(`測試: ${description}`);
+    console.log(`\n測試: ${name}`);
+    console.log(`描述: ${description}`);
     console.log(`URL: ${url}`);
 
     const res = await request(app).get(url);
 
-    // 如果測試失敗，顯示詳細錯誤資訊
-    if (res.status !== 200) {
-      console.error("查詢失敗:", {
-        status: res.status,
-        body: res.body,
-        params: params,
-      });
+    // 使用統一的結果處理函數（會自動收集索引錯誤）
+    const { shouldPass, isIndexError } = handleQueryTestResult({
+      collection: 'products',
+      queryName: name,
+      queryParams: params,
+      url,
+      response: res,
+    });
 
-      // 檢查是否為 Firestore 索引錯誤
-      if (res.body.error && res.body.error.includes("index")) {
-        console.error("⚠️  缺少 Firestore 索引！");
-        console.error("請執行: npm run collect:indexes");
+    // 如果是索引錯誤，測試仍然通過（因為這正是我們要收集的）
+    if (shouldPass) {
+      expect(res.status).toBe(200);
+      if (!isIndexError) {
+        expect(res.body.data).toBeDefined();
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.pagination).toBeDefined();
       }
+    } else {
+      // 非索引錯誤才導致測試失敗
+      expect(res.status).toBe(200);
     }
-
-    expect(res.status).toBe(200);
-    expect(res.body.data).toBeDefined();
-    expect(Array.isArray(res.body.data)).toBe(true);
-    expect(res.body.pagination).toBeDefined();
   });
 });
 
