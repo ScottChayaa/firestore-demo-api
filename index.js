@@ -32,13 +32,71 @@ if (!process.env.GOOGLE_CREDENTIALS_BASE64 && !process.env.GOOGLE_APPLICATION_CR
 logger.info('環境變數檢查通過');
 
 const app = require('./src/app');
+const { db } = require('@/config/firebase');
 
 // 設定伺服器埠號
 const PORT = process.env.PORT || 8080;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+/**
+ * Firestore 連線預熱
+ *
+ * 用途：
+ * - 在應用啟動時建立 Firestore gRPC 連線池
+ * - 減少首次查詢的延遲（500-1600ms → 0ms）
+ *
+ * 重要：
+ * - gRPC 連線是 Database 層級，不是 Collection 層級
+ * - 使用 listCollections() 建立連線（僅 1 次讀取操作）
+ * - 後續所有 collections 的查詢會自動複用此連線
+ * - 無法消除 Cloud Run 容器冷啟動（1-3 秒）
+ * - 僅在 ENABLE_FIRESTORE_WARMUP=true 時執行
+ *
+ * 技術細節：
+ * - listCollections() 成本：1 read（無論多少 collections）
+ * - 替代方案：limit(0).get() 0 reads, limit(1).get() 1 read + 資料
+ * - 選用 listCollections() 平衡成本與可靠性
+ */
+async function warmupFirestore() {
+  // 檢查是否啟用
+  const enabled = process.env.ENABLE_FIRESTORE_WARMUP === 'true';
+  if (!enabled) {
+    logger.info('⏭️  Firestore warmup disabled (ENABLE_FIRESTORE_WARMUP=false)');
+    return;
+  }
+
+  logger.info('🔥 Starting Firestore warmup...');
+
+  const startTime = Date.now();
+
+  try {
+    // 使用 listCollections() 建立 gRPC 連線（最輕量級方法）
+    // 此操作會觸發 gRPC Channel Pool 初始化
+    // 成本：1 次讀取操作（無論資料庫有多少 collections）
+    //
+    // 替代方案比較：
+    // - listCollections(): 1 read, 可靠建立連線
+    // - limit(0).get(): 0 reads, 但可能不建立完整連線
+    // - limit(1).get(): 1 read + 返回資料, 驗證連線但略重
+    await db.listCollections();
+
+    const duration = Date.now() - startTime;
+
+    logger.info({
+      duration: `${duration}ms`,
+      method: 'listCollections()',
+      note: 'All collections will reuse this connection'
+    }, '✅ Firestore warmup completed');
+  } catch (error) {
+    logger.warn({
+      err: error,
+      note: 'Server will continue, but first query may be slower'
+    }, '⚠️  Firestore warmup failed (non-blocking)');
+  }
+}
+
 // 啟動伺服器
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   logger.info({
     environment: NODE_ENV,
     port: PORT,
@@ -48,6 +106,16 @@ const server = app.listen(PORT, () => {
       health: `http://localhost:${PORT}/health`
     }
   }, '🚀 Firestore Demo API 伺服器開啟');
+
+  // 執行 Firestore 預熱（非阻塞）
+  try {
+    await warmupFirestore();
+  } catch (error) {
+    // 預熱失敗不應該阻止服務啟動
+    logger.error({ err: error }, '❌ Warmup error (server continues)');
+  }
+
+  logger.info('🎉 Application ready to accept requests');
 });
 
 // 優雅地關閉伺服器

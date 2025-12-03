@@ -463,11 +463,18 @@ gcloud run deploy firestore-demo-api \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
+  --set-env-vars "ENABLE_FIRESTORE_WARMUP=true" \
   --set-env-vars "FIREBASE_PROJECT_ID=YOUR_PROJECT_ID" \
   --set-env-vars "NODE_ENV=production" \
   --memory 512Mi \
-  --max-instances 10
+  --max-instances 10 \
+  --timeout 60
 ```
+
+**重要環境變數說明**：
+- `ENABLE_FIRESTORE_WARMUP=true`：啟用 Firestore 連線預熱，減少首次 API 請求延遲（500-1600ms → 100-300ms）
+- 使用 `listCollections()` 建立 gRPC 連線池（僅 1 次讀取操作）
+- 所有 collections 自動複用此連線
 
 #### 6. 設定 Service Account（方式二：使用 Base64 編碼）
 ```bash
