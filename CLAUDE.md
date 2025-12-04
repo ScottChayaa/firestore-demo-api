@@ -589,6 +589,11 @@ git commit -m "配置：新增 Firestore 索引設定"
 - Name: scottchayaa
 - Email: mmx112945@gmail.com
 
+**重要提醒（給 Claude Code）**：
+- ✅ 每次完成任務後，必須主動幫用戶建立 git commit
+- ❌ Commit message 中不要包含 "Generated with Claude Code" 或 "Co-Authored-By: Claude" 等 AI 生成標記
+- ✅ 使用簡潔清晰的中文 commit message
+
 ---
 
 ## 🔐 安全性考量

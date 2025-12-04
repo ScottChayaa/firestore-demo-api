@@ -16,29 +16,6 @@ const path = require('path');
 // ===========================================
 
 /**
- * 參數分類常數
- * 用於區分查詢參數的類型和用途
- */
-const PARAM_CLASSIFICATION = {
-  // 等值查詢參數（順序不重要）
-  equality: ['memberId', 'status'],
-
-  // 範圍查詢參數（映射到實際欄位）
-  range: {
-    startDate: 'createdAt',
-    endDate: 'createdAt',
-    minAmount: 'totalAmount',
-    maxAmount: 'totalAmount'
-  },
-
-  // 排序參數（特殊處理）
-  orderBy: ['orderBy', 'order'],
-
-  // 非索引參數（忽略）
-  ignored: ['limit', 'cursor']
-};
-
-/**
  * 轉換排序方向：asc/desc → ASCENDING/DESCENDING
  * @param {string} order - 排序方向 ('asc' 或 'desc')
  * @returns {string} Firestore 索引格式的排序方向
@@ -50,9 +27,10 @@ function convertOrderDirection(order) {
 /**
  * 提取索引欄位
  * @param {Object} params - 查詢參數
+ * @param {Object} paramClassification - 參數分類配置
  * @returns {Array} 索引欄位陣列
  */
-function extractIndexFields(params) {
+function extractIndexFields(params, paramClassification) {
   const fields = [];
   const fieldSet = new Set(); // 用於去重
 
@@ -61,7 +39,7 @@ function extractIndexFields(params) {
   const orderDirection = params.order || 'desc';
 
   // Step 1: 收集等值查詢欄位
-  PARAM_CLASSIFICATION.equality.forEach(param => {
+  paramClassification.equality.forEach(param => {
     if (params[param] !== undefined) {
       if (!fieldSet.has(param)) {
         fields.push({
@@ -74,7 +52,7 @@ function extractIndexFields(params) {
   });
 
   // Step 2: 收集範圍查詢欄位
-  Object.entries(PARAM_CLASSIFICATION.range).forEach(([param, fieldName]) => {
+  Object.entries(paramClassification.range).forEach(([param, fieldName]) => {
     if (params[param] !== undefined) {
       // 範圍查詢欄位可能與排序欄位重複，先記錄
       if (!fieldSet.has(fieldName)) {
@@ -123,13 +101,14 @@ function extractIndexFields(params) {
  * 建立索引定義
  * @param {string} collectionName - Collection 名稱
  * @param {Object} params - 查詢參數
+ * @param {Object} paramClassification - 參數分類配置
  * @returns {Object} Firestore 索引定義物件
  */
-function buildIndexDefinition(collectionName, params) {
+function buildIndexDefinition(collectionName, params, paramClassification) {
   return {
     collectionGroup: collectionName,
     queryScope: 'COLLECTION',
-    fields: extractIndexFields(params),
+    fields: extractIndexFields(params, paramClassification),
     density: 'SPARSE_ALL'
   };
 }
@@ -166,7 +145,7 @@ module.exports = async () => {
       params: error.params,
       errorMessage: error.errorMessage,
       url: error.url,
-      indexDefinition: buildIndexDefinition(error.collection, error.params),
+      indexDefinition: buildIndexDefinition(error.collection, error.params, error.paramClassification),
     });
   });
 

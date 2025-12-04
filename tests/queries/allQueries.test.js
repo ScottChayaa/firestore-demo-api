@@ -26,6 +26,7 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/orders",
     requiresAuth: true,
     validQueryCombinations: require("./orderQueryConfigurations").validQueryCombinations,
+    paramClassification: require("./orderQueryConfigurations").paramClassification,
   },
   {
     name: "會員查詢測試",
@@ -33,6 +34,7 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/members",
     requiresAuth: true,
     validQueryCombinations: require("./memberQueryConfigurations").validQueryCombinations,
+    paramClassification: require("./memberQueryConfigurations").paramClassification,
   },
   {
     name: "商品查詢測試",
@@ -40,6 +42,7 @@ const QUERY_CONFIGS = [
     endpoint: "/api/public/products",
     requiresAuth: false,
     validQueryCombinations: require("./productQueryConfigurations").validQueryCombinations,
+    paramClassification: require("./productQueryConfigurations").paramClassification,
   },
   {
     name: "管理員查詢測試",
@@ -47,6 +50,7 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/admins",
     requiresAuth: true,
     validQueryCombinations: require("./adminQueryConfigurations").validQueryCombinations,
+    paramClassification: require("./adminQueryConfigurations").paramClassification,
   },
 ];
 
@@ -95,6 +99,7 @@ QUERY_CONFIGS.forEach(config => {
           collection: config.collectionName,
           queryName: name,
           queryParams: params,
+          paramClassification: config.paramClassification,
           url,
           response: res,
         });

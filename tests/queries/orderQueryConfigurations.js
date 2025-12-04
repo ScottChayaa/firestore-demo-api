@@ -272,10 +272,34 @@ const validQueryCombinations = [
  */
 
 // ===========================================
+// 參數分類配置（用於索引定義生成）
+// ===========================================
+
+const paramClassification = {
+  // 等值查詢參數
+  equality: ['memberId', 'status'],
+
+  // 範圍查詢參數（映射到實際欄位）
+  range: {
+    startDate: 'createdAt',
+    endDate: 'createdAt',
+    minAmount: 'totalAmount',
+    maxAmount: 'totalAmount'
+  },
+
+  // 排序參數（特殊處理）
+  orderBy: ['orderBy', 'order'],
+
+  // 非索引參數（忽略）
+  ignored: ['limit', 'cursor']
+};
+
+// ===========================================
 // 匯出配置
 // ===========================================
 
 module.exports = {
   validQueryCombinations,
+  paramClassification,
   TEST_VALUES, // 供測試檔案使用
 };

@@ -28,10 +28,11 @@ function isIndexError(res) {
  * @param {string} params.collection - Collection 名稱
  * @param {string} params.queryName - 查詢名稱
  * @param {Object} params.queryParams - 查詢參數
+ * @param {Object} params.paramClassification - 參數分類配置
  * @param {string} params.url - 請求 URL
  * @param {Object} params.response - Supertest 回應物件
  */
-function collectIndexError({ collection, queryName, queryParams, url, response }) {
+function collectIndexError({ collection, queryName, queryParams, paramClassification, url, response }) {
   if (!global.__INDEX_ERRORS__) {
     global.__INDEX_ERRORS__ = [];
   }
@@ -42,6 +43,7 @@ function collectIndexError({ collection, queryName, queryParams, url, response }
     collection,
     queryName,
     params: queryParams,
+    paramClassification,
     url,
     errorMessage: errorMessage,
   });
@@ -63,11 +65,12 @@ function collectIndexError({ collection, queryName, queryParams, url, response }
  * @param {string} params.collection - Collection 名稱
  * @param {string} params.queryName - 查詢名稱
  * @param {Object} params.queryParams - 查詢參數
+ * @param {Object} params.paramClassification - 參數分類配置
  * @param {string} params.url - 請求 URL
  * @param {Object} params.response - Supertest 回應物件
  * @returns {Object} { shouldPass: boolean, isIndexError: boolean }
  */
-function handleQueryTestResult({ collection, queryName, queryParams, url, response }) {
+function handleQueryTestResult({ collection, queryName, queryParams, paramClassification, url, response }) {
   // 成功的查詢
   if (response.status === 200) {
     console.log(`  ✅ 查詢成功: ${queryName}`);
@@ -76,7 +79,7 @@ function handleQueryTestResult({ collection, queryName, queryParams, url, respon
 
   // 檢查是否為索引錯誤
   if (isIndexError(response)) {
-    collectIndexError({ collection, queryName, queryParams, url, response });
+    collectIndexError({ collection, queryName, queryParams, paramClassification, url, response });
     // 索引錯誤不應導致測試失敗，因為這正是我們要收集的資訊
     return { shouldPass: true, isIndexError: true };
   }
