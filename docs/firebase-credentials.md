@@ -176,7 +176,6 @@ await admin.auth().deleteUser(uid);
 - `src/config/firebase.js` - 初始化 Admin SDK
 - `src/controllers/authController.js` - 註冊時建立用戶
 - `src/utils/seedData.js` - 批量建立測試用戶
-- `scripts/setAdmin.js` - 管理員管理工具
 
 **範例 1：註冊功能**
 ```javascript
