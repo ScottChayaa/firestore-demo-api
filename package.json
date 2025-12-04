@@ -12,15 +12,7 @@
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
     "migrate": "node src/migrations/index.js",
     "migrate:dry": "node src/migrations/index.js --dry-run",
-    "test": "jest --silent --verbose ",
-    "test:queries:products": "jest tests/queries/productQueries.test.js --silent --verbose",
-    "test:queries:orders": "jest tests/queries/orderQueries.test.js --silent --verbose",
-    "test:queries:members": "jest tests/queries/memberQueries.test.js --silent --verbose",
-    "test:queries:admins": "jest tests/queries/adminQueries.test.js --silent --verbose",
-    "test:queries:all": "jest tests/queries/*.test.js --silent --verbose",
-    "collect:indexes": "npm run test:queries:all",
-    "update:indexes": "node scripts/updateIndexes.js",
-    "verify:indexes": "npm run test:queries:all && echo '✅ 所有查詢組合測試通過'",
+    "test:queries:all": "jest tests/queries/allQueries.test.js --silent --verbose",
     "index:workflow": "npm run collect:indexes && npm run update:indexes"
   },
   "keywords": [
