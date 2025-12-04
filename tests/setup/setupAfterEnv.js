@@ -18,14 +18,20 @@ require('../../src/config/firebase');
 // 預先載入 Express app（觸發所有模組載入）
 require('../../src/app');
 
-const { db } = require('../../src/config/firebase');
+const { warmupFirestore } = require('../../src/config/firebase');
 
 // 測試環境專用：預熱 Firestore gRPC 連線
-// 使用 listCollections() 建立連線（輕量級，僅 1 次讀取操作）
+// 測試環境總是需要預熱以獲得一致的效能，因此強制啟用
 (async () => {
   try {
-    await db.listCollections();
-    console.log('✅ Test environment: Firebase Admin SDK and Firestore warmed up');
+    // 暫時啟用 warmup（即使環境變數為 false）
+    const originalValue = process.env.ENABLE_FIRESTORE_WARMUP;
+    process.env.ENABLE_FIRESTORE_WARMUP = 'true';
+    await warmupFirestore();
+    // 恢復原值（如果有設定的話）
+    if (originalValue !== undefined) {
+      process.env.ENABLE_FIRESTORE_WARMUP = originalValue;
+    }
   } catch (error) {
     console.warn('⚠️  Firestore warmup failed (tests will continue):', error.message);
   }
