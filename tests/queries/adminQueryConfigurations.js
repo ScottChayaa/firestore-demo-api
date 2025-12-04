@@ -25,11 +25,6 @@ const validQueryCombinations = [
     params: {},
     description: "查詢所有管理員，按 createdAt 降序",
   },
-  {
-    name: "基本查詢 + 分頁",
-    params: { limit: 10 },
-    description: "查詢所有管理員，限制 10 筆",
-  },
 
   // ========================================
   // 2. 狀態篩選（2 種）

@@ -30,7 +30,7 @@ const { getAdminToken } = require("../helpers/authHelper");
 // 測試套件
 // ===========================================
 
-describe("Order Queries", () => {
+describe("訂單查詢測試", () => {
   let adminToken;
 
   // 在所有測試前取得 admin token
@@ -40,7 +40,7 @@ describe("Order Queries", () => {
 
   test.each(validQueryCombinations)("$name", async ({ name, params }) => {
     const queryString = new URLSearchParams(params).toString();
-    const url = `/api/admin/orders${queryString ? "?" + queryString : ""}`;
+    const url = `/api/admin/orders?limit=1&${queryString}`;
 
     console.log(`\n測試: ${name}`);
     console.log(`URL: ${url}`);

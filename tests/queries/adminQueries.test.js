@@ -28,7 +28,7 @@ const { getAdminToken } = require("../helpers/authHelper");
 // 測試套件
 // ===========================================
 
-describe("Admin Queries", () => {
+describe("管理員查詢測試", () => {
   let adminToken;
 
   // 在所有測試前取得 admin token
@@ -38,7 +38,7 @@ describe("Admin Queries", () => {
 
   test.each(validQueryCombinations)("$name", async ({ name, params, description }) => {
     const queryString = new URLSearchParams(params).toString();
-    const url = `/api/admin/admins${queryString ? "?" + queryString : ""}`;
+    const url = `/api/admin/admins?limit=1&${queryString}`;
 
     console.log(`\n測試: ${name}`);
     console.log(`描述: ${description}`);

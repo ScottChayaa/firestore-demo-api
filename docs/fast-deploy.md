@@ -50,7 +50,7 @@ firebase use liang-dev
 # 部署 Rules 和 Indexes 到指定的專案ID
 firebase deploy --only firestore:rules,firestore:indexes --project liang-dev
 
-# 匯出 Firestore 索引
+# 匯出 Firestore 索引至本機
 firebase firestore:indexes --project liang-dev > firestore.indexes.json
 ```
 

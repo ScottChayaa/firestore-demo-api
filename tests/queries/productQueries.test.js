@@ -26,10 +26,10 @@ const { handleQueryTestResult } = require("../helpers/collectIndexesFromTests");
 // 測試套件
 // ===========================================
 
-describe("Product Queries", () => {
+describe("商品查詢測試", () => {
   test.each(validQueryCombinations)("$name", async ({ name, params, description }) => {
     const queryString = new URLSearchParams(params).toString();
-    const url = `/api/public/products${queryString ? "?" + queryString : ""}`;
+    const url = `/api/public/products?limit=1&${queryString}`;
 
     console.log(`\n測試: ${name}`);
     console.log(`描述: ${description}`);
