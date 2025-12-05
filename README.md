@@ -290,6 +290,39 @@ firebase init firestore
 firebase deploy --only firestore:indexes
 ```
 
+#### 4. 索引管理流程
+
+本專案提供自動化的索引管理工具，可自動偵測缺失的索引並更新配置檔：
+
+**方式一：完整流程（推薦）**
+```bash
+# 自動收集缺失索引 + 更新配置檔
+npm run sync:indexes
+```
+
+**方式二：分步執行**
+```bash
+# 步驟 1: 收集缺失的索引資訊
+npm run collect:indexes
+
+# 步驟 2: 更新 firestore.indexes.json
+npm run update:indexes
+
+# 步驟 3: 部署到 Firebase
+firebase deploy --only firestore:indexes
+```
+
+**工作流程說明**：
+1. `collect:indexes` - 執行所有查詢測試，收集需要的索引到 `missing-indexes.json`
+2. `update:indexes` - 讀取 `missing-indexes.json`，過濾重複後合併到 `firestore.indexes.json`
+3. 部署索引 - 使用 Firebase CLI 將索引部署到雲端
+
+**特點**：
+- ✅ 自動偵測所有查詢組合需要的索引
+- ✅ 智能去重，避免重複索引
+- ✅ 友善的訊息提示
+- ✅ 支援增量更新
+
 部署完成後，您將獲得一個 Cloud Run 服務網址，例如：
 
 ```bash
@@ -393,7 +426,8 @@ npm run clean:all
 
 # 索引管理
 npm run collect:indexes     # 收集缺失的索引資訊
-npm run index:workflow      # 完整索引管理流程（收集 + 更新）
+npm run update:indexes       # 更新索引到 firestore.indexes.json
+npm run sync:indexes         # 完整索引同步流程（收集 + 更新）
 ```
 
 ---

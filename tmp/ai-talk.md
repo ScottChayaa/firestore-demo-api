@@ -288,3 +288,12 @@ return errorType == 'FirestoreIndexError'
 
 
 cat missing-indexes.json | jq '.summary'
+
+單純存放常數和固定值
+
+
+
+scripts/ 是否要放在 src/ 裡面? 通常 best practice 是怎麼做?
+
+
+根據你的推薦重構 1,2,3,4 項目
