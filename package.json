@@ -12,7 +12,7 @@
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
     "migrate": "node src/migrations/index.js",
     "migrate:dry": "node src/migrations/index.js --dry-run",
-    "test:queries:all": "jest tests/queries/allQueries.test.js --silent --verbose",
+    "collect:indexes": "jest tests/queries/queryAndCollectIndexes.test.js --silent --verbose",
     "index:workflow": "npm run collect:indexes && npm run update:indexes"
   },
   "keywords": [

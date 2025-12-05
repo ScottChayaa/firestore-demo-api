@@ -7,12 +7,9 @@ module.exports = {
   // 將 @/ 別名映射到 src/ 目錄
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
-  },
+  }
 
-  // 全域設定和清理（用於收集索引資訊）
-  globalSetup: '<rootDir>/tests/setup/globalSetup.js',
-  globalTeardown: '<rootDir>/tests/setup/globalTeardown.js',
-
-  // 測試環境設定：預先載入 Firebase 和 Firestore warmup
-  setupFilesAfterEnv: ['<rootDir>/tests/setup/setupAfterEnv.js']
+  // 注意：setup 相關配置已移除
+  // 索引收集功能現已整合到 queryAndCollectIndexes.test.js 中
+  // 該測試檔案是自包含的，包含完整的生命週期管理
 };
