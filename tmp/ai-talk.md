@@ -165,3 +165,126 @@ collectMissingIndexes.js 和 productQueries.js 這兩個有什麼差別?
 
 create-role 端點：只建立 Firestore 文檔，不修改 Custom Claims
  => 這段是什麼意思? 詳細說明一下
+
+
+
+
+繼續優化 missing-indexes.json 功能
+
+- 目的: 發現 missing indexes 後, 產生符合 firestore.indexes.json 結構的資料, 後續可以直接新增上去, 不用再人工點擊連結
+- 新增 missingIndex 結構
+  - 新增在 collections.${collection_name}.missingIndexes[x].missingIndex
+  - 內容為 (比照 firestore.indexes.json 內容)
+    ```
+    "missingIndex": {
+      "collectionGroup": "members",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletedAt",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    ```
+  - 如何產生相關欄位 ? 
+    - collectionGroup => 根據 collection name
+    - queryScope => 固定 "COLLECTION"
+    - density => 固定 "SPARSE_ALL"
+    - fields 最後一那筆, 固定為 __name__ , 且 order 為 "DESCENDING"
+    - fields 其他欄位
+      - 首先看 orderBy 和 order, 產生 1 個 fields 資料
+        - 若沒有 orderBy, 則預設值為 createdAt
+        - 若沒有 order, 則預設值為 "DESCENDING"
+      - 剩下的 key 則產生相應的 fieldPath 欄位, 且 order 的值固定為 "ASCENDING"
+
+幫我確認一下有沒有問題或哪邊沒考慮到的
+
+
+
+
+```
+// 參數分類常數
+ const PARAM_CLASSIFICATION = {
+   // 等值查詢參數（順序不重要）
+   equality: ['memberId', 'status'],
+
+   // 範圍查詢參數（映射到實際欄位）
+   range: {
+     startDate: 'createdAt',
+     endDate: 'createdAt',
+     minAmount: 'totalAmount',
+     maxAmount: 'totalAmount'
+   },
+
+   // 排序參數（特殊處理）
+   orderBy: ['orderBy', 'order'],
+
+   // 非索引參數（忽略）
+   ignored: ['limit', 'cursor']
+ };
+```
+
+你有特別規畫這個東西
+其中的範圍參數的映射, 希望能
+
+
+執行 npm run collect:indexes
+發現嚴重的 bug:
+
+- 因為是最後執行 tests/queries/memberQueries.test.js, 所以 missing-indexes.json 被最後結果覆蓋導致裡面沒有缺失的索引問題, 但實際上 orders 是有缺失索引
+- 請優化 queries/*.test.js
+  - 因為程式碼有很多重複的地方, 請評估將其合併
+  - 透過傳參數(ex: collection_name, queryConfigurations...)的方式進行查詢
+
+
+
+分析一下問題:
+
+- 當我今天想要新增新的 collection : news 或 想在 products 新增欄位 : tag
+  - news 的新欄位也有查詢參數, 會需要新增到 PARAM_CLASSIFICATION.equality 裡面嗎?
+  - products 的新欄位 tag, 會需要新增到 PARAM_CLASSIFICATION.equality 裡面嗎?
+
+
+
+
+既然已經將 allQueries.test.js 合成為一個了
+那也不需要 setup/ 的全域功能
+請評估將 setup/ 功能整合進 allQuery.test.js
+
+
+我確定還是要將 setup 裡面的功能邏輯都搬到 allQueries.test.js
+因為未來可能還有其他種不同的測試, 所以 setup 目前的邏輯太針對 allQueries, 而不是通用型
+
+另外 allQueries 的命名感覺不太合適, 請重新思考
+這個測試功能的目的 : 測試所有 collection 查詢條件組合後, 產生缺失的索引紀錄, 協助使用者建立正確的 firestore.indexes.json
+根據這個測試功能目的來思考命名
+
+名稱改成 queryAndCollectIndexes.test.js
+
+
+isIndexError() 的判斷你改得太複雜
+直接判斷取出 error: "FirestoreIndexError" 這個值
+並判斷有 FirestoreIndexError 這個字串就好
+
+
+我看你寫的 isIndexError() 還是有問題
+const errorType = res.body.error.error
+return errorType == 'FirestoreIndexError'
+應該這樣就好了吧
+
+
+cat missing-indexes.json | jq '.summary'

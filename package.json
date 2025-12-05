@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node src/utils/seedData.js",
-    "clean:firestore": "node src/utils/cleanFirestore.js",
-    "clean:authentication": "node src/utils/cleanAuthentication.js",
+    "seed": "node scripts/seed.js",
+    "clean:firestore": "node scripts/clean-firestore.js",
+    "clean:authentication": "node scripts/clean-auth.js",
     "clean:all": "npm run clean:firestore && npm run clean:authentication",
     "migrate": "node src/migrations/index.js",
     "migrate:dry": "node src/migrations/index.js --dry-run",

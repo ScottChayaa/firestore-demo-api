@@ -8,7 +8,7 @@
  * ⚠️ 警告：此操作無法復原，請謹慎使用！
  */
 
-const { db } = require("../config/firebase");
+const { db } = require("../src/config/firebase");
 const readline = require("readline");
 
 const COLLECTIONS = ["admins", "members", "orders", "products"];

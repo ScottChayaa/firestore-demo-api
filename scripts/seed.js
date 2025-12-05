@@ -10,7 +10,7 @@
  * 密碼統一為：qwer1234
  */
 
-const { auth, db, FieldValue } = require("@/config/firebase");
+const { auth, db, FieldValue } = require("../src/config/firebase");
 
 // 配置
 const CONFIG = {

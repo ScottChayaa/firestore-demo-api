@@ -8,7 +8,7 @@
  * ⚠️ 警告：此操作無法復原，請謹慎使用！
  */
 
-const { auth } = require("../config/firebase");
+const { auth } = require("../src/config/firebase");
 const readline = require("readline");
 
 const BATCH_SIZE = 1000; // Firebase Auth deleteUsers() 最大支援 1000 個
