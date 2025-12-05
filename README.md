@@ -325,12 +325,17 @@ npm run clean:all
 
 ```
 firestore-demo-api/
+├── scripts/                         # 可執行腳本（根目錄）
+│   ├── seed.js                      # 測試資料生成
+│   ├── clean-firestore.js           # Firestore 資料清理
+│   └── clean-auth.js                # Authentication 用戶清理
 ├── src/
 │   ├── config/
-│   │   └── firebase.js              # Firebase Admin SDK 初始化
+│   │   ├── firebase.js              # Firebase Admin SDK 初始化
+│   │   └── logger.js                # 日誌系統配置
 │   ├── middleware/
 │   │   ├── auth.js                  # Firebase Auth 驗證
-│   │   ├── errorHandler.js         # 錯誤處理
+│   │   ├── errorHandler.js          # 錯誤處理
 │   │   └── validator.js             # 請求驗證
 │   ├── controllers/
 │   │   ├── memberController.js      # 會員邏輯
@@ -341,10 +346,19 @@ firestore-demo-api/
 │   │   ├── orders.js                # 訂單路由
 │   │   └── products.js              # 商品路由
 │   ├── utils/
-│   │   ├── pagination.js            # 分頁工具
-│   │   ├── seedData.js              # 測試資料生成
-│   │   └── cleanFirestore.js        # 資料清理
+│   │   └── firestore.js             # Firestore 工具函數
 │   └── app.js                       # Express 應用
+├── tests/
+│   ├── helpers/                     # 測試工具
+│   │   ├── authHelper.js            # 認證輔助函數
+│   │   └── collectIndexesFromTests.js  # 索引收集工具
+│   └── queries/
+│       ├── config/                  # 查詢配置
+│       │   ├── adminQueryConfigurations.js
+│       │   ├── memberQueryConfigurations.js
+│       │   ├── orderQueryConfigurations.js
+│       │   └── productQueryConfigurations.js
+│       └── queryAndCollectIndexes.test.js  # 索引收集測試
 ├── index.js                         # 伺服器入口
 ├── Dockerfile                       # Docker 配置
 ├── package.json
@@ -353,6 +367,14 @@ firestore-demo-api/
 ├── CLAUDE.md                        # 開發計畫文檔
 └── README.md                        # 本文檔
 ```
+
+**目錄說明**：
+
+- **scripts/** - 獨立可執行腳本（透過 npm run 執行）
+- **src/config/** - 系統配置與初始化
+- **src/utils/** - 應用程式共用工具函數
+- **tests/helpers/** - 測試專用工具
+- **tests/queries/config/** - 測試查詢配置
 
 ### 可用腳本
 
@@ -369,14 +391,8 @@ npm run seed
 # 清空 Firestore 和 Authentication 資料
 npm run clean:all
 
-# 測試相關
-npm test                    # 執行所有測試
-npm run test:queries        # 測試商品查詢組合（檢查索引）
-
 # 索引管理
 npm run collect:indexes     # 收集缺失的索引資訊
-npm run update:indexes      # 更新索引配置檔
-npm run verify:indexes      # 驗證所有查詢組合
 npm run index:workflow      # 完整索引管理流程（收集 + 更新）
 ```
 
