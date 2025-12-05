@@ -296,4 +296,31 @@ cat missing-indexes.json | jq '.summary'
 scripts/ 是否要放在 src/ 裡面? 通常 best practice 是怎麼做?
 
 
-根據你的推薦重構 1,2,3,4 項目
+
+
+重做 npm run update:indexes 功能
+- 根據產出的 missing-indexes.json > 取出 indexDefinition > 過濾重複 > 新增到現有的 firestore.indexes.json 結構裡
+- 若 missing-indexes.json 沒有需要更新的索引, 則可以提示不用更新
+
+測試收集缺失索引+更新索引
+- index:workflow 改成 xxxxxx:indexes (看起來比較有一致性, 你想一下該怎麼命名)
+- 執行後自動完成 firestore.indexes.json 更新 (完整流程)
+
+
+package.json
+npm run collect:indexes 改執行位置, 搬到 scripts/
+
+- 原本 "collect:indexes": "jest tests/queries/queryAndCollectIndexes.test.js --silent --verbose"
+- 改為 "collect:indexes": "node scripts/collect-indexes.js",
+
+這樣看起來比較一致
+請分析評估
+
+
+
+
+不用 => 測試 4：效能對比
+
+這兩個從 tests/ 移出去, 評估看移去哪
+tests/helpers/authHelper.js                        # 可能被其他測試使用
+tests/queries/config/*.js                          # 查詢配置（共用）
