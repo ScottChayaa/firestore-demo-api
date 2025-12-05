@@ -313,7 +313,7 @@ firebase deploy --only firestore:indexes
 ```
 
 **工作流程說明**：
-1. `collect:indexes` - 執行所有查詢測試，收集需要的索引到 `missing-indexes.json`
+1. `collect:indexes` - 執行所有查詢組合，收集需要的索引到 `missing-indexes.json`
 2. `update:indexes` - 讀取 `missing-indexes.json`，過濾重複後合併到 `firestore.indexes.json`
 3. 部署索引 - 使用 Firebase CLI 將索引部署到雲端
 
@@ -322,6 +322,44 @@ firebase deploy --only firestore:indexes
 - ✅ 智能去重，避免重複索引
 - ✅ 友善的訊息提示
 - ✅ 支援增量更新
+
+**新增查詢配置**：
+
+查詢配置檔案位於 `src/config/queryConfigurations/`，採用集中管理的設計：
+
+**新增現有 collection 的查詢組合**：
+- 只需修改對應的配置檔案（例如：`orderQueryConfigurations.js`）
+- 在 `validQueryCombinations` 陣列中新增查詢組合
+- 無需修改腳本程式碼
+
+```javascript
+// src/config/queryConfigurations/orderQueryConfigurations.js
+const validQueryCombinations = [
+  // ... 現有查詢組合
+  {
+    name: "新的查詢組合",
+    params: { status: "pending", orderBy: "createdAt", order: "desc" },
+  },
+];
+```
+
+**新增新 collection 的查詢**：
+1. 在 `src/config/queryConfigurations/` 建立新的配置檔案
+2. 在 `scripts/collect-indexes.js` 的 `QUERY_CONFIGS` 陣列中新增配置：
+
+```javascript
+const QUERY_CONFIGS = [
+  // ... 現有配置
+  {
+    name: "新 Collection 查詢",
+    collectionName: "newCollection",
+    endpoint: "/api/admin/newCollection",
+    requiresAuth: true,
+    validQueryCombinations: require("@/config/queryConfigurations/newCollectionQueryConfigurations").validQueryCombinations,
+    paramClassification: require("@/config/queryConfigurations/newCollectionQueryConfigurations").paramClassification,
+  },
+];
+```
 
 部署完成後，您將獲得一個 Cloud Run 服務網址，例如：
 
