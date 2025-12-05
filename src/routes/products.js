@@ -9,7 +9,7 @@ const { validatePagination, validate } = require("@/middleware/validator");
  */
 
 // 取得商品列表（支援分頁和篩選）
-// GET /api/public/products?limit=20&cursor=abc&category=electronics&minPrice=100
+// GET /api/products?limit=20&cursor=abc&category=electronics&minPrice=100
 router.get(
   "/",
   validatePagination,
@@ -25,11 +25,11 @@ router.get(
 );
 
 // 取得商品分類列表
-// GET /api/public/products/categories
+// GET /api/products/categories
 router.get("/categories", productController.getCategories);
 
 // 取得單一商品詳情
-// GET /api/public/products/:id
+// GET /api/products/:id
 router.get("/:id", productController.getProductById);
 
 module.exports = router;

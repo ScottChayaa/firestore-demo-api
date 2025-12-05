@@ -269,7 +269,7 @@ Service URL: https://firestore-demo-api-xxxxx-xx.a.run.app
 curl https://firestore-demo-api-xxxxx-xx.a.run.app/health
 
 # 測試公開 API
-curl https://firestore-demo-api-xxxxx-xx.a.run.app/api/public/products
+curl https://firestore-demo-api-xxxxx-xx.a.run.app/api/products
 ```
 
 ---

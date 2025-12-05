@@ -5,7 +5,7 @@ const logger = require('../../src/config/logger');
 describe("MyTest", () => {
   test("測試項目1", async () => {
     
-    const url = `/api/public/products?limit=1`;
+    const url = `/api/products?limit=1`;
 
     const res = await request(app).get(url);
     
@@ -16,7 +16,7 @@ describe("MyTest", () => {
   
   test("測試項目2", async () => {
     
-    const url = `/api/public/products?limit=1`;
+    const url = `/api/products?limit=1`;
 
     const res = await request(app).get(url);
     

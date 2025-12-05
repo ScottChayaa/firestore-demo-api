@@ -133,7 +133,7 @@ GET /api/public/health
 
 #### 2. 瀏覽商品列表
 ```http
-GET /api/public/products?limit=20&cursor=<docId>&category=electronics&minPrice=100
+GET /api/products?limit=20&cursor=<docId>&category=electronics&minPrice=100
 ```
 
 **查詢參數**：
@@ -144,7 +144,7 @@ GET /api/public/products?limit=20&cursor=<docId>&category=electronics&minPrice=1
 
 #### 3. 查看商品詳情
 ```http
-GET /api/public/products/:id
+GET /api/products/:id
 ```
 
 ---
@@ -407,7 +407,7 @@ npm run seed
 #### 4. 測試 API
 ```bash
 # 測試公開 API
-curl http://localhost:8080/api/public/products
+curl http://localhost:8080/api/products
 
 # 測試私有 API（需先取得 Firebase ID Token）
 curl http://localhost:8080/api/orders \

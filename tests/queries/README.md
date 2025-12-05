@@ -85,7 +85,7 @@ npm run index:workflow
 ## 認證機制
 
 ### 公開 API（無需認證）
-- **商品查詢**：`/api/public/products`
+- **商品查詢**：`/api/products`
 
 ### 私有 API（需要管理員認證）
 - **訂單查詢**：`/api/admin/orders`

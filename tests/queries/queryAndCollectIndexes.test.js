@@ -43,7 +43,7 @@ const QUERY_CONFIGS = [
   {
     name: "商品查詢測試",
     collectionName: "products",
-    endpoint: "/api/public/products",
+    endpoint: "/api/products",
     requiresAuth: false,
     validQueryCombinations: require("./config/productQueryConfigurations").validQueryCombinations,
     paramClassification: require("./config/productQueryConfigurations").paramClassification,

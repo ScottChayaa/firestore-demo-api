@@ -52,7 +52,7 @@ app.use(httpLogger);
 // 公開 API 路由（無需驗證）
 app.use("/", indexRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/public/products", productsRouter);
+app.use("/api/products", productsRouter);
 
 // 私有 API 路由（需要 Firebase Auth 驗證）
 app.use("/api/member", authMember, memberRoutes);  // 會員專屬端點

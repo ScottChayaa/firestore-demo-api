@@ -403,7 +403,7 @@ npm start
 curl http://localhost:8080/health
 
 # 測試 Firestore 存取
-curl http://localhost:8080/api/public/products
+curl http://localhost:8080/api/products
 ```
 
 ### 3. 驗證 Cloud Run 環境變數
