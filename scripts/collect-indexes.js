@@ -88,17 +88,34 @@ function extractIndexFields(params, paramClassification) {
   const orderDirection = params.order || 'desc';
 
   // Step 1: 等值查詢欄位
-  paramClassification.equality.forEach(param => {
-    if (params[param] !== undefined) {
-      if (!fieldSet.has(param)) {
-        fields.push({
-          fieldPath: param,
-          order: 'ASCENDING'
-        });
-        fieldSet.add(param);
+  // 支援陣列格式（向後兼容）和物件映射格式（新格式）
+  if (Array.isArray(paramClassification.equality)) {
+    // 舊格式：['memberId', 'status']
+    paramClassification.equality.forEach(param => {
+      if (params[param] !== undefined) {
+        if (!fieldSet.has(param)) {
+          fields.push({
+            fieldPath: param,
+            order: 'ASCENDING'
+          });
+          fieldSet.add(param);
+        }
       }
-    }
-  });
+    });
+  } else {
+    // 新格式：{ isActive: 'isActive', includeDeleted: 'deletedAt' }
+    Object.entries(paramClassification.equality).forEach(([param, fieldName]) => {
+      if (params[param] !== undefined) {
+        if (!fieldSet.has(fieldName)) {
+          fields.push({
+            fieldPath: fieldName,  // ✅ 使用映射後的欄位名
+            order: 'ASCENDING'
+          });
+          fieldSet.add(fieldName);
+        }
+      }
+    });
+  }
 
   // Step 2: 範圍查詢欄位
   Object.entries(paramClassification.range).forEach(([param, fieldName]) => {
