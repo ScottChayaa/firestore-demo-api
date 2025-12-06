@@ -56,6 +56,9 @@ firebase firestore:indexes --project liang-dev > firestore.indexes.json
 
 **Check cloud run infomation**
 ```bash
+# 查看服務資訊 (url, port, memory, cpu, env...)
+gcloud run services describe firestore-demo-api --region=asia-east1
+
 # 查看服務的所有 revisions
 gcloud run revisions list \
   --service firestore-demo-api \
