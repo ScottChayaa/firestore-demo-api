@@ -102,8 +102,11 @@ const validQueryCombinations = [
 // ===========================================
 
 const paramClassification = {
-  // 等值查詢參數
-  equality: ['isActive', 'includeDeleted'],
+  // 等值查詢參數（映射到實際欄位）
+  equality: {
+    isActive: 'isActive',          // 查詢參數 → 實際欄位（相同）
+    includeDeleted: 'deletedAt'    // 查詢參數 → 實際欄位（不同）
+  },
 
   // 範圍查詢參數（映射到實際欄位）
   range: {

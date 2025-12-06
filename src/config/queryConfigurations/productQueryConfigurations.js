@@ -107,8 +107,10 @@ const validQueryCombinations = [
 // ===========================================
 
 const paramClassification = {
-  // 等值查詢參數
-  equality: ['category'],
+  // 等值查詢參數（映射到實際欄位）
+  equality: {
+    category: 'category'    // 查詢參數 → 實際欄位（相同）
+  },
 
   // 範圍查詢參數（映射到實際欄位）
   range: {

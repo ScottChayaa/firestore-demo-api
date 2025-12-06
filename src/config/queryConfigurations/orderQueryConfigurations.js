@@ -276,8 +276,11 @@ const validQueryCombinations = [
 // ===========================================
 
 const paramClassification = {
-  // 等值查詢參數
-  equality: ['memberId', 'status'],
+  // 等值查詢參數（映射到實際欄位）
+  equality: {
+    memberId: 'memberId',    // 查詢參數 → 實際欄位（相同）
+    status: 'status'         // 查詢參數 → 實際欄位（相同）
+  },
 
   // 範圍查詢參數（映射到實際欄位）
   range: {
