@@ -21,6 +21,7 @@ const app = require('@/app');
 const { getAdminToken } = require('@/utils/auth');
 const fs = require('fs');
 const path = require('path');
+const { parseFirebaseIndexUrl, convertToFirestoreIndexDefinition } = require('./parseFirebaseIndexUrl');
 
 // ===========================================
 // 查詢配置
@@ -75,105 +76,34 @@ function convertOrderDirection(order) {
 }
 
 /**
- * 提取索引欄位
- * @param {Object} params - 查詢參數
- * @param {Object} paramClassification - 參數分類配置
- * @returns {Array} 索引欄位陣列
+ * 從 Firebase 錯誤訊息中提取 Console URL
+ * @param {string} errorMessage - Firebase 錯誤訊息
+ * @returns {string|null} 索引創建 URL，或 null 如果未找到
+ *
+ * @example
+ * const errorMsg = "Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/...";
+ * const url = extractIndexUrl(errorMsg);
+ * // Returns: "https://console.firebase.google.com/..."
  */
-function extractIndexFields(params, paramClassification) {
-  const fields = [];
-  const fieldSet = new Set();
-
-  const orderByField = params.orderBy || 'createdAt';
-  const orderDirection = params.order || 'desc';
-
-  // Step 1: 等值查詢欄位
-  // 支援陣列格式（向後兼容）和物件映射格式（新格式）
-  if (Array.isArray(paramClassification.equality)) {
-    // 舊格式：['memberId', 'status']
-    paramClassification.equality.forEach(param => {
-      if (params[param] !== undefined) {
-        if (!fieldSet.has(param)) {
-          fields.push({
-            fieldPath: param,
-            order: 'ASCENDING'
-          });
-          fieldSet.add(param);
-        }
-      }
-    });
-  } else {
-    // 新格式：{ isActive: 'isActive', includeDeleted: 'deletedAt' }
-    Object.entries(paramClassification.equality).forEach(([param, fieldName]) => {
-      if (params[param] !== undefined) {
-        if (!fieldSet.has(fieldName)) {
-          fields.push({
-            fieldPath: fieldName,  // ✅ 使用映射後的欄位名
-            order: 'ASCENDING'
-          });
-          fieldSet.add(fieldName);
-        }
-      }
-    });
-  }
-
-  // Step 2: 範圍查詢欄位
-  Object.entries(paramClassification.range).forEach(([param, fieldName]) => {
-    if (params[param] !== undefined) {
-      if (!fieldSet.has(fieldName)) {
-        if (fieldName === orderByField) {
-          fields.push({
-            fieldPath: fieldName,
-            order: convertOrderDirection(orderDirection)
-          });
-        } else {
-          fields.push({
-            fieldPath: fieldName,
-            order: 'ASCENDING'
-          });
-        }
-        fieldSet.add(fieldName);
-      }
-    }
-  });
-
-  // Step 3: 排序欄位
-  if (!fieldSet.has(orderByField)) {
-    fields.push({
-      fieldPath: orderByField,
-      order: convertOrderDirection(orderDirection)
-    });
-    fieldSet.add(orderByField);
-  } else {
-    const existingField = fields.find(f => f.fieldPath === orderByField);
-    if (existingField) {
-      existingField.order = convertOrderDirection(orderDirection);
-    }
-  }
-
-  // Step 4: __name__ 欄位
-  fields.push({
-    fieldPath: '__name__',
-    order: convertOrderDirection(orderDirection)
-  });
-
-  return fields;
+function extractIndexUrl(errorMessage) {
+  const match = errorMessage.match(/https:\/\/console\.firebase\.google\.com[^\s]+/);
+  return match ? match[0] : null;
 }
 
 /**
- * 建立索引定義
- * @param {string} collectionName - Collection 名稱
- * @param {Object} params - 查詢參數
- * @param {Object} paramClassification - 參數分類配置
- * @returns {Object} Firestore 索引定義物件
+ * 從 Firebase 錯誤 URL 建立索引定義
+ * @param {string} errorMessage - Firebase 錯誤訊息
+ * @returns {Object} Firestore 索引定義
+ * @throws {Error} 如果無法提取 URL 或解析失敗
  */
-function buildIndexDefinition(collectionName, params, paramClassification) {
-  return {
-    collectionGroup: collectionName,
-    queryScope: 'COLLECTION',
-    fields: extractIndexFields(params, paramClassification),
-    density: 'SPARSE_ALL'
-  };
+function buildIndexDefinitionFromUrl(errorMessage) {
+  const url = extractIndexUrl(errorMessage);
+  if (!url) {
+    throw new Error('無法從錯誤訊息提取 Firebase Console URL');
+  }
+
+  const parsed = parseFirebaseIndexUrl(url);
+  return convertToFirestoreIndexDefinition(parsed);
 }
 
 // ===========================================
@@ -321,12 +251,15 @@ function generateReport(indexErrors) {
     collections[collectionName].summary.failedQueries++;
     collections[collectionName].summary.indexesNeeded++;
 
+    // 從 Firebase 錯誤 URL 解析精確的索引定義
+    const indexDefinition = buildIndexDefinitionFromUrl(error.errorMessage);
+
     collections[collectionName].missingIndexes.push({
       queryName: error.queryName,
       params: error.params,
       errorMessage: error.errorMessage,
       url: error.url,
-      indexDefinition: buildIndexDefinition(error.collection, error.params, error.paramClassification),
+      indexDefinition,
     });
   });
 
@@ -433,5 +366,6 @@ if (require.main === module) {
 module.exports = {
   collectIndexes,
   generateReport,
-  buildIndexDefinition,
+  buildIndexDefinitionFromUrl,
+  extractIndexUrl,
 };
