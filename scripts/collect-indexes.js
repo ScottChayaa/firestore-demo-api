@@ -21,7 +21,7 @@ const app = require('@/app');
 const { getAdminToken } = require('@/utils/auth');
 const fs = require('fs');
 const path = require('path');
-const { parseFirebaseIndexUrl, convertToFirestoreIndexDefinition } = require('./parseFirebaseIndexUrl');
+const { parseFirebaseIndexUrl, convertToFirestoreIndexDefinition } = require('@/utils/parseIndexUrl');
 
 // ===========================================
 // 查詢配置

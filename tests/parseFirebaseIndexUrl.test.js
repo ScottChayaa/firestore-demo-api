@@ -8,7 +8,7 @@ const {
   parseFirebaseIndexUrl,
   extractCollectionGroup,
   convertToFirestoreIndexDefinition
-} = require('../scripts/parseFirebaseIndexUrl');
+} = require('../src/utils/parseIndexUrl');
 
 describe('Firebase Index URL Parser', () => {
   describe('範例 1: admins collection (deletedAt + isActive + createdAt + __name__)', () => {
