@@ -53,8 +53,20 @@ function parseFirebaseIndexUrl(url) {
  * 解析 Protocol Buffer 編碼的索引定義
  * @param {Buffer} buffer - 二進制數據
  * @returns {Object} { collectionGroup, fields }
+ * 
+ * @example
+ * {
+ *   collectionGroup: 'admins',
+ *   fields: [
+ *     { fieldPath: 'deletedAt', order: 'ASCENDING' },
+ *     { fieldPath: 'isActive', order: 'ASCENDING' },
+ *     { fieldPath: 'createdAt', order: 'DESCENDING' },
+ *     { fieldPath: '__name__', order: 'DESCENDING' }
+ *   ]
+ * }
  */
 function parseProtobuf(buffer) {
+  let result = {};
   let offset = 0;
   let collectionGroup = null;
   const fields = [];
@@ -90,7 +102,11 @@ function parseProtobuf(buffer) {
     }
   }
 
-  return { collectionGroup, fields };
+  result = { collectionGroup, fields };
+  
+  // console.log('result', result);
+
+  return result;
 }
 
 /**

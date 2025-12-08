@@ -3,8 +3,7 @@
  * 生成 100 會員 + 500 訂單 + 50 商品
  *
  * 使用方式：
- * 1. 透過 API: POST /api/seed
- * 2. 直接執行: node src/utils/seedData.js
+ * 1. 直接執行: node src/utils/seedData.js
  *
  * 注意：會員會同時建立在 Firebase Auth 和 Firestore
  * 密碼統一為：qwer1234
