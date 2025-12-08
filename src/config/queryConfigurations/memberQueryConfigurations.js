@@ -2,14 +2,6 @@
  * 會員查詢組合配置
  *
  * 這是會員查詢組合的唯一定義來源（Single Source of Truth）
- * 被以下檔案共用：
- * - tests/queries/memberQueries.test.js（測試 API）
- *
- * 注意：會員集合的查詢相對簡單，主要是：
- * 1. 分頁查詢（無特殊篩選條件）
- * 2. 日期範圍篩選（startDate, endDate）
- * 3. isActive 狀態篩選
- * 4. includeDeleted 參數（是否包含已刪除會員）
  */
 
 // ===========================================

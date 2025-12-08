@@ -1,6 +1,6 @@
 /**
  * Firestore 資料清理腳本
- * 刪除所有測試資料
+ * 刪除所有 collections 資料
  *
  * 使用方式：
  * node src/utils/cleanFirestore.js
