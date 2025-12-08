@@ -34,7 +34,6 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/orders",
     requiresAuth: true,
     validQueryCombinations: require("@/config/queryConfigurations/orderQueryConfigurations").validQueryCombinations,
-    paramClassification: require("@/config/queryConfigurations/orderQueryConfigurations").paramClassification,
   },
   {
     name: "會員查詢",
@@ -42,7 +41,6 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/members",
     requiresAuth: true,
     validQueryCombinations: require("@/config/queryConfigurations/memberQueryConfigurations").validQueryCombinations,
-    paramClassification: require("@/config/queryConfigurations/memberQueryConfigurations").paramClassification,
   },
   {
     name: "商品查詢",
@@ -50,7 +48,6 @@ const QUERY_CONFIGS = [
     endpoint: "/api/products",
     requiresAuth: false,
     validQueryCombinations: require("@/config/queryConfigurations/productQueryConfigurations").validQueryCombinations,
-    paramClassification: require("@/config/queryConfigurations/productQueryConfigurations").paramClassification,
   },
   {
     name: "管理員查詢",
@@ -58,7 +55,6 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/admins",
     requiresAuth: true,
     validQueryCombinations: require("@/config/queryConfigurations/adminQueryConfigurations").validQueryCombinations,
-    paramClassification: require("@/config/queryConfigurations/adminQueryConfigurations").paramClassification,
   },
 ];
 
@@ -205,7 +201,6 @@ async function collectIndexes(adminToken) {
           collection: config.collectionName,
           queryName: name,
           params,
-          paramClassification: config.paramClassification,
           url,
           errorMessage,
         });

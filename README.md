@@ -356,7 +356,6 @@ const QUERY_CONFIGS = [
     endpoint: "/api/admin/newCollection",
     requiresAuth: true,
     validQueryCombinations: require("@/config/queryConfigurations/newCollectionQueryConfigurations").validQueryCombinations,
-    paramClassification: require("@/config/queryConfigurations/newCollectionQueryConfigurations").paramClassification,
   },
 ];
 ```
