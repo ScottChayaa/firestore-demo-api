@@ -215,22 +215,6 @@ GET /api/orders?limit=20&cursor=<lastDocId>
 }
 ```
 
-**實作細節** (src/utils/firestore.js):
-```javascript
-// 多取 1 條用於判斷是否有下一頁
-let query = baseQuery.limit(limit + 1);
-
-// 如果有 cursor，從該文件之後開始
-if (cursor) {
-  const cursorDoc = await collection.doc(cursor).get();
-  query = query.startAfter(cursorDoc);
-}
-
-// 判斷 hasMore
-const hasMore = docs.length > limit;
-if (hasMore) docs.pop();
-```
-
 ### 4. 測試資料規模
 **預設配置**：10 會員 + 50 訂單 + 5 商品
 
@@ -411,63 +395,6 @@ await db.collection("members").doc(id).update({
 - `rests/member.example.rest` - 會員私有 API（個人資料、訂單查詢）
 - `rests/admin.example.rest` - 管理員私有 API（會員/訂單/管理員管理）
 
-### 端點概覽
-
-#### 公開 API（無需驗證）
-
-```
-GET  /                                           # 歡迎訊息
-GET  /health                                     # 健康檢查
-POST /api/auth/register                          # 會員註冊
-POST /api/auth/member/signInWithPassword         # 會員登入
-POST /api/auth/admin/signInWithPassword          # 管理員登入
-GET  /api/products                               # 商品列表（支援分頁、分類、價格篩選）
-GET  /api/products/categories                    # 商品分類列表
-GET  /api/products/:id                           # 商品詳情
-```
-
-#### 會員私有 API（需 member token）
-
-```
-GET  /api/member                                 # 取得個人資料
-PUT  /api/member                                 # 更新個人資料
-GET  /api/member/orders                          # 查詢自己的訂單（自動過濾 memberId）
-```
-
-#### 管理員私有 API（需 admin token）
-
-**會員管理** (`/api/admin/members/*`)
-```
-GET    /api/admin/members                        # 所有會員列表
-POST   /api/admin/members                        # 創建會員（含 Firebase Auth）
-POST   /api/admin/members/create-role            # 為現有用戶賦予會員角色
-GET    /api/admin/members/:id                    # 單一會員
-PUT    /api/admin/members/:id                    # 更新會員
-DELETE /api/admin/members/:id                    # 軟刪除會員
-PATCH  /api/admin/members/:id/toggle-status      # 切換啟用/停用狀態
-PATCH  /api/admin/members/:id/restore            # 恢復已刪除會員
-```
-
-**管理員管理** (`/api/admin/admins/*`)
-```
-GET    /api/admin/admins                         # 所有管理員列表
-POST   /api/admin/admins                         # 創建管理員
-GET    /api/admin/admins/:id                     # 單一管理員
-PUT    /api/admin/admins/:id                     # 更新管理員
-DELETE /api/admin/admins/:id                     # 軟刪除管理員
-PATCH  /api/admin/admins/:id/toggle-status       # 切換啟用/停用狀態
-PATCH  /api/admin/admins/:id/restore             # 恢復已刪除管理員
-```
-
-**訂單管理** (`/api/admin/orders/*`)
-```
-GET    /api/admin/orders                         # 所有訂單列表（支援多條件篩選）
-GET    /api/admin/orders/:id                     # 單一訂單
-POST   /api/admin/orders                         # 創建訂單
-PUT    /api/admin/orders/:id                     # 更新訂單
-DELETE /api/admin/orders/:id                     # 刪除訂單
-```
-
 ### 常用查詢參數
 
 **分頁參數**（通用）
@@ -492,7 +419,7 @@ DELETE /api/admin/orders/:id                     # 刪除訂單
 
 ## 🗄️ 資料模型
 
-> **架構說明**：專案採用 **控制器直接操作 Firestore**，無額外 Model/Repository 抽象層。
+> **架構說明**：專案採用 **控制器直接操作 Firestore**，無額外 Model/Repository 抽象層 (TODO: 待規劃)。
 > 通用工具函數（分頁、文件映射）位於 `src/utils/firestore.js`。
 
 ### Members Collection
@@ -571,7 +498,7 @@ DELETE /api/admin/orders/:id                     # 刪除訂單
 
 專案使用 `firestore.indexes.json` 管理所有複合索引配置。
 
-**索引檔案位置**：`/mnt/d/MyDocument/Git/GitHub/firestore-demo-api/firestore.indexes.json`
+**索引檔案位置**：`./firestore.indexes.json`
 
 **查看完整索引配置**：
 ```bash
@@ -875,34 +802,7 @@ npm run seed
 
 ## 🌍 環境變數說明
 
-### 完整清單
-
-| 變數名稱 | 必填 | 預設值 | 說明 |
-|---------|------|-------|------|
-| **FIREBASE_PROJECT_ID** | ✅ | - | Firebase 專案 ID |
-| **GOOGLE_CREDENTIALS_BASE64** | ✅ | - | Base64 編碼的 Service Account JSON |
-| PORT | ❌ | 8080 | 伺服器埠號 |
-| NODE_ENV | ❌ | development | 執行環境（development / production） |
-| CORS_ORIGIN | ❌ | * | CORS 允許來源 |
-| LOG_LEVEL | ❌ | info | 日誌等級（trace / debug / info / warn / error / fatal） |
-| ENABLE_FIRESTORE_WARMUP | ❌ | false | 啟用 Firestore 連線預熱（減少冷啟動延遲） |
-| FIRESTORE_DATABASE_ID | ❌ | (default) | Firestore 資料庫 ID（命名資料庫） |
-| DEFAULT_PAGE_LIMIT | ❌ | 20 | 預設分頁數量 |
-| MAX_PAGE_LIMIT | ❌ | 100 | 最大分頁數量 |
-| SEED_MEMBERS_COUNT | ❌ | 10 | 測試會員數量 |
-| SEED_ORDERS_COUNT | ❌ | 50 | 測試訂單數量 |
-| SEED_PRODUCTS_COUNT | ❌ | 5 | 測試商品數量 |
-
-### GOOGLE_CREDENTIALS_BASE64 取得方式
-
-```bash
-# 方法一：使用 base64 指令
-base64 firebase-service-account.json > encoded.txt
-# 將 encoded.txt 內容複製到 .env
-
-# 方法二：使用 Node.js
-node -e "console.log(require('fs').readFileSync('firebase-service-account.json', 'base64'))"
-```
+參照 [.env.example](./.env.example)
 
 ### Firestore 預熱說明
 
@@ -924,12 +824,12 @@ node -e "console.log(require('fs').readFileSync('firebase-service-account.json',
 3. Commit message 格式：`[類型] 簡短描述`
 
 **類型範例**：
-- `feat` 或 `功能`：新功能
-- `fix` 或 `修復`：錯誤修復
-- `refactor` 或 `重構`：程式碼重構
-- `docs` 或 `文件`：文件更新
-- `test` 或 `測試`：測試相關
-- `chore` 或 `維護`：建置工具、依賴更新等
+- `feat` ：新功能
+- `fix` ：錯誤修復
+- `refactor` ：程式碼重構
+- `docs` ：文件更新
+- `test` ：測試相關
+- `chore` ：建置工具、依賴更新等
 
 **範例**：
 ```bash

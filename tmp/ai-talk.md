@@ -324,3 +324,52 @@ npm run collect:indexes 改執行位置, 搬到 scripts/
 這兩個從 tests/ 移出去, 評估看移去哪
 tests/helpers/authHelper.js                        # 可能被其他測試使用
 tests/queries/config/*.js                          # 查詢配置（共用）
+
+
+
+collect-indexes.js 更新透過 require('@/utils/parseIndexUrl') 方式解碼取得正確的 fileds 欄位後
+*QueryConfigurations.js 相關舊的 paramClassification 功能已經沒有用,
+
+請評估將 paramClassification 相關功能和說明移除
+
+
+調整 clean-firestore.js 功能
+- 評估是否能改透過 db.listCollections() 取得 collections, 然後將其全部移除
+- 能否直接刪除 collection? 而不是一筆一筆資料刪除
+
+
+使用方案A, 只做 1,2,3 項目即可
+
+
+
+優化 CLAUDE 文件
+
+- 目的: 同步目前版本專案架構, 套件依賴, 商業邏輯, DB工具, 自製工具腳本, 日常開發維護作業
+- 我目前看到可以整理的部分 :
+  - 專案概述
+    - 私有 API 有區分 member 和 admin
+  - 專案架構 => 須依現況調整
+  - 核心技術決策
+    - 身份驗證策略 => 有區分 member 和 admin
+  - 測試資料規模
+    - 縮小為 10 會員 + 50 訂單 + 5 商品
+  - API 端點設計
+    - 說明參照現有 rests/*.example.rest 就好, 無需特別在這邊說明
+  - 資料模型
+    - 目前專案沒有特別設計類似 model 或 repository 的概念結構, 這部分有什麼建議?
+    - 如果有設計出來, 這邊就不用特別寫, 補個說明參照就好
+  - Firestore 索引配置
+    - 說明參照 firestore.indexes.json 就好
+  - 這些移除
+    - 部署流程
+    - 完整移除步驟
+    - 效能優化建議
+    - 故障排除
+    - 開發檢查清單
+    - 版本歷史
+
+以上, 確認是否還有沒有我遺漏的部分, 有其他好的建議也請提出
+
+
+
+
