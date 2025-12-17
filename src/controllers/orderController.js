@@ -22,9 +22,8 @@ class OrderController {
    */
   getOrders = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    const { limit, cursor } = req.pagination;
-    const { memberId, status, minAmount, maxAmount, orderBy, order } = req.query;
-    const dateRange = req.dateRange || {};
+    
+    const { limit, cursor, order, orderBy, memberId, status, startDate, endDate, minAmount, maxAmount, includeDeleted } = req.query;
 
     // 建立基礎查詢
     let query = collection;
@@ -40,11 +39,11 @@ class OrderController {
     }
 
     // 篩選：日期範圍
-    if (dateRange.startDate) {
-      query = query.where("createdAt", ">=", Timestamp.fromDate(dateRange.startDate));
+    if (startDate) {
+      query = query.where("createdAt", ">=", Timestamp.fromDate(startDate));
     }
-    if (dateRange.endDate) {
-      query = query.where("createdAt", "<=", Timestamp.fromDate(dateRange.endDate));
+    if (endDate) {
+      query = query.where("createdAt", "<=", Timestamp.fromDate(endDate));
     }
 
     // 篩選：金額範圍

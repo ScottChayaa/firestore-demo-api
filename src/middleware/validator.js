@@ -1,5 +1,8 @@
-const { validationResult } = require("express-validator");
+const { check, validationResult } = require("express-validator");
 const { ValidationError } = require("@/middleware/errorHandler");
+
+const DEFAULT_LIMIT = parseInt(process.env.DEFAULT_PAGE_LIMIT) || 20;
+const MAX_LIMIT = parseInt(process.env.MAX_PAGE_LIMIT) || 100;
 
 /**
  * 驗證中間件
@@ -31,95 +34,80 @@ function validate(req, res, next) {
 }
 
 /**
- * 分頁參數驗證
+ * 驗證器 (共用)
+ * 
+ * check() 會自動在 query / body / params / headers 中找
  */
-function validatePagination(req, res, next) {
-  const { limit, cursor } = req.query;
-  const DEFAULT_LIMIT = parseInt(process.env.DEFAULT_PAGE_LIMIT) || 20;
-  const MAX_LIMIT = parseInt(process.env.MAX_PAGE_LIMIT) || 100;
+class Validator {
+  /**
+   * 驗證: 分頁參數
+   */
+  pagination = () => {
+    return [
+      check("limit").default(DEFAULT_LIMIT).isInt({ min: 1, max: MAX_LIMIT }).withMessage(`limit 範圍需 1~${MAX_LIMIT}`).toInt(),
+      check("cursor").optional(),
+    ];
+  };
+  
+  /**
+   * 驗證: 日期範圍參數 (會自動轉 ISO8601 Date 物件 )
+   */
+  dateRange = () => {
+    return [
+      check("startDate").optional().isISO8601().withMessage(`startDate 格式不正確（應為 ISO 8601 格式）`).toDate(),
+      check("endDate")
+        .optional()
+        .isISO8601()
+        .withMessage(`endDate 格式不正確（應為 ISO 8601 格式）`)
+        .toDate()
+        .custom((endDate, { req }) => {
+          if (endDate < req.query.startDate) {
+            throw new Error("endDate 必須大於 startDate");
+          }
 
-  // 驗證 limit
-  if (limit) {
-    const parsedLimit = parseInt(limit);
+          return true;
+        }),
+    ];
+  };
 
-    if (isNaN(parsedLimit) || parsedLimit < 1) {
-      throw new ValidationError({
-        field: "limit",
-        message: "必須是大於 0 的整數",
-        value: limit,
-      });
-    }
+  /**
+   * 驗證: 排序參數
+   * @param {*} orderColumns 排序欄位
+   * @returns 
+   */
+  orderBy = (orderColumns = []) => {
+    orderColumns = ["createdAt", ...orderColumns.filter(orderColumn => orderColumn !== "createdAt")]; // 不管傳進來的陣列是什麼，都要保證回傳結果一定包含 "createdAt"，而且不要重複
 
-    if (parsedLimit > MAX_LIMIT) {
-      throw new ValidationError({
-        field: "limit",
-        message: `不能超過 ${MAX_LIMIT}`,
-        value: limit,
-      });
-    }
-    req.pagination = { limit: parsedLimit };
-  } else {
-    req.pagination = { limit: DEFAULT_LIMIT };
-  }
+    return [
+      check("order").default("desc").isIn(["desc", "asc"]),
+      check("orderBy").default("createdAt").isIn(orderColumns),
+    ];
+  };
 
-  // cursor 可以是任意字串，不需特別驗證
-  if (cursor) {
-    req.pagination.cursor = cursor;
-  }
+  /**
+   * 驗證: 軟刪除
+   */
+  includeDeleted = () => check("includeDeleted").default("false").isIn(["true", "false"]);
 
-  next();
+  /**
+   * 驗證: 啟用
+   */
+  isActive = () => check("isActive").default("all").isIn(["all", "true", "false"]);
+  
+  /**
+   * 驗證: Email
+   */
+  email = () => check("email").isEmail().withMessage('email 格式不正確');
+  
+  /**
+   * 驗證: 密碼
+   */
+  password = () => check("password").isLength({ min: 6 }).withMessage('password 至少需要 6 個字元'),
 }
 
-/**
- * 日期範圍驗證
- */
-function validateDateRange(req, res, next) {
-  const { startDate, endDate } = req.query;
-
-  if (startDate) {
-    const start = new Date(startDate);
-
-    if (isNaN(start.getTime())) {
-      throw new ValidationError({
-        field: "startDate",
-        message: `格式不正確（應為 ISO 8601 格式）`,
-        value: startDate,
-      });
-    }
-
-    req.dateRange = { startDate: start };
-  }
-
-  if (endDate) {
-    const end = new Date(endDate);
-
-    if (isNaN(end.getTime())) {
-      throw new ValidationError({
-        field: "endDate",
-        message: `格式不正確（應為 ISO 8601 格式）`,
-        value: endDate,
-      });
-    }
-
-    req.dateRange = { ...req.dateRange, endDate: end };
-  }
-
-  // 檢查日期範圍是否合理
-  if (req.dateRange && req.dateRange.startDate && req.dateRange.endDate) {
-    if (req.dateRange.startDate > req.dateRange.endDate) {
-      throw new ValidationError({
-        field: "startDate",
-        message: `startDate 不能晚於 endDate`,
-        value: startDate,
-      });
-    }
-  }
-
-  next();
-}
+var validator = new Validator();
 
 module.exports = {
   validate,
-  validatePagination,
-  validateDateRange,
+  validator,
 };

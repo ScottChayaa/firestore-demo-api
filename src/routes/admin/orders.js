@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
-const { validate, validatePagination, validateDateRange } = require('@/middleware/validator');
-const { orderQueryValidators, createOrderValidators } = require('@/middleware/orderValidators');
+const { validate, validator } = require('@/middleware/validator');
+const { orderValidator } = require('@/middleware/orderValidators');
 
 /**
  * 管理員訂單路由
@@ -13,9 +13,11 @@ const { orderQueryValidators, createOrderValidators } = require('@/middleware/or
 // GET /api/admin/orders?memberId=xxx&status=completed&startDate=2025-01-01
 router.get(
   '/',
-  validatePagination,
-  validateDateRange,
-  orderQueryValidators,
+  validator.pagination(),
+  validator.dateRange(),
+  orderValidator.status(),
+  orderValidator.amountRange(),
+  orderValidator.memberId(),
   validate,
   orderController.getOrders
 );

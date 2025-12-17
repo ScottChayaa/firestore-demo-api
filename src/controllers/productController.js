@@ -20,8 +20,8 @@ class ProductController {
    */
   getProducts = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    const { limit, cursor } = req.pagination;
-    const { category, minPrice, maxPrice, orderBy, order} = req.query;
+
+    const { limit, cursor, orderBy, order, category, minPrice, maxPrice} = req.query;
 
     // 建立基礎查詢
     let query = collection;
@@ -36,17 +36,10 @@ class ProductController {
 
     // 篩選: 價格範圍
     if (minPrice) {
-      const min = parseFloat(minPrice);
-      if (!isNaN(min)) {
-        query = query.where("price", ">=", min);
-      }
+      query = query.where("price", ">=", minPrice);
     }
-
     if (maxPrice) {
-      const max = parseFloat(maxPrice);
-      if (!isNaN(max)) {
-        query = query.where("price", "<=", max);
-      }
+      query = query.where("price", "<=", maxPrice);
     }
 
     // 排序欄位 + 排序方向

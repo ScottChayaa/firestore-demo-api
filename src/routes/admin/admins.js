@@ -1,10 +1,9 @@
-const express = require('express');
-const { body, query } = require('express-validator');
+const express = require("express");
 
 const router = express.Router();
-const adminController = require('@/controllers/adminController');
-const { validatePagination, validateDateRange } = require('@/middleware/validator');
-const { validate } = require('@/middleware/validator');
+const adminController = require("@/controllers/adminController");
+const { validate, validator } = require("@/middleware/validator");
+const { adminValidator } = require("@/middleware/adminValidator");
 
 /**
  * 管理員管理路由
@@ -13,71 +12,57 @@ const { validate } = require('@/middleware/validator');
 
 // 取得所有管理員列表（支援多條件篩選）
 // GET /api/admin/admins?startDate=2025-01-01
+// const aaaValidator = () => query("limit").default(20).isInt({ min: 1, max: 100 }).withMessage(`limit 範圍需 1~100`);
 router.get(
-  '/',
-  validatePagination,
-  validateDateRange,
+  "/",
+  validator.pagination(),
+  validator.dateRange(),
+  validator.orderBy(),
+  validator.includeDeleted(),
+  validator.isActive(),
+  validate,
   adminController.getAdmins
 );
 
 // 建立管理員（同時建立 Auth 帳號）
 // POST /api/admin/admins
 router.post(
-  '/',
-  [
-    body('email').isEmail().withMessage('email 格式不正確'),
-    body('password').isLength({ min: 6 }).withMessage('password 至少需要 6 個字元'),
-    body('name').notEmpty().withMessage('name 為必填欄位'),
-    validate,
-  ],
+  "/",
+  validator.email(),
+  validator.password(),
+  adminValidator.name(),
+  validate,
   adminController.createAdmin
 );
 
 // 為現有帳號賦予管理員角色
 // POST /api/admin/admins/create-role
 router.post(
-  '/create-role',
-  [
-    body('uid').notEmpty().withMessage('uid 為必填欄位'),
-    body('name').notEmpty().withMessage('name 為必填欄位'),
-    validate,
-  ],
+  "/create-role",
+  adminValidator.uid(),
+  adminValidator.name(),
+  validate,
   adminController.createAdminRole
 );
 
 // 取得單一管理員
 // GET /api/admin/admins/:id
-router.get(
-  '/:id',
-  adminController.getAdminById
-);
+router.get("/:id", adminController.getAdminById);
 
 // 更新管理員
 // PUT /api/admin/admins/:id
-router.put(
-  '/:id',
-  adminController.updateAdmin
-);
+router.put("/:id", adminController.updateAdmin);
 
 // 刪除管理員（軟刪除）
 // DELETE /api/admin/admins/:id
-router.delete(
-  '/:id',
-  adminController.deleteAdmin
-);
+router.delete("/:id", adminController.deleteAdmin);
 
 // 切換管理員啟用/停用狀態
 // PATCH /api/admin/admins/:id/toggle-status
-router.patch(
-  '/:id/toggle-status',
-  adminController.toggleAdminStatus
-);
+router.patch("/:id/toggle-status", adminController.toggleAdminStatus);
 
 // 恢復已軟刪除的管理員
 // POST /api/admin/admins/:id/restore
-router.post(
-  '/:id/restore',
-  adminController.restoreAdmin
-);
+router.post("/:id/restore", adminController.restoreAdmin);
 
 module.exports = router;

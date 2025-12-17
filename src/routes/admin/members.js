@@ -1,11 +1,9 @@
 const express = require('express');
-const { body, query } = require('express-validator');
 
 const router = express.Router();
 const memberController = require('@/controllers/memberController');
-const adminController = require('@/controllers/adminController');
-const { validatePagination, validateDateRange } = require('@/middleware/validator');
-const { validate } = require('@/middleware/validator');
+const { validate, validator } = require('@/middleware/validator');
+const { memberValidator } = require("@/middleware/memberValidator");
 
 /**
  * 管理員會員管理路由
@@ -16,13 +14,12 @@ const { validate } = require('@/middleware/validator');
 // GET /api/admin/members?startDate=2025-01-01
 router.get(
   '/',
-  validatePagination,
-  validateDateRange,
-  [
-    query("order").default("desc").isIn(["desc", "asc"]),
-    query("orderBy").default("createdAt").isIn(["createdAt"]),
-    validate,
-  ],
+  validator.pagination(),
+  validator.dateRange(),
+  validator.orderBy(),
+  validator.includeDeleted(),
+  validator.isActive(),
+  validate,
   memberController.getMembers
 );
 
@@ -30,12 +27,10 @@ router.get(
 // POST /api/admin/members
 router.post(
   '/',
-  [
-    body('email').isEmail().withMessage('email 格式不正確'),
-    body('password').isLength({ min: 6 }).withMessage('password 至少需要 6 個字元'),
-    body('name').notEmpty().withMessage('name 為必填欄位'),
-    validate,
-  ],
+  validator.email(),
+  validator.password(),
+  memberValidator.name(),
+  validate,
   memberController.createMember
 );
 
@@ -43,12 +38,10 @@ router.post(
 // POST /api/admin/members/create-role
 router.post(
   '/create-role',
-  [
-    body('uid').notEmpty().withMessage('uid 為必填欄位'),
-    body('name').notEmpty().withMessage('name 為必填欄位'),
-    validate,
-  ],
-  adminController.createMemberRole
+  memberValidator.uid(),
+  memberValidator.name(),
+  validate,
+  memberController.createMemberRole
 );
 
 // 取得單一會員
