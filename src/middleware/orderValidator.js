@@ -35,7 +35,7 @@ class OrderValidator {
   /**
    * 驗證: 訂單金額欄位
    */
-  totalAmount = () => check("totalAmount").isNumeric().withMessage('totalAmount 必須是數字');
+  totalAmount = () => check("totalAmount").isInt().withMessage('totalAmount 必須是數字').toInt();
 
   /**
    * 驗證: 訂單明細

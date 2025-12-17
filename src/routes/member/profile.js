@@ -1,5 +1,4 @@
 const express = require('express');
-const { body, query } = require("express-validator");
 
 const router = express.Router();
 const memberController = require('@/controllers/memberController');
@@ -10,7 +9,6 @@ const memberController = require('@/controllers/memberController');
  */
 
 // 取得自己的會員資料
-// GET /api/member
 router.get(
   '/',
   async (req, res, next) => {
@@ -22,7 +20,6 @@ router.get(
 );
 
 // 更新自己的會員資料
-// PUT /api/member
 router.put(
   '/',
   async (req, res, next) => {

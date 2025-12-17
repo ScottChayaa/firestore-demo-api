@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const orderController = require("@/controllers/orderController");
-const { validate, validatePagination, validateDateRange } = require("@/middleware/validator");
-const { orderQueryValidators } = require("@/middleware/orderValidators");
+const orderController = require('@/controllers/orderController');
+const { validate, validator } = require('@/middleware/validator');
+const { orderValidator } = require('@/middleware/orderValidator');
 
 /**
  * 會員訂單路由
@@ -10,7 +10,15 @@ const { orderQueryValidators } = require("@/middleware/orderValidators");
  */
 
 // 取得會員自己的訂單列表
-// GET /api/member/orders
-router.get("/", validatePagination, validateDateRange, orderQueryValidators, validate, orderController.getOrders);
+router.get(
+  '/',
+  validator.pagination(),
+  validator.dateRange(),
+  orderValidator.status(),
+  orderValidator.amountRange(),
+  orderValidator.memberId(),
+  validate, 
+  orderController.getOrders
+);
 
 module.exports = router;

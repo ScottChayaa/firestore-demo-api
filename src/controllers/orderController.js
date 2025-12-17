@@ -91,7 +91,7 @@ class OrderController {
    * - status: 訂單狀態（可選，預設 pending）
    */
   createOrder = async (req, res) => {
-    const { memberId, items, totalAmount, status = "pending" } = req.body;
+    const { memberId, items, totalAmount, status } = req.body;
 
     // 驗證必填欄位
     if (!memberId || !items || !totalAmount) {

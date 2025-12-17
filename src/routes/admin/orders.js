@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('@/controllers/orderController');
 const { validate, validator } = require('@/middleware/validator');
-const { orderValidator } = require('@/middleware/orderValidators');
+const { orderValidator } = require('@/middleware/orderValidator');
 
 /**
  * 管理員訂單路由
@@ -33,7 +33,10 @@ router.get(
 // POST /api/admin/orders
 router.post(
   '/',
-  createOrderValidators,
+  orderValidator.status(),
+  orderValidator.totalAmount(),
+  orderValidator.items(),
+  orderValidator.memberId(),
   validate,
   orderController.createOrder
 );

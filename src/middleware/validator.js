@@ -102,7 +102,7 @@ class Validator {
   /**
    * 驗證: 密碼
    */
-  password = () => check("password").isLength({ min: 6 }).withMessage('password 至少需要 6 個字元'),
+  password = () => check("password").isLength({ min: 6 }).withMessage('password 至少需要 6 個字元');
 }
 
 var validator = new Validator();
