@@ -10,39 +10,25 @@ const { adminValidator } = require("@/middleware/adminValidator");
  */
 
 // 取得所有管理員列表（支援多條件篩選）
-// GET /api/admin/admins?startDate=2025-01-01
-// const aaaValidator = () => query("limit").default(20).isInt({ min: 1, max: 100 }).withMessage(`limit 範圍需 1~100`);
+// GET /api/admin/admins?minCreatedAt=2025-01-01
 router.get(
   "/",
-  validator.pagination(),
-  validator.dateRange(),
-  validator.orderBy(),
-  validator.includeDeleted(),
-  validator.isActive(),
+  validator.queryPagination(),
+  validator.queryOrderBy(),
+  validator.queryIncludeDeleted(),
+  validator.queryIsActive(),
+  validator.queryCreatedAtRange(),
   validate,
   adminController.getAdmins
 );
 
 // 建立管理員（同時建立 Auth 帳號）
 // POST /api/admin/admins
-router.post(
-  "/",
-  validator.email(),
-  validator.password(),
-  adminValidator.name(),
-  validate,
-  adminController.createAdmin
-);
+router.post("/", adminValidator.bodyEmail(), adminValidator.bodyPassword(), adminValidator.bodyName(), validate, adminController.createAdmin);
 
 // 為現有帳號賦予管理員角色
 // POST /api/admin/admins/create-role
-router.post(
-  "/create-role",
-  adminValidator.uid(),
-  adminValidator.name(),
-  validate,
-  adminController.createAdminRole
-);
+router.post("/create-role", adminValidator.bodyUid(), adminValidator.bodyName(), validate, adminController.createAdminRole);
 
 // 取得單一管理員
 // GET /api/admin/admins/:id
@@ -50,7 +36,7 @@ router.get("/:id", adminController.getAdminById);
 
 // 更新管理員
 // PUT /api/admin/admins/:id
-router.put("/:id", adminController.updateAdmin);
+router.put("/:id", adminValidator.bodyEmail(), adminValidator.bodyPassword(), adminValidator.bodyName(), validate, adminController.updateAdmin);
 
 // 刪除管理員（軟刪除）
 // DELETE /api/admin/admins/:id

@@ -10,14 +10,15 @@ const { orderValidator } = require('@/middleware/orderValidator');
  */
 
 // 取得所有訂單列表（支援多條件篩選）
-// GET /api/admin/orders?memberId=xxx&status=completed&startDate=2025-01-01
+// GET /api/admin/orders?memberId=xxx&status=completed&minCreatedAt=2025-01-01
 router.get(
   '/',
-  validator.pagination(),
-  validator.dateRange(),
-  orderValidator.status(),
-  orderValidator.amountRange(),
-  orderValidator.memberId(),
+  validator.queryPagination(),
+  validator.queryOrderBy(["totalAmount"]),
+  validator.queryCreatedAtRange(),
+  orderValidator.queryStatus(),
+  orderValidator.queryTotalAmountRange(),
+  orderValidator.queryMemberId(),
   validate,
   orderController.getOrders
 );
@@ -33,10 +34,10 @@ router.get(
 // POST /api/admin/orders
 router.post(
   '/',
-  orderValidator.status(),
-  orderValidator.totalAmount(),
-  orderValidator.items(),
-  orderValidator.memberId(),
+  orderValidator.bodyStatus(),
+  orderValidator.bodyTotalAmount(),
+  orderValidator.bodyItems(),
+  orderValidator.bodyMemberId(),
   validate,
   orderController.createOrder
 );
@@ -45,6 +46,11 @@ router.post(
 // PUT /api/admin/orders/:id
 router.put(
   '/:id',
+  orderValidator.bodyStatus(),
+  orderValidator.bodyTotalAmount(),
+  orderValidator.bodyItems(),
+  orderValidator.bodyMemberId(),
+  validate,
   orderController.updateOrder
 );
 

@@ -1,4 +1,4 @@
-const { check } = require('express-validator');
+const { query, body, check } = require('express-validator');
 
 /**
  * 驗證器: Product
@@ -6,17 +6,17 @@ const { check } = require('express-validator');
 class ProductValidator {
 
   /**
-   * 驗證: category
+   * 驗證查詢欄位: category
    */
-  category = () => check("category").optional();
+  queryCategory = () => query("category").optional();
 
   /**
-   * 驗證: 產品金額範圍
+   * 驗證查詢欄位: 產品金額範圍
    */
-  priceRange = () => {
+  queryPriceRange = () => {
     return [
-      check("minPrice").optional().isInt().toInt(),
-      check("maxPrice")
+      query("minPrice").optional().isInt().toInt(),
+      query("maxPrice")
         .optional()
         .isInt()
         .toInt()
@@ -31,9 +31,9 @@ class ProductValidator {
   };
 
   /**
-   * 驗證: 產品金額欄位
+   * 驗證更新欄位: 產品金額
    */
-  price = () => check("price").notEmpty();
+  bodyPrice = () => body("price").notEmpty();
 }
 
 var productValidator = new ProductValidator();

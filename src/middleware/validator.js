@@ -1,4 +1,4 @@
-const { check, validationResult } = require("express-validator");
+const { query, body, check, validationResult } = require("express-validator");
 const { ValidationError } = require("@/middleware/errorHandler");
 
 const DEFAULT_LIMIT = parseInt(process.env.DEFAULT_PAGE_LIMIT) || 20;
@@ -36,33 +36,35 @@ function validate(req, res, next) {
 /**
  * 驗證器 (共用)
  * 
+ * default() 功能在 query(), body() 的情況下才會有用
+ * 
  * check() 會自動在 query / body / params / headers 中找
  */
 class Validator {
   /**
-   * 驗證: 分頁參數
+   * 驗證查詢欄位: 分頁參數
    */
-  pagination = () => {
+  queryPagination = () => {
     return [
-      check("limit").default(DEFAULT_LIMIT).isInt({ min: 1, max: MAX_LIMIT }).withMessage(`limit 範圍需 1~${MAX_LIMIT}`).toInt(),
-      check("cursor").optional(),
+      query("limit").default(20).isInt({ min: 1, max: 100 }).withMessage(`limit 範圍需 1~${MAX_LIMIT}`).toInt(),
+      query("cursor").optional(),
     ];
   };
   
   /**
-   * 驗證: 日期範圍參數 (會自動轉 ISO8601 Date 物件 )
+   * 驗證查詢欄位: 建立日期範圍 (會自動轉 ISO8601 Date 物件 )
    */
-  dateRange = () => {
+  queryCreatedAtRange = () => {
     return [
-      check("startDate").optional().isISO8601().withMessage(`startDate 格式不正確（應為 ISO 8601 格式）`).toDate(),
-      check("endDate")
+      query("minCreatedAt").optional().isISO8601().withMessage(`minCreatedAt 格式不正確（應為 ISO 8601 格式）`).toDate(),
+      query("maxCreatedAt")
         .optional()
         .isISO8601()
-        .withMessage(`endDate 格式不正確（應為 ISO 8601 格式）`)
+        .withMessage(`maxCreatedAt 格式不正確（應為 ISO 8601 格式）`)
         .toDate()
-        .custom((endDate, { req }) => {
-          if (endDate < req.query.startDate) {
-            throw new Error("endDate 必須大於 startDate");
+        .custom((maxCreatedAt, { req }) => {
+          if (maxCreatedAt < req.query.minCreatedAt) {
+            throw new Error("maxCreatedAt 必須大於 minCreatedAt");
           }
 
           return true;
@@ -71,38 +73,29 @@ class Validator {
   };
 
   /**
-   * 驗證: 排序參數
-   * @param {*} orderColumns 排序欄位
+   * 驗證查詢欄位: 排序參數
+   * @param {*} extraOrderColumns 額外的排序欄位
    * @returns 
    */
-  orderBy = (orderColumns = []) => {
-    orderColumns = ["createdAt", ...orderColumns.filter(orderColumn => orderColumn !== "createdAt")]; // 不管傳進來的陣列是什麼，都要保證回傳結果一定包含 "createdAt"，而且不要重複
+  queryOrderBy = (extraOrderColumns = []) => {
+    extraOrderColumns = ["createdAt", ...extraOrderColumns.filter(orderColumn => orderColumn !== "createdAt")]; // 不管傳進來的陣列是什麼，都要保證回傳結果一定包含 "createdAt"，而且不要重複
 
     return [
-      check("order").default("desc").isIn(["desc", "asc"]),
-      check("orderBy").default("createdAt").isIn(orderColumns),
+      query("order").default("desc").isIn(["desc", "asc"]),
+      query("orderBy").default("createdAt").isIn(extraOrderColumns),
     ];
   };
 
   /**
-   * 驗證: 軟刪除
+   * 驗證查詢欄位: 軟刪除
    */
-  includeDeleted = () => check("includeDeleted").default("false").isIn(["true", "false"]);
+  queryIncludeDeleted = () => query("includeDeleted").default("false").isIn(["true", "false"]);
 
   /**
-   * 驗證: 啟用
+   * 驗證查詢欄位: 啟用
    */
-  isActive = () => check("isActive").default("all").isIn(["all", "true", "false"]);
-  
-  /**
-   * 驗證: Email
-   */
-  email = () => check("email").isEmail().withMessage('email 格式不正確');
-  
-  /**
-   * 驗證: 密碼
-   */
-  password = () => check("password").isLength({ min: 6 }).withMessage('password 至少需要 6 個字元');
+  queryIsActive = () => query("isActive").default("all").isIn(["all", "true", "false"]);
+
 }
 
 var validator = new Validator();

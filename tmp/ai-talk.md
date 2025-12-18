@@ -224,8 +224,8 @@ create-role 端點：只建立 Firestore 文檔，不修改 Custom Claims
 
    // 範圍查詢參數（映射到實際欄位）
    range: {
-     startDate: 'createdAt',
-     endDate: 'createdAt',
+     minCreatedAt: 'createdAt',
+     maxCreatedAt: 'createdAt',
      minAmount: 'totalAmount',
      maxAmount: 'totalAmount'
    },

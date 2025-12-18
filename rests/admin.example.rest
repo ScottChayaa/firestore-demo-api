@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
 @contentType = application/json
-@adminToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ1YTZjMGMyYjgwMDcxN2EzNGQ1Y2JiYmYzOWI4NGI2NzYxMjgyNjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi57O757Wx566h55CG5ZOhIiwibG9naW5BcyI6ImFkbWluIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2NDIxMzI2OSwidXNlcl9pZCI6IkJRSVF2bWd2cWVkVUs5Q0pNQm1NckdGOWlHYTIiLCJzdWIiOiJCUUlRdm1ndnFlZFVLOUNKTUJtTXJHRjlpR2EyIiwiaWF0IjoxNzY0MjEzMjY5LCJleHAiOjE3NjQyMTY4NjksImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYWRtaW5AZXhhbXBsZS5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.mviVgtPbPKasw8WqarX980LUfXcduhB4sZlUvX2-MAo_nXWqzH2-JpaYH2v4HMPkS2Ga3A8qwqCrn80M50G3ms49wKqUfRfmCGjOnKvnUeyE-HsoumMDQzbuh7VnxBoFEny15qX6wqzT6HhbpChTK1NAG5fihRBpaantW9SucaEVoKnoStFr3q31qpsRllr4NkcdpCLBYUDm2bfMuUkP7r4vKJJmgVDQ2oFXUiEmmyZmxK0r4x2aJXiGi2c-TxEDIQylN6PbPxmq2nsyZscf_uDSD11BiEkz5xIwcqk16FYDVDU1q-0jn8qP0s0eD8Va3V73KpnM8V7cDMN0Jz-lHQ
+@adminToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjM4MTFiMDdmMjhiODQxZjRiNDllNDgyNTg1ZmQ2NmQ1NWUzOGRiNWQiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi57O757Wx566h55CG5ZOhIiwibG9naW5BcyI6ImFkbWluIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2xpYW5nLWRldiIsImF1ZCI6ImxpYW5nLWRldiIsImF1dGhfdGltZSI6MTc2NjAzNzMzOSwidXNlcl9pZCI6IkJRSVF2bWd2cWVkVUs5Q0pNQm1NckdGOWlHYTIiLCJzdWIiOiJCUUlRdm1ndnFlZFVLOUNKTUJtTXJHRjlpR2EyIiwiaWF0IjoxNzY2MDM3MzM5LCJleHAiOjE3NjYwNDA5MzksImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYWRtaW5AZXhhbXBsZS5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.bVNJs8krBSCnxtNBVPWKbIdf56sFM_oR_puW0nUIC4yzmZnq0lo47XreB-5nC71TyOhBMq7SD_kWQQlDCjOuhaj4NenZoFXFomt1KFpDQl-Yoi99_hqwytL9xXbQshNnOWc0h7MHhoisweHCg_k8JBa11_CrBRRPZXEGPr2nVVOOPCM6FM8h5_oejhO0OFGnebt29HKpEcJVIG-XZLfWo7JQt1-R8gMuENURqymGdEwbNb8hazDzGNPOqLvb0ErN7ZSAEa8tJLbZQ-f81uRUrdjJwlErt_GBHNrBuzDswBKDu_pNt_ALDj9XDl15643zLDBJ_QoyTRyopP-t-ItARA
 
 ### ============================================
 ### 管理員登入（Email/Password 直接取得含管理員角色的 ID Token）
@@ -20,7 +20,7 @@ GET {{baseUrl}}/api/admin/members
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 ###
-GET {{baseUrl}}/api/admin/members?limit=10
+GET {{baseUrl}}/api/admin/members?limit=1&
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 ###
@@ -28,7 +28,7 @@ GET {{baseUrl}}/api/admin/members?limit=10&cursor=xxx
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 ###
-GET {{baseUrl}}/api/admin/members?startDate=2025-01-01
+GET {{baseUrl}}/api/admin/members?minCreatedAt=2025-01-01
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
@@ -233,7 +233,7 @@ GET {{baseUrl}}/api/admin/orders?limit=20
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 ###
-GET {{baseUrl}}/api/admin/orders?limit=20&cursor=xxx
+GET {{baseUrl}}/api/admin/orders?limit=1&status=pending&minAmount=100&orderBy=totalAmount&order=asc
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
@@ -258,7 +258,7 @@ Authorization: {{adminToken}}
 ### ============================================
 ### 訂單管理 - 查詢所有訂單（日期範圍）
 ### ============================================
-GET {{baseUrl}}/api/admin/orders?startDate=2025-01-01&endDate=2025-12-31
+GET {{baseUrl}}/api/admin/orders?minCreatedAt=2025-01-01&maxCreatedAt=2025-12-31
 Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 

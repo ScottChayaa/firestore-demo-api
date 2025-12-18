@@ -13,8 +13,8 @@ class OrderController {
    * - cursor: 分頁游標
    * - memberId: 會員 ID
    * - status: 訂單狀態（pending, processing, completed, cancelled）
-   * - startDate: 開始日期（ISO 8601）
-   * - endDate: 結束日期（ISO 8601）
+   * - minCreatedAt: 開始日期（ISO 8601）
+   * - maxCreatedAt: 結束日期（ISO 8601）
    * - minAmount: 最低金額
    * - maxAmount: 最高金額
    * - orderBy: 排序欄位（createdAt, totalAmount）
@@ -22,8 +22,14 @@ class OrderController {
    */
   getOrders = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
-    
-    const { limit, cursor, order, orderBy, memberId, status, startDate, endDate, minAmount, maxAmount, includeDeleted } = req.query;
+
+    const { limit, cursor, order, orderBy, memberId, status, minCreatedAt, maxCreatedAt, minAmount, maxAmount, includeDeleted } = req.query;
+
+    // req.log.info({
+    //   details: {
+    //     reqQuery: req.query,
+    //   },
+    // });
 
     // 建立基礎查詢
     let query = collection;
@@ -39,11 +45,11 @@ class OrderController {
     }
 
     // 篩選：日期範圍
-    if (startDate) {
-      query = query.where("createdAt", ">=", Timestamp.fromDate(startDate));
+    if (minCreatedAt) {
+      query = query.where("createdAt", ">=", Timestamp.fromDate(minCreatedAt));
     }
-    if (endDate) {
-      query = query.where("createdAt", "<=", Timestamp.fromDate(endDate));
+    if (maxCreatedAt) {
+      query = query.where("createdAt", "<=", Timestamp.fromDate(maxCreatedAt));
     }
 
     // 篩選：金額範圍

@@ -1,5 +1,4 @@
 const express = require('express');
-const { query } = require('express-validator');
 const router = express.Router();
 const productController = require('@/controllers/productController');
 const { validate, validator } = require('@/middleware/validator');
@@ -13,10 +12,10 @@ const { productValidator } = require('@/middleware/productValidator');
 // GET /api/products?limit=20&cursor=abc&category=electronics&minPrice=100
 router.get(
   '/',
-  validator.pagination(),
-  validator.orderBy(),
-  productValidator.category(),
-  productValidator.priceRange(),
+  validator.queryPagination(),
+  validator.queryOrderBy(["price"]),
+  productValidator.queryCategory(),
+  productValidator.queryPriceRange(),
   validate,
   productController.getProducts
 );

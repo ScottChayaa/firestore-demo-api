@@ -9,8 +9,8 @@
 // ===========================================
 
 const TEST_VALUES = {
-  startDate: "2025-01-01",
-  endDate: "2025-12-31",
+  minCreatedAt: "2025-01-01",
+  maxCreatedAt: "2025-12-31",
 };
 
 // ===========================================
@@ -34,17 +34,17 @@ const validQueryCombinations = [
   // ========================================
   {
     name: "按開始日期篩選",
-    params: { startDate: TEST_VALUES.startDate },
+    params: { minCreatedAt: TEST_VALUES.minCreatedAt },
     description: "查詢指定日期後建立的會員",
   },
   {
     name: "按結束日期篩選",
-    params: { endDate: TEST_VALUES.endDate },
+    params: { maxCreatedAt: TEST_VALUES.maxCreatedAt },
     description: "查詢指定日期前建立的會員",
   },
   {
     name: "按日期範圍篩選",
-    params: { startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate },
+    params: { minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt },
     description: "查詢指定日期範圍內建立的會員",
   },
 
@@ -79,12 +79,12 @@ const validQueryCombinations = [
   // ========================================
   {
     name: "啟用會員 + 日期範圍",
-    params: { isActive: true, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate },
+    params: { isActive: true, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt },
     description: "查詢指定日期範圍內建立的啟用會員",
   },
   {
     name: "包含已刪除 + 日期範圍",
-    params: { includeDeleted: true, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate },
+    params: { includeDeleted: true, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt },
     description: "查詢指定日期範圍內建立的所有會員（包含已刪除）",
   },
 ];

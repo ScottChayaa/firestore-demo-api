@@ -12,11 +12,11 @@ const { orderValidator } = require('@/middleware/orderValidator');
 // 取得會員自己的訂單列表
 router.get(
   '/',
-  validator.pagination(),
-  validator.dateRange(),
-  orderValidator.status(),
-  orderValidator.amountRange(),
-  orderValidator.memberId(),
+  validator.queryPagination(),
+  validator.queryCreatedAtRange(),
+  orderValidator.queryStatus(),
+  orderValidator.queryTotalAmountRange(),
+  orderValidator.queryMemberId(),
   validate, 
   orderController.getOrders
 );

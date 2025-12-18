@@ -67,7 +67,7 @@ Authorization: {{memberToken}}
 ### ============================================
 ### 會員訂單 - 查看自己的訂單（日期範圍）
 ### ============================================
-GET {{baseUrl}}/api/member/orders?startDate=2025-01-01&endDate=2025-12-31
+GET {{baseUrl}}/api/member/orders?minCreatedAt=2025-01-01&maxCreatedAt=2025-12-31
 Content-Type: {{contentType}}
 Authorization: {{memberToken}}
 

@@ -10,14 +10,14 @@ const { memberValidator } = require("@/middleware/memberValidator");
  */
 
 // 取得所有會員列表（支援多條件篩選）
-// GET /api/admin/members?startDate=2025-01-01
+// GET /api/admin/members?minCreatedAt=2025-01-01
 router.get(
   '/',
-  validator.pagination(),
-  validator.dateRange(),
-  validator.orderBy(),
-  validator.includeDeleted(),
-  validator.isActive(),
+  validator.queryPagination(),
+  validator.queryOrderBy(),
+  validator.queryCreatedAtRange(),
+  validator.queryIncludeDeleted(),
+  validator.queryIsActive(),
   validate,
   memberController.getMembers
 );
@@ -26,9 +26,9 @@ router.get(
 // POST /api/admin/members
 router.post(
   '/',
-  validator.email(),
-  validator.password(),
-  memberValidator.name(),
+  memberValidator.bodyUid(),
+  memberValidator.bodyPassword(),
+  memberValidator.bodyName(),
   validate,
   memberController.createMember
 );
@@ -37,8 +37,8 @@ router.post(
 // POST /api/admin/members/create-role
 router.post(
   '/create-role',
-  memberValidator.uid(),
-  memberValidator.name(),
+  memberValidator.bodyUid(),
+  memberValidator.bodyName(),
   validate,
   memberController.createMemberRole
 );
@@ -54,6 +54,9 @@ router.get(
 // PUT /api/admin/members/:id
 router.put(
   '/:id',
+  memberValidator.bodyPassword(),
+  memberValidator.bodyPhone(),
+  validate,
   memberController.updateMember
 );
 

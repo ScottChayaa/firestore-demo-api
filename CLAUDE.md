@@ -402,8 +402,8 @@ await db.collection("members").doc(id).update({
 - `cursor`: 分頁游標（上一頁回傳的 nextCursor）
 
 **日期範圍篩選**（會員、訂單）
-- `startDate`: 起始日期（ISO 8601 格式，例：2025-01-01）
-- `endDate`: 結束日期（ISO 8601 格式）
+- `minCreatedAt`: 起始日期（ISO 8601 格式，例：2025-01-01）
+- `maxCreatedAt`: 結束日期（ISO 8601 格式）
 
 **狀態篩選**（訂單）
 - `status`: pending | processing | completed | cancelled

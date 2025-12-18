@@ -13,8 +13,8 @@
 const TEST_VALUES = {
   memberId: "test_member_123",
   status: "pending",  // 其他值: "processing", "completed", "cancelled"
-  startDate: "2025-01-01",
-  endDate: "2025-01-31",
+  minCreatedAt: "2025-01-01",
+  maxCreatedAt: "2025-01-31",
   minAmount: 100,
   maxAmount: 1000,
 };
@@ -85,27 +85,27 @@ const validQueryCombinations = [
   // ========================================
   {
     name: "會員ID + 開始日期，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 開始日期，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "會員ID + 結束日期，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 結束日期，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "會員ID + 日期範圍，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 日期範圍，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
 
   // ========================================
@@ -143,27 +143,27 @@ const validQueryCombinations = [
   // ========================================
   {
     name: "狀態 + 開始日期，按時間升序",
-    params: { status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "asc" },
+    params: { status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "狀態 + 開始日期，按時間降序",
-    params: { status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "desc" },
+    params: { status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "狀態 + 結束日期，按時間升序",
-    params: { status: TEST_VALUES.status, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { status: TEST_VALUES.status, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "狀態 + 結束日期，按時間降序",
-    params: { status: TEST_VALUES.status, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { status: TEST_VALUES.status, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "狀態 + 日期範圍，按時間升序",
-    params: { status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "狀態 + 日期範圍，按時間降序",
-    params: { status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
 
   // ========================================
@@ -201,27 +201,27 @@ const validQueryCombinations = [
   // ========================================
   {
     name: "會員ID + 狀態 + 開始日期，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 狀態 + 開始日期，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "會員ID + 狀態 + 結束日期，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 狀態 + 結束日期，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
   {
     name: "會員ID + 狀態 + 日期範圍，按時間升序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "asc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "asc" },
   },
   {
     name: "會員ID + 狀態 + 日期範圍，按時間降序",
-    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, startDate: TEST_VALUES.startDate, endDate: TEST_VALUES.endDate, orderBy: "createdAt", order: "desc" },
+    params: { memberId: TEST_VALUES.memberId, status: TEST_VALUES.status, minCreatedAt: TEST_VALUES.minCreatedAt, maxCreatedAt: TEST_VALUES.maxCreatedAt, orderBy: "createdAt", order: "desc" },
   },
 ];
 
@@ -234,7 +234,7 @@ const validQueryCombinations = [
  *    - 單一欄位排序 → Firestore 自動索引
  *
  * ❌ 日期範圍 + 同欄位排序（6 種）
- *    - createdAt >= startDate + orderBy createdAt → Firestore 自動索引
+ *    - createdAt >= minCreatedAt + orderBy createdAt → Firestore 自動索引
  *
  * ❌ 金額範圍 + 同欄位排序（6 種）
  *    - totalAmount >= minAmount + orderBy totalAmount → Firestore 自動索引

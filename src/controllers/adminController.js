@@ -11,8 +11,8 @@ class AdminController {
    * Query 參數：
    * - limit: 每頁數量（預設 20，最大 100）
    * - cursor: 分頁游標（文檔 ID）
-   * - startDate: 建立日期起始（ISO 8601 格式）
-   * - endDate: 建立日期結束（ISO 8601 格式）
+   * - minCreatedAt: 建立日期起始（ISO 8601 格式）
+   * - maxCreatedAt: 建立日期結束（ISO 8601 格式）
    * - order: 排序方向（asc | desc，預設 desc）
    * - includeDeleted: 是否包含已軟刪除的記錄（預設 false）
    * - isActive: 篩選啟用狀態（true | false | all，預設 all）
@@ -20,7 +20,7 @@ class AdminController {
   getAdmins = async (req, res) => {
     const collection = db.collection(COLLECTION_NAME);
 
-    const { limit, cursor, order, orderBy, startDate, endDate, isActive, includeDeleted } = req.query;
+    const { limit, cursor, order, orderBy, minCreatedAt, maxCreatedAt, isActive, includeDeleted } = req.query;
 
     // 建立基礎查詢
     let query = collection;
@@ -38,11 +38,11 @@ class AdminController {
     }
 
     // 篩選：日期範圍
-    if (startDate) {
-      query = query.where("createdAt", ">=", Timestamp.fromDate(startDate));
+    if (minCreatedAt) {
+      query = query.where("createdAt", ">=", Timestamp.fromDate(minCreatedAt));
     }
-    if (endDate) {
-      query = query.where("createdAt", "<=", Timestamp.fromDate(endDate));
+    if (maxCreatedAt) {
+      query = query.where("createdAt", "<=", Timestamp.fromDate(maxCreatedAt));
     }
 
     // 排序
