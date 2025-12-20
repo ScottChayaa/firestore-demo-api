@@ -34,10 +34,10 @@ router.get(
 // POST /api/admin/orders
 router.post(
   '/',
-  orderValidator.bodyStatus(),
-  orderValidator.bodyTotalAmount(),
-  orderValidator.bodyItems(),
   orderValidator.bodyMemberId(),
+  orderValidator.bodyItems(),
+  orderValidator.bodyTotalAmount(),
+  orderValidator.bodyStatus(),
   validate,
   orderController.createOrder
 );
@@ -47,11 +47,8 @@ router.post(
 router.put(
   '/:id',
   orderValidator.bodyStatus(),
-  orderValidator.bodyTotalAmount(),
-  orderValidator.bodyItems(),
-  orderValidator.bodyMemberId(),
   validate,
-  orderController.updateOrder
+  orderController.updateOrderStatus
 );
 
 // 刪除訂單

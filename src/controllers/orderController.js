@@ -122,7 +122,7 @@ class OrderController {
       memberId,
       orderNumber,
       items,
-      totalAmount: parseFloat(totalAmount),
+      totalAmount,
       status,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
@@ -137,19 +137,17 @@ class OrderController {
   };
 
   /**
-   * 更新訂單
+   * 更新訂單狀態
    *
    * Path 參數：
    * - id: 訂單 ID
    *
    * Body 參數（可選）：
    * - status: 訂單狀態
-   * - items: 訂單項目
-   * - totalAmount: 總金額
    */
-  updateOrder = async (req, res) => {
+  updateOrderStatus = async (req, res) => {
     const { id } = req.params;
-    const { status, items, totalAmount } = req.body;
+    const { status } = req.body;
 
     // 檢查訂單是否存在
     const orderRef = db.collection(COLLECTION_NAME).doc(id);
@@ -161,27 +159,9 @@ class OrderController {
 
     // 建立更新資料
     const updateData = {
+      status,
       updatedAt: FieldValue.serverTimestamp(),
     };
-
-    if (status !== undefined) {
-      const validStatuses = ["pending", "processing", "completed", "cancelled"];
-      if (!validStatuses.includes(status)) {
-        throw new ValidationError(`status 必須是以下其中之一: ${validStatuses.join(", ")}`);
-      }
-      updateData.status = status;
-    }
-
-    if (items !== undefined) {
-      if (!Array.isArray(items)) {
-        throw new ValidationError("items 必須是陣列");
-      }
-      updateData.items = items;
-    }
-
-    if (totalAmount !== undefined) {
-      updateData.totalAmount = parseFloat(totalAmount);
-    }
 
     await orderRef.update(updateData);
 

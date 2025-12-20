@@ -84,7 +84,7 @@ class MemberController {
    */
   updateMember = async (req, res) => {
     const { id } = req.params;
-    const { name, phone, email } = req.body;
+    const { name, phone } = req.body;
 
     // 檢查會員是否存在
     const memberRef = db.collection(COLLECTION_NAME).doc(id);
@@ -96,11 +96,10 @@ class MemberController {
 
     // 建立更新資料（只更新有提供的欄位）
     const updateData = {
+      name: name,
+      phone: phone,
       updatedAt: FieldValue.serverTimestamp(),
     };
-
-    if (name !== undefined) updateData.name = name;
-    if (phone !== undefined) updateData.phone = phone;
 
     await memberRef.update(updateData);
 
@@ -274,7 +273,7 @@ class MemberController {
 
     // 3. 在 Firestore 建立會員文檔
     const memberData = {
-      email: userRecord.email,
+      email: userRecord.email, // 如果有使用 auth email 機制, 就會有值 (可能沒有)
       name,
       phone,
       isActive: true,

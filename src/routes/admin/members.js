@@ -26,9 +26,10 @@ router.get(
 // POST /api/admin/members
 router.post(
   '/',
-  memberValidator.bodyUid(),
+  memberValidator.bodyEmail(),
   memberValidator.bodyPassword(),
   memberValidator.bodyName(),
+  memberValidator.bodyPhone(),
   validate,
   memberController.createMember
 );
@@ -39,6 +40,7 @@ router.post(
   '/create-role',
   memberValidator.bodyUid(),
   memberValidator.bodyName(),
+  memberValidator.bodyPhone(),
   validate,
   memberController.createMemberRole
 );
@@ -50,11 +52,11 @@ router.get(
   memberController.getMemberById
 );
 
-// 更新會員
+// 更新會員基本資料
 // PUT /api/admin/members/:id
 router.put(
   '/:id',
-  memberValidator.bodyPassword(),
+  memberValidator.bodyName(),
   memberValidator.bodyPhone(),
   validate,
   memberController.updateMember

@@ -95,15 +95,15 @@ logger.info({ databaseId }, 'Firestore Database initialized');
  *
  * 重要：
  * - gRPC 連線是 Database 層級，不是 Collection 層級
- * - 使用 listCollections() 建立連線（僅 1 次讀取操作）
+ * - 使用 limit(0).get() 建立連線（0 次讀取操作）
  * - 後續所有 collections 的查詢會自動複用此連線
  * - 無法消除 Cloud Run 容器冷啟動（1-3 秒）
  * - 僅在 ENABLE_FIRESTORE_WARMUP=true 時執行
  *
  * 技術細節：
- * - listCollections() 成本：1 read（無論多少 collections）
- * - 替代方案：limit(0).get() 0 reads, limit(1).get() 1 read + 資料
- * - 選用 listCollections() 平衡成本與可靠性
+ * - limit(0).get() 成本：0 reads（最省成本）
+ * - 替代方案：listCollections() 1 read（慢 10~15秒），limit(1).get() 1 read
+ * - 選用 limit(0).get() 兼顧速度與成本
  */
 async function warmupFirestore() {
   // 檢查是否啟用
@@ -118,21 +118,23 @@ async function warmupFirestore() {
   const startTime = Date.now();
 
   try {
-    // 使用 listCollections() 建立 gRPC 連線（最輕量級方法）
+    // 使用 limit(0).get() 建立 gRPC 連線（最快且零成本）
     // 此操作會觸發 gRPC Channel Pool 初始化
-    // 成本：1 次讀取操作（無論資料庫有多少 collections）
+    // 成本：0 次讀取操作
     //
-    // 替代方案比較：
-    // - listCollections(): 1 read, 可靠建立連線
-    // - limit(0).get(): 0 reads, 但可能不建立完整連線
-    // - limit(1).get(): 1 read + 返回資料, 驗證連線但略重
-    await db.listCollections();
+    // 為什麼選擇 products collection：
+    // - 公開集合，不涉及敏感資料
+    // - 即使沒有資料也能建立連線
+    // - limit(0) 不返回任何資料，純粹建立連線
+    await db.collection('products').limit(1).get();
 
     const duration = Date.now() - startTime;
 
     logger.info({
       duration: `${duration}ms`,
-      method: 'listCollections()',
+      method: 'limit(1).get()',
+      collection: 'products',
+      cost: '1 reads',
       note: 'All collections will reuse this connection'
     }, '✅ Firestore warmup completed');
   } catch (error) {
