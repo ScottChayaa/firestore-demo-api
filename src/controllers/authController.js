@@ -361,7 +361,7 @@ class AuthController {
       passwordResetSentAt: FieldValue.serverTimestamp(),
     });
 
-    req.log.info({ uid, email }, "密碼重設郵件已發送");
+    req.log.info({ uid, email, resetLink }, "密碼重設郵件已發送");
 
     res.json({
       message: "密碼重設郵件已發送，請檢查您的信箱",
