@@ -29,7 +29,17 @@ class MemberValidator {
    * 驗證更新欄位: 電話
    */
   bodyPhone = () => body("phone").optional();
-    
+
+  /**
+   * 驗證更新欄位: 新密碼
+   */
+  bodyNewPassword = () =>
+    body("newPassword")
+      .notEmpty()
+      .withMessage("newPassword 為必填欄位")
+      .isLength({ min: 6 })
+      .withMessage("newPassword 至少需要 6 個字元");
+
 }
 
 var memberValidator = new MemberValidator();

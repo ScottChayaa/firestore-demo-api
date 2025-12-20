@@ -337,6 +337,50 @@ class MemberController {
       data: mapDocumentToJSON(restoredMember),
     });
   };
+
+  /**
+   * 更新會員密碼
+   *
+   * Path 參數：
+   * - id: 會員 ID（UID）
+   *
+   * Body 參數：
+   * - newPassword: 新密碼（必填，至少 6 字元）
+   */
+  updateMemberPassword = async (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    // 檢查會員是否存在
+    const memberRef = db.collection(COLLECTION_NAME).doc(id);
+    const member = await memberRef.get();
+
+    if (!member.exists) {
+      throw new NotFoundError(`找不到會員 ID: ${id}`);
+    }
+
+    const memberData = member.data();
+
+    // 檢查是否已被軟刪除
+    if (memberData.deletedAt) {
+      throw new BadError("無法更新已刪除的會員密碼");
+    }
+
+    // 更新 Firebase Auth 密碼
+    await auth.updateUser(id, { password: newPassword });
+
+    // 更新 Firestore updatedAt 時間戳
+    await memberRef.update({
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id }, "會員密碼已更新");
+
+    res.json({
+      id: id,
+      message: "會員密碼已更新",
+    });
+  };
 }
 
 // 導出實例

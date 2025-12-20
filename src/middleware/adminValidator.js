@@ -24,7 +24,17 @@ class AdminValidator {
    * 驗證更新欄位: 密碼
    */
   bodyPassword = () => body("password").isLength({ min: 6 }).withMessage('password 至少需要 6 個字元');
-  
+
+  /**
+   * 驗證更新欄位: 新密碼
+   */
+  bodyNewPassword = () =>
+    body("newPassword")
+      .notEmpty()
+      .withMessage("newPassword 為必填欄位")
+      .isLength({ min: 6 })
+      .withMessage("newPassword 至少需要 6 個字元");
+
 }
 
 var adminValidator = new AdminValidator();

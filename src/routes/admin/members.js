@@ -62,6 +62,15 @@ router.put(
   memberController.updateMember
 );
 
+// 更新會員密碼
+// PATCH /api/admin/members/:id/password
+router.patch(
+  '/:id/password',
+  memberValidator.bodyNewPassword(),
+  validate,
+  memberController.updateMemberPassword
+);
+
 // 刪除會員（軟刪除）
 // DELETE /api/admin/members/:id
 router.delete(

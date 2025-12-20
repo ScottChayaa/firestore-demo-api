@@ -339,6 +339,50 @@ class AdminController {
       data: mapDocumentToJSON(restoredAdmin),
     });
   };
+
+  /**
+   * 更新管理員密碼
+   *
+   * Path 參數：
+   * - id: 管理員 ID（UID）
+   *
+   * Body 參數：
+   * - newPassword: 新密碼（必填，至少 6 字元）
+   */
+  updateAdminPassword = async (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    // 檢查管理員是否存在
+    const adminRef = db.collection(COLLECTION_NAME).doc(id);
+    const admin = await adminRef.get();
+
+    if (!admin.exists) {
+      throw new NotFoundError(`找不到管理員 ID: ${id}`);
+    }
+
+    const adminData = admin.data();
+
+    // 檢查是否已被軟刪除
+    if (adminData.deletedAt) {
+      throw new BadError("無法更新已刪除的管理員密碼");
+    }
+
+    // 更新 Firebase Auth 密碼
+    await auth.updateUser(id, { password: newPassword });
+
+    // 更新 Firestore updatedAt 時間戳
+    await adminRef.update({
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid: id }, "管理員密碼已更新");
+
+    res.json({
+      id: id,
+      message: "管理員密碼已更新",
+    });
+  };
 }
 
 // 導出實例

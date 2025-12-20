@@ -56,6 +56,15 @@ router.put(
   adminController.updateAdmin
 );
 
+// 更新管理員密碼
+// PATCH /api/admin/admins/:id/password
+router.patch(
+  '/:id/password',
+  adminValidator.bodyNewPassword(),
+  validate,
+  adminController.updateAdminPassword
+);
+
 // 刪除管理員（軟刪除）
 // DELETE /api/admin/admins/:id
 router.delete('/:id', adminController.deleteAdmin);
