@@ -53,4 +53,15 @@ router.post(
   authController.adminSignInWithPassword
 );
 
+// 會員忘記密碼（發送密碼重設 email）
+// POST /api/auth/forgot-password
+router.post(
+  '/forgot-password',
+  [
+    bodyEmailValidator(),
+    validate,
+  ],
+  authController.forgotPassword
+);
+
 module.exports = router;
