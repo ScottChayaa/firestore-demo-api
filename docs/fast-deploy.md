@@ -23,14 +23,15 @@ gcloud config set project liang-dev
 gcloud config configurations activate default
 
 # 建立映像
-docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.4 .
+docker build -t asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.5 .
 
 # 推送映像到 Container Registry
-docker push asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.4
+gcloud auth configure-docker asia-east1-docker.pkg.dev      # 設定 Docker 對 Google Artifact Registry 的登入憑證
+docker push asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.5
 
 # 部署到 Cloud Run（包含完整環境變數）
 gcloud run deploy firestore-demo-api \
-  --image asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.4 \
+  --image asia-east1-docker.pkg.dev/liang-dev/my-docker/firestore-demo-api:0.5 \
   --platform managed \
   --region asia-east1 \
   --allow-unauthenticated \
