@@ -367,6 +367,95 @@ class AuthController {
       message: "密碼重設郵件已發送，請檢查您的信箱",
     });
   };
+
+  /**
+   * 會員忘記密碼（使用 Firebase REST API 發送郵件）
+   *
+   * Body 參數：
+   * - email: Email（必填）
+   *
+   * 流程：
+   * 1. 查詢 email 是否為會員
+   * 2. 檢查頻率限制（2 分鐘內不可重複發送）
+   * 3. 使用 Firebase REST API 發送密碼重設郵件
+   * 4. 更新最後發送時間
+   */
+  forgotPasswordWithEmail = async (req, res) => {
+    const { email } = req.body;
+
+    // 取得 Firebase Web API Key
+    const apiKey = process.env.FIREBASE_WEB_API_KEY;
+    if (!apiKey) {
+      throw new AppError(500, "伺服器設定錯誤：缺少 FIREBASE_WEB_API_KEY");
+    }
+
+    // 1. 查詢會員（by email）
+    const membersRef = db.collection("members");
+    const snapshot = await membersRef.where("email", "==", email).limit(1).get();
+
+    if (snapshot.empty) {
+      throw new NotFoundError("找不到該 email 的會員帳號");
+    }
+
+    const memberDoc = snapshot.docs[0];
+    const memberData = memberDoc.data();
+    const uid = memberDoc.id;
+
+    // 2. 頻率限制檢查（2 分鐘）
+    if (memberData.passwordResetSentAt) {
+      const lastSent = memberData.passwordResetSentAt.toDate();
+      const now = new Date();
+      const diffMinutes = (now - lastSent) / 1000 / 60;
+
+      if (diffMinutes < 2) {
+        const remainingSeconds = Math.ceil((2 - diffMinutes) * 60);
+        throw new TooManyRequestsError(
+          `請求過於頻繁，請在 ${remainingSeconds} 秒後再試`
+        );
+      }
+    }
+
+    // 3. 使用 Firebase REST API 發送密碼重設郵件
+    try {
+      await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`,
+        {
+          requestType: "PASSWORD_RESET",
+          email: email,
+        }
+      );
+    } catch (error) {
+      // Firebase REST API 錯誤處理
+      if (error.response && error.response.data) {
+        const errorCode = error.response.data.error.message;
+
+        if (errorCode === "EMAIL_NOT_FOUND") {
+          throw new NotFoundError("找不到該 email 的會員帳號");
+        } else if (errorCode === "INVALID_EMAIL") {
+          throw new BadError("Email 格式不正確");
+        } else if (errorCode === "USER_DISABLED") {
+          throw new ForbiddenError("此帳號已被停用");
+        } else if (errorCode === "RESET_PASSWORD_EXCEED_LIMIT") {
+          throw new TooManyRequestsError("密碼重設請求次數過多，請稍後再試");
+        } else {
+          req.log.error({ errorCode, email }, "Firebase 發送密碼重設郵件失敗");
+          throw new BadError(`發送密碼重設郵件失敗: ${errorCode}`);
+        }
+      }
+      throw new AppError(500, "密碼重設服務異常，請稍後再試");
+    }
+
+    // 4. 更新最後發送時間
+    await membersRef.doc(uid).update({
+      passwordResetSentAt: FieldValue.serverTimestamp(),
+    });
+
+    req.log.info({ uid, email }, "密碼重設郵件已發送（使用 REST API）");
+
+    res.json({
+      message: "密碼重設郵件已發送，請檢查您的信箱",
+    });
+  };
 }
 
 // 導出實例
