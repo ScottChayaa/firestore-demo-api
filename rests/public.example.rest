@@ -60,39 +60,3 @@ Content-Type: {{contentType}}
 ### ============================================
 GET {{baseUrl}}/api/products/pzjNPjsFrmsagdO750lG
 Content-Type: {{contentType}}
-
-### ============================================
-### 會員忘記密碼（新 API - 發送郵件）
-### ============================================
-POST {{baseUrl}}/api/auth/forgot-password-new
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com"
-}
-
-### 測試會員不存在（新 API）
-POST {{baseUrl}}/api/auth/forgot-password-new
-Content-Type: {{contentType}}
-
-{
-  "email": "nonexistent@example.com"
-}
-
-### 測試頻率限制（需在 2 分鐘內重複執行，新 API）
-POST {{baseUrl}}/api/auth/forgot-password-new
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com"
-}
-
-### ============================================
-### 會員忘記密碼（舊 API - 僅生成連結）
-### ============================================
-POST {{baseUrl}}/api/auth/forgot-password
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com"
-}

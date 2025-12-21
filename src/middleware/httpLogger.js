@@ -15,10 +15,22 @@ const crypto = require("crypto");
 const httpLogger = pinoHttp({
   logger,
 
-  // 自動記錄每個請求的資訊
+  /**
+   * 自動記錄每個請求的資訊
+   */
   autoLogging: true,
 
-  // 生成唯一的 Request ID
+  /**
+   * pino 標準序列化器, 預設 true
+   *  - true : 已序列化的對象（pino 標準序列化器處理過） | ❌ 沒有包含 req.body, 需要另外透過 req.raw.body 取得
+   *  - false : 原始的 Express req 對象                | ✅ 有包含 req.body
+   *  - pino 標準序列化器不包含 body（出於安全考量，避免記錄密碼、個資等敏感資訊）
+   */
+  wrapSerializers: true,
+
+  /**
+   * 生成唯一的 Request ID
+   */
   genReqId: function (req, res) {
     // 優先使用上游傳遞的 request ID（如 Load Balancer、API Gateway）
     const existingID = req.id ?? req.headers["x-request-id"];
@@ -45,7 +57,9 @@ const httpLogger = pinoHttp({
     return props;
   },
 
-  // 根據狀態碼決定日誌等級
+  /**
+   * 根據狀態碼決定日誌等級
+   */
   customLogLevel: function (req, res, err) {
     if (res.statusCode >= 400 && res.statusCode < 500) {
       return "warn"; // 4xx 客戶端錯誤 → WARN
@@ -77,13 +91,8 @@ const httpLogger = pinoHttp({
     const extras = {};
 
     // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
-    if (process.env.NODE_ENV !== "production" && req.body && Object.keys(req.body).length > 0) {
-      extras.reqBody = req.body;
-    }
-
-    // 記錄 response body（從 res.locals 取得，由 responseBodyLogger 設定）
-    if (res.locals.responseBody !== undefined) {
-      extras.resBody = res.locals.responseBody;
+    if (process.env.NODE_ENV !== "production") {
+      // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
     }
 
     return {
@@ -97,13 +106,8 @@ const httpLogger = pinoHttp({
     const extras = {};
 
     // 非正式環境會記錄 req.body（幫助除錯錯誤請求）
-    if (process.env.NODE_ENV !== "production" && req.body && Object.keys(req.body).length > 0) {
-      extras.reqBody = req.body;
-    }
-
-    // 錯誤時也記錄 response body
-    if (res.locals.responseBody !== undefined) {
-      extras.resBody = res.locals.responseBody;
+    if (process.env.NODE_ENV !== "production") {
+      // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
     }
 
     return {
@@ -117,8 +121,6 @@ const httpLogger = pinoHttp({
       const logData = {
         method: req.method,
         url: req.url,
-        query: req.query,
-        params: req.params,
         headers: {
           // 簡化 hearders 的 log 顯示
           "user-agent": req.headers["user-agent"],
@@ -128,6 +130,14 @@ const httpLogger = pinoHttp({
         remoteAddress: req.remoteAddress,
         remotePort: req.remotePort,
       };
+
+      logData.query = req.query;
+      logData.params = req.params;
+      
+      // 透過 req.raw 訪問原始 Express req 對象
+      if (process.env.NODE_ENV !== "production") {
+        logData.body = req.raw.body;
+      }
 
       return logData;
     },

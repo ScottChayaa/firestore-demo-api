@@ -394,7 +394,11 @@ class AuthController {
     const snapshot = await membersRef.where("email", "==", email).limit(1).get();
 
     if (snapshot.empty) {
-      throw new NotFoundError("找不到該 email 的會員帳號");
+      //throw new NotFoundError("找不到該忘記密碼的會員 email");
+      req.log.error("找不到忘記密碼的會員 email");
+      return res.json({
+        message: "密碼重設郵件已發送，請檢查您的信箱", // 隱藏找不到 email 錯誤, 避免有心人士得到正確的會員 email 帳號
+      });
     }
 
     const memberDoc = snapshot.docs[0];

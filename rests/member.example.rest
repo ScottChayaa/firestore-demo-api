@@ -14,6 +14,27 @@ Content-Type: {{contentType}}
 }
 
 ### ============================================
+### 會員忘記密碼 (僅產生忘記密碼連結, 有 log)
+### ============================================
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "apple@example.com"
+}
+
+### ============================================
+### 會員忘記密碼（新 API - 會發送郵件）
+###  - 有頻率限制（2 分鐘內）
+### ============================================
+POST {{baseUrl}}/api/auth/forgot-password-new
+Content-Type: {{contentType}}
+
+{
+  "email": "apple@example.com"
+}
+
+### ============================================
 ### 會員個人資料 - 取得自己的資料
 ### ============================================
 GET {{baseUrl}}/api/member
