@@ -383,10 +383,8 @@ class MemberController {
   };
 
   /**
-   * 產生重設密碼連結, 給 member 自己改
+   * 產生重設密碼連結, 提供給 member 自己改
    *
-   * Body 參數：
-   * - email: Email（必填）
    */
   generatePasswordResetLink = async (req, res) => {
     const { id } = req.params;
@@ -402,15 +400,12 @@ class MemberController {
     const memberData = member.data();
 
     const email = memberData.email;
-    const uid = memberData.id;
-
-    // 3. 生成密碼重設連結
     const resetLink = await auth.generatePasswordResetLink(email);
 
-    req.log.info({ uid, email, resetLink }, "生成密碼重設連結");
+    req.log.info({ id, email, resetLink }, "產生重設密碼連結");
 
     res.json({
-      message: "生成密碼重設連結",
+      message: "產生重設密碼連結",
     });
   };
 }

@@ -79,6 +79,13 @@ Authorization: {{adminToken}}
 }
 
 ### ============================================
+### 會員管理 - 產生會員重設密碼連結
+### ============================================
+POST {{baseUrl}}/api/admin/members/AaUwhUf5eURpoqXO8BASafeGI4p1/generate-password-reset-link
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+### ============================================
 ### 會員管理 - 刪除會員（軟刪除）
 ### ============================================
 DELETE {{baseUrl}}/api/admin/members/AaUwhUf5eURpoqXO8BASafeGI4p1

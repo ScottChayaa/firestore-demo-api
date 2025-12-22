@@ -87,34 +87,34 @@ const httpLogger = pinoHttp({
   },
 
   // 自訂成功請求的額外日誌資料
-  customSuccessObject: function (req, res, loggableObject) {
-    const extras = {};
+  // customSuccessObject: function (req, res, loggableObject) {
+  //   const extras = {};
 
-    // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
-    if (process.env.NODE_ENV !== "production") {
-      // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
-    }
+  //   // 在開發環境記錄 req.body（此時 body 已被 express.json() 解析）
+  //   if (process.env.NODE_ENV !== "production") {
+  //     // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
+  //   }
 
-    return {
-      ...loggableObject,
-      ...extras,
-    };
-  },
+  //   return {
+  //     ...loggableObject,
+  //     ...extras,
+  //   };
+  // },
 
   // 自訂錯誤請求的額外日誌資料
-  customErrorObject: function (req, res, err, loggableObject) {
-    const extras = {};
+  // customErrorObject: function (req, res, err, loggableObject) {
+  //   const extras = {};
 
-    // 非正式環境會記錄 req.body（幫助除錯錯誤請求）
-    if (process.env.NODE_ENV !== "production") {
-      // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
-    }
+  //   // 非正式環境會記錄 req.body（幫助除錯錯誤請求）
+  //   if (process.env.NODE_ENV !== "production") {
+  //     // extras.reqBody = req.body; // serializers.req 已經有針對 req.log 進行優化
+  //   }
 
-    return {
-      ...loggableObject,
-      ...extras,
-    };
-  },
+  //   return {
+  //     ...loggableObject,
+  //     ...extras,
+  //   };
+  // },
 
   serializers: {
     req: (req) => {
