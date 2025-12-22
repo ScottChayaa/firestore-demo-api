@@ -58,4 +58,4 @@ missing-indexes.json
 missing-*-indexes.json
 
 # Other
-tmp/*.json
+tmp/
