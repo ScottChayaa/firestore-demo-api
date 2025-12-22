@@ -36,14 +36,6 @@ router.post(
   authController.adminSignInWithPassword
 );
 
-// 會員忘記密碼（發送密碼重設 email）
-// POST /api/auth/forgot-password
-router.post(
-  "/forgot-password",
-  [memberValidator.bodyEmail(), validate],
-  authController.forgotPassword
-);
-
 // 會員忘記密碼（使用 Firebase REST API 發送郵件）
 // POST /api/auth/forgot-password-new
 router.post(

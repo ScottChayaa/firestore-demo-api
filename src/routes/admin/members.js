@@ -63,7 +63,7 @@ router.put(
   memberController.updateMember
 );
 
-// 更新會員密碼
+// 更新會員密碼 (管理員直接更新)
 // PATCH /api/admin/members/:id/password
 router.patch(
   "/:id/password",
@@ -82,5 +82,12 @@ router.patch("/:id/toggle-status", memberController.toggleMemberStatus);
 // 恢復已軟刪除的會員
 // POST /api/admin/members/:id/restore
 router.post("/:id/restore", memberController.restoreMember);
+
+// 產生會員重設密碼連結
+// POST /api/admin/members/:id/generate-password-reset-link
+router.post(
+  "/:id/generate-password-reset-link",
+  memberController.generatePasswordResetLink
+);
 
 module.exports = router;

@@ -313,62 +313,6 @@ class AuthController {
   };
 
   /**
-   * 會員忘記密碼（發送密碼重設 email）
-   *
-   * Body 參數：
-   * - email: Email（必填）
-   *
-   * 流程：
-   * 1. 查詢 email 是否為會員
-   * 2. 檢查頻率限制（2 分鐘內不可重複發送）
-   * 3. 生成密碼重設連結（Firebase 自動發送 email）
-   * 4. 更新最後發送時間
-   */
-  forgotPassword = async (req, res) => {
-    const { email } = req.body;
-
-    // 1. 查詢會員（by email）
-    const membersRef = db.collection("members");
-    const snapshot = await membersRef.where("email", "==", email).limit(1).get();
-
-    if (snapshot.empty) {
-      throw new NotFoundError("找不到該 email 的會員帳號");
-    }
-
-    const memberDoc = snapshot.docs[0];
-    const memberData = memberDoc.data();
-    const uid = memberDoc.id;
-
-    // 2. 頻率限制檢查（2 分鐘）
-    if (memberData.passwordResetSentAt) {
-      const lastSent = memberData.passwordResetSentAt.toDate();
-      const now = new Date();
-      const diffMinutes = (now - lastSent) / 1000 / 60;
-
-      if (diffMinutes < 2) {
-        const remainingSeconds = Math.ceil((2 - diffMinutes) * 60);
-        throw new TooManyRequestsError(
-          `請求過於頻繁，請在 ${remainingSeconds} 秒後再試`
-        );
-      }
-    }
-
-    // 3. 生成密碼重設連結（Firebase 自動發送 email）
-    const resetLink = await auth.generatePasswordResetLink(email);
-
-    // 4. 更新最後發送時間
-    await membersRef.doc(uid).update({
-      passwordResetSentAt: FieldValue.serverTimestamp(),
-    });
-
-    req.log.info({ uid, email, resetLink }, "密碼重設郵件已發送");
-
-    res.json({
-      message: "密碼重設郵件已發送，請檢查您的信箱",
-    });
-  };
-
-  /**
    * 會員忘記密碼（使用 Firebase REST API 發送郵件）
    *
    * Body 參數：

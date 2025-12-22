@@ -381,6 +381,38 @@ class MemberController {
       message: "會員密碼已更新",
     });
   };
+
+  /**
+   * 產生重設密碼連結, 給 member 自己改
+   *
+   * Body 參數：
+   * - email: Email（必填）
+   */
+  generatePasswordResetLink = async (req, res) => {
+    const { id } = req.params;
+
+    // 檢查會員是否存在
+    const memberRef = db.collection(COLLECTION_NAME).doc(id);
+    const member = await memberRef.get();
+    
+    if (!member.exists) {
+      throw new NotFoundError(`找不到會員 ID: ${id}`);
+    }
+
+    const memberData = member.data();
+
+    const email = memberData.email;
+    const uid = memberData.id;
+
+    // 3. 生成密碼重設連結
+    const resetLink = await auth.generatePasswordResetLink(email);
+
+    req.log.info({ uid, email, resetLink }, "生成密碼重設連結");
+
+    res.json({
+      message: "生成密碼重設連結",
+    });
+  };
 }
 
 // 導出實例
