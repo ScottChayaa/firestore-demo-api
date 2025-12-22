@@ -345,11 +345,11 @@ class MemberController {
    * - id: 會員 ID（UID）
    *
    * Body 參數：
-   * - newPassword: 新密碼（必填，至少 6 字元）
+   * - password: 新密碼
    */
   updateMemberPassword = async (req, res) => {
     const { id } = req.params;
-    const { newPassword } = req.body;
+    const { password } = req.body;
 
     // 檢查會員是否存在
     const memberRef = db.collection(COLLECTION_NAME).doc(id);
@@ -367,7 +367,7 @@ class MemberController {
     }
 
     // 更新 Firebase Auth 密碼
-    await auth.updateUser(id, { password: newPassword });
+    await auth.updateUser(id, { password: password });
 
     // 更新 Firestore updatedAt 時間戳
     await memberRef.update({

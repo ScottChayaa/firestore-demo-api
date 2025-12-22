@@ -347,11 +347,11 @@ class AdminController {
    * - id: 管理員 ID（UID）
    *
    * Body 參數：
-   * - newPassword: 新密碼（必填，至少 6 字元）
+   * - password: 新密碼
    */
   updateAdminPassword = async (req, res) => {
     const { id } = req.params;
-    const { newPassword } = req.body;
+    const { password } = req.body;
 
     // 檢查管理員是否存在
     const adminRef = db.collection(COLLECTION_NAME).doc(id);
@@ -369,7 +369,7 @@ class AdminController {
     }
 
     // 更新 Firebase Auth 密碼
-    await auth.updateUser(id, { password: newPassword });
+    await auth.updateUser(id, { password: password });
 
     // 更新 Firestore updatedAt 時間戳
     await adminRef.update({
