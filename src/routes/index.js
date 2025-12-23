@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const mailController = require('@/controllers/mailController');
+const mailValidator = require('@/middleware/mailValidator');
+const { validate } = require('@/middleware/validator');
+const rateLimiter = require('@/middleware/rateLimiter');
 
 /**
  * 公開 API 路由 - 根
@@ -34,5 +38,18 @@ router.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
   });
 });
+
+/**
+ * @route   POST /api/send-email
+ * @desc    发送邮件（公开 API，有频率限制）
+ * @access  Public
+ */
+router.post(
+  '/send-email',
+  rateLimiter(10, 2), // 每 2 分钟最多 10 次请求
+  mailValidator.sendEmail(),
+  validate,
+  mailController.sendEmail
+);
 
 module.exports = router;
