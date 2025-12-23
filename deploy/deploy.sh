@@ -162,20 +162,20 @@ update_image_version() {
   done
 
   # 更新 package.json 中的 version
-  if [ ! -f "package.json" ]; then
-    echo -e "${YELLOW}⚠ package.json 不存在，跳過${NC}"
-  else
-    # JSON 格式：  "version": "版本號",
-    # 使用 sed 替換（保留縮排和逗號）
-    if sed --version &>/dev/null; then
-      # GNU sed (Linux)
-      sed -i "s/^  \"version\":.*$/  \"version\": \"$VERSION\",/" "package.json"
-    else
-      # BSD sed (macOS)
-      sed -i '' "s/^  \"version\":.*$/  \"version\": \"$VERSION\",/" "package.json"
-    fi
-    echo -e "${GREEN}✓ 已更新：package.json -> version=$VERSION${NC}"
-  fi
+#   if [ ! -f "package.json" ]; then
+#     echo -e "${YELLOW}⚠ package.json 不存在，跳過${NC}"
+#   else
+#     # JSON 格式：  "version": "版本號",
+#     # 使用 sed 替換（保留縮排和逗號）
+#     if sed --version &>/dev/null; then
+#       # GNU sed (Linux)
+#       sed -i "s/^  \"version\":.*$/  \"version\": \"$VERSION\",/" "package.json"
+#     else
+#       # BSD sed (macOS)
+#       sed -i '' "s/^  \"version\":.*$/  \"version\": \"$VERSION\",/" "package.json"
+#     fi
+#     echo -e "${GREEN}✓ 已更新：package.json -> version=$VERSION${NC}"
+#   fi
 
   echo -e "${GREEN}✓ 所有版本號已同步更新${NC}"
 }

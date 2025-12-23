@@ -1,6 +1,5 @@
 {
   "name": "firestore-demo-api",
-  "version": "1.0.0",
   "description": "Node.js + Express + Firestore 會員訂單查詢系統 - 支援公開與私有 API",
   "main": "index.js",
   "scripts": {
