@@ -3,17 +3,17 @@ const logger = require("@/config/logger");
 
 class MailService {
   /**
-   * 发送 HTML 邮件
-   * @param {Object} options - 邮件选项
-   * @param {string} options.to - 收件人邮箱
-   * @param {string} options.subject - 邮件主旨
-   * @param {string} options.html - HTML 内容
-   * @param {string} [options.text] - 纯文本内容（可选）
-   * @returns {Promise<Object>} 发送结果
+   * 發送 HTML 郵件
+   * @param {Object} options - 郵件選項
+   * @param {string} options.to - 收件人信箱
+   * @param {string} options.subject - 郵件主旨
+   * @param {string} options.html - HTML 內容
+   * @param {string} [options.text] - 純文字內容（可選）
+   * @returns {Promise<Object>} 發送結果
    */
   async sendMail({ to, subject, html, text }) {
     try {
-      // 邮件选项
+      // 郵件選項
       const mailOptions = {
         from: {
           name: process.env.SMTP_FROM_NAME || "Firestore Demo API",
@@ -22,17 +22,17 @@ class MailService {
         to: to,
         subject: subject,
         html: html,
-        text: text || this.stripHtml(html), // 自动生成纯文本版本
+        text: text || this.stripHtml(html), // 自動生成純文字版本
       };
 
-      // 发送邮件
+      // 發送郵件
       const info = await transporter.sendMail(mailOptions);
 
       logger.info({
         messageId: info.messageId,
         to: to,
         subject: subject,
-      }, "邮件发送成功");
+      }, "郵件發送成功");
 
       return {
         success: true,
@@ -43,16 +43,16 @@ class MailService {
         err: error,
         to: to,
         subject: subject,
-      }, "邮件发送失败");
+      }, "郵件發送失敗");
 
       throw error;
     }
   }
 
   /**
-   * 简单的 HTML 标签移除（生成纯文本版本）
-   * @param {string} html - HTML 内容
-   * @returns {string} 纯文本
+   * 簡單的 HTML 標籤移除（生成純文字版本）
+   * @param {string} html - HTML 內容
+   * @returns {string} 純文字
    */
   stripHtml(html) {
     return html

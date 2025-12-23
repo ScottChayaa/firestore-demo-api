@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const logger = require("./logger");
 
-// 验证必要的环境变量
+// 驗證必要的環境變數
 const requiredEnvVars = [
   "SMTP_HOST",
   "SMTP_PORT",
@@ -12,11 +12,11 @@ const requiredEnvVars = [
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    logger.warn(`环境变量 ${envVar} 未设置，邮件功能将不可用`);
+    logger.warn(`環境變數 ${envVar} 未設置，郵件功能將不可用`);
   }
 }
 
-// 创建 SMTP 传输器
+// 建立 SMTP 傳輸器
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: parseInt(process.env.SMTP_PORT) || 587,

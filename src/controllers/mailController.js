@@ -4,18 +4,18 @@ const { BadError } = require("@/middleware/errorHandler");
 
 class MailController {
   /**
-   * 发送邮件
+   * 發送郵件
    * POST /api/send-email
    */
   sendEmail = async (req, res) => {
     const { to, subject, html } = req.body;
 
-    // 检查 SMTP 配置
+    // 檢查 SMTP 配置
     if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-      throw new BadError("邮件服务未配置，请联系管理员");
+      throw new BadError("郵件服務未配置，請聯絡管理員");
     }
 
-    // 发送邮件
+    // 發送郵件
     const result = await mailService.sendMail({
       to,
       subject,
@@ -26,11 +26,11 @@ class MailController {
       ip: req.ip,
       to: to,
       subject: subject,
-    }, "邮件发送请求成功");
+    }, "郵件發送請求成功");
 
     res.status(200).json({
       success: true,
-      message: "邮件发送成功",
+      message: "郵件發送成功",
       data: {
         messageId: result.messageId,
       },

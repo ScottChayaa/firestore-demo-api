@@ -41,12 +41,12 @@ router.get('/health', (req, res) => {
 
 /**
  * @route   POST /api/send-email
- * @desc    发送邮件（公开 API，有频率限制）
+ * @desc    發送郵件（公開 API，有頻率限制）
  * @access  Public
  */
 router.post(
   '/send-email',
-  rateLimiter(10, 2), // 每 2 分钟最多 10 次请求
+  rateLimiter(10, 2), // 每 2 分鐘最多 10 次請求
   mailValidator.sendEmail(),
   validate,
   mailController.sendEmail
