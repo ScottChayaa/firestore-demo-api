@@ -205,14 +205,14 @@ create_git_tag() {
 
   echo -e "${GREEN}✓ Git tag 建立成功：$VERSION${NC}"
 
-  # 詢問是否推送到遠端
-  read -p "是否推送 tag 到遠端？(y/N): " PUSH_TAG
-  if [[ "$PUSH_TAG" =~ ^[Yy]$ ]]; then
-    git push origin "$VERSION"
-    echo -e "${GREEN}✓ Tag 已推送到遠端${NC}"
-  else
-    echo -e "${YELLOW}⚠ Tag 未推送到遠端（稍後可手動執行：git push origin $VERSION）${NC}"
-  fi
+  # 詢問是否推送 tag 到遠端
+#   read -p "是否推送 tag 到遠端？(y/N): " PUSH_TAG
+#   if [[ "$PUSH_TAG" =~ ^[Yy]$ ]]; then
+#     git push origin "$VERSION"
+#     echo -e "${GREEN}✓ Tag 已推送到遠端${NC}"
+#   else
+#     echo -e "${YELLOW}⚠ Tag 未推送到遠端（稍後可手動執行：git push origin $VERSION）${NC}"
+#   fi
 }
 
 # ========================================
