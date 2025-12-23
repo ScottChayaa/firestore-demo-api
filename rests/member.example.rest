@@ -3,38 +3,6 @@
 @memberToken = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ1YTZjMGMyYjgwMDcxN2EzNGQ1Y2JiYmYzOWI4NGI2NzYxMjgyNjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoi6JiL5p6cIiwibG9naW5BcyI6Im1lbWJlciIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9saWFuZy1kZXYiLCJhdWQiOiJsaWFuZy1kZXYiLCJhdXRoX3RpbWUiOjE3NjQxNDg5NTYsInVzZXJfaWQiOiJ3b09HRkVSbXpTYVhBVHBXMks4dGRYTzNvS3AyIiwic3ViIjoid29PR0ZFUm16U2FYQVRwVzJLOHRkWE8zb0twMiIsImlhdCI6MTc2NDE0ODk1NiwiZXhwIjoxNzY0MTUyNTU2LCJlbWFpbCI6ImFwcGxlQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImFwcGxlQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiY3VzdG9tIn19.gA3h3lCbIHGQ1YGN3u9WLH_XUmZQnfx--vfMehUKK8sk2_rbRYsvv8SzkRWHT5FG09I5y6BUheNgZ61TvVHcetHYcVzrhQPSZ48X2U2O0w3DXQgHiSrLaXeAzyY1Kl7DIDsrrO4Ggp2ZEwuhRZxKltfx7kQkrMidThh1rSv4WyLwhYbCvHg-9bqDZlOE67wI5q3ZxRIxOyb5PhfvX8OAfQyJGcQ5AyiGkFQdgo8TEC0TQZYoMpLnnrLBIEJVqdvbarru5aOmgMZUlqRSunCkq4WVz9ft1mg6RSdT4FOA6XEtDzdarh5UakgjDW9n-xp1UfwDpQInpZ3L0cFa2MiZdA
 
 ### ============================================
-### 會員登入（Email/Password 直接取得含會員角色的 ID Token）
-### ============================================
-POST {{baseUrl}}/api/auth/member/signInWithPassword
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com",
-  "password": "qwer1234"
-}
-
-### ============================================
-### 會員忘記密碼 (僅產生忘記密碼連結, 有 log)
-### ============================================
-POST {{baseUrl}}/api/auth/forgot-password
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com"
-}
-
-### ============================================
-### 會員忘記密碼（新 API - 會發送郵件）
-###  - 有頻率限制（2 分鐘內）
-### ============================================
-POST {{baseUrl}}/api/auth/forgot-password-new
-Content-Type: {{contentType}}
-
-{
-  "email": "apple@example.com"
-}
-
-### ============================================
 ### 會員個人資料 - 取得自己的資料
 ### ============================================
 GET {{baseUrl}}/api/member

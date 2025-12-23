@@ -37,9 +37,9 @@ router.post(
 );
 
 // 會員忘記密碼（使用 Firebase REST API 發送郵件）
-// POST /api/auth/forgot-password-new
+// POST /api/auth/forgot-password
 router.post(
-  "/forgot-password-new",
+  "/forgot-password",
   [memberValidator.bodyEmail(), validate],
   authController.forgotPasswordWithEmail
 );

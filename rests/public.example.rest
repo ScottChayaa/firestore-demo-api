@@ -22,6 +22,28 @@ Content-Type: {{contentType}}
 }
 
 ### ============================================
+### 會員登入（Email/Password 直接取得含會員角色的 ID Token）
+### ============================================
+POST {{baseUrl}}/api/auth/member/signInWithPassword
+Content-Type: {{contentType}}
+
+{
+  "email": "apple@example.com",
+  "password": "qwer1234"
+}
+
+### ============================================
+### 會員忘記密碼（新 API - 會發送郵件）
+###  - 有頻率限制（2 分鐘內）
+### ============================================
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "apple@example.com"
+}
+
+### ============================================
 ### 商品列表（支援分頁和篩選）
 ### ============================================
 GET {{baseUrl}}/api/products?limit=3
