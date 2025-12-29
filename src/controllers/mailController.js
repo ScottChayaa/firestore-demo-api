@@ -28,7 +28,7 @@ class MailController {
       subject: subject,
     }, "郵件發送請求成功");
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "郵件發送成功",
       data: {

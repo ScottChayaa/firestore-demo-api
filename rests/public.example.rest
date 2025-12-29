@@ -82,3 +82,15 @@ Content-Type: {{contentType}}
 ### ============================================
 GET {{baseUrl}}/api/products/pzjNPjsFrmsagdO750lG
 Content-Type: {{contentType}}
+
+### ============================================
+### 寄信
+### ============================================
+POST {{baseUrl}}/send-email
+Content-Type: {{contentType}}
+
+{
+  "to": "apple@example.com",
+  "subject": "😍TEST Email",
+  "html": "<b>Hello world</b>"
+}
