@@ -1,0 +1,27 @@
+# 強制所有文字檔案使用 LF 行尾符號（Unix/Linux 格式）
+# 避免 Windows 的 CRLF 格式導致跨平台問題
+
+# Source code
+*.js text eol=lf
+*.json text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Documentation
+*.md text eol=lf
+
+# Configuration files
+*.yaml text eol=lf
+*.yml text eol=lf
+.gitignore text eol=lf
+.env.example text eol=lf
+
+# REST API test files
+*.rest text eol=lf
+
+# HTML files
+*.html text eol=lf
+
+# Ensure all text files without extensions use LF
+Dockerfile text eol=lf
