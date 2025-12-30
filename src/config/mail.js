@@ -16,14 +16,23 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
+// 解析 SMTP 加密方式
+const smtpEncryption = (process.env.SMTP_ENCRYPTION || "tls").toLowerCase();
+const smtpPort = parseInt(process.env.SMTP_PORT) || (smtpEncryption === "ssl" ? 465 : 587);
+
 // 建立 SMTP 傳輸器
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+  port: smtpPort,
+  secure: smtpEncryption === "ssl", // true for SSL (port 465)
+  requireTLS: smtpEncryption === "tls" || smtpEncryption === "starttls", // true for STARTTLS (port 587)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
+  },
+  tls: {
+    // TLS 憑證驗證（開發環境可設為 false，生產環境建議 true）
+    rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== "false",
   },
 });
 
