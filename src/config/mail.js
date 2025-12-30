@@ -31,7 +31,12 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASSWORD,
   },
   tls: {
-    // TLS 憑證驗證（開發環境可設為 false，生產環境建議 true）
+    // TLS 憑證驗證（開發環境可設為 false，生產環境建議 true，若沒設定則預設為 true）
+    //   正常情況：Gmail 的 SSL 憑證一定有效，設為 true 沒問題
+    //   可能需要設為 false 的情況：
+    //     1. 自簽憑證（Self-signed certificate） - 公司內部測試用 SMTP 伺服器
+    //     2. 憑證過期 - 測試環境的 SMTP 伺服器憑證過期
+    //     3. 開發環境 - 本地測試不想處理憑證問題
     rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== "false",
   },
   // 超時設定（避免 DNS 或網路問題導致卡住）
