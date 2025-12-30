@@ -34,6 +34,10 @@ const transporter = nodemailer.createTransport({
     // TLS 憑證驗證（開發環境可設為 false，生產環境建議 true）
     rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== "false",
   },
+  // 超時設定（避免 DNS 或網路問題導致卡住）
+  connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT) || 15000, // 連線超時（預設 15 秒）
+  greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT) || 10000,     // 問候超時（預設 10 秒）
+  socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT) || 30000,         // Socket 超時（預設 30 秒）
 });
 
 module.exports = transporter;
