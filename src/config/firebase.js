@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
 require('dotenv').config();
-const logger = require('@/config/logger');
+const logger = require('./logger');
 
 /**
  * 初始化 Firebase Admin SDK
@@ -118,15 +118,15 @@ async function warmupFirestore() {
   const startTime = Date.now();
 
   try {
-    // 使用 limit(0).get() 建立 gRPC 連線（最快且零成本）
+    // 使用 listCollections() 建立 gRPC 連線（最輕量級方法）
     // 此操作會觸發 gRPC Channel Pool 初始化
-    // 成本：0 次讀取操作
+    // 成本：1 次讀取操作（無論資料庫有多少 collections）
     //
-    // 為什麼選擇 products collection：
-    // - 公開集合，不涉及敏感資料
-    // - 即使沒有資料也能建立連線
-    // - limit(0) 不返回任何資料，純粹建立連線
-    await db.collection('products').limit(1).get();
+    // 替代方案比較：
+    // - listCollections(): 1 read, 可靠建立連線
+    // - limit(0).get(): 0 reads, 但可能不建立完整連線
+    // - limit(1).get(): 1 read + 返回資料, 驗證連線但略重
+    await db.listCollections();
 
     const duration = Date.now() - startTime;
 
